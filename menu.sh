@@ -53,9 +53,9 @@ apt update -y >/dev/null 2>&1
 apt install python3-pip flask -y >/dev/null 2>&1
 pip3 install flask >/dev/null 2>&1
 echo -e "${C_YELLOW}[+] Descargando archivos de CheckUser...${C_RST}"
-wget -qO /etc/vps-manager/check.py https://raw.githubusercontent.com/PhoenixxZ2023/SSHPLUS-fixed/master/Modulos/check.py
-wget -qO /etc/vps-manager/4gcheck.py https://raw.githubusercontent.com/PhoenixxZ2023/SSHPLUS-fixed/master/Modulos/4gcheck.py
-wget -qO /bin/check https://raw.githubusercontent.com/PhoenixxZ2023/SSHPLUS-fixed/master/Modulos/check
+wget -qO /etc/vps-manager/check.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/check.py
+wget -qO /etc/vps-manager/4gcheck.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/4gcheck.py
+wget -qO /bin/check https://raw.githubusercontent.com/PhoenixxZ2023/SSHPLUS-fixed/VPS-MANAGER/main/core/check
 chmod +x /bin/check /etc/vps-manager/check.py /etc/vps-manager/4gcheck.py
 echo -e "${C_GREEN}[✔] Archivos instalados correctamente.${C_RST}"
 sleep 2
