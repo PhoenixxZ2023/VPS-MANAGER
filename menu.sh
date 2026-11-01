@@ -589,7 +589,7 @@ menu_bhttp() {
                 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
                 
                 echo -e "${C_YELLOW}[+] Descargando e instalando motor BHTTP v2.0...${C_RST}"
-                wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/master/core/bhttpv2.sh
+                wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
                 chmod +x /tmp/bhttpv2.sh
                 
                 bash /tmp/bhttpv2.sh install
@@ -1025,7 +1025,7 @@ menu_hcr() {
 
 # Carpeta de HCR v2 (install.sh + hcr-server). Debe ser de root y sin espacios.
 HCR2_DIR="/etc/vps-manager/hcr-v2"
-HCR2_URL="https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/hcr-server-v2"
+HCR2_URL="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/hcr-server-v2"
 
 hcr2_instalar() {
     local DIR="$HCR2_DIR" BASE="$HCR2_URL"
