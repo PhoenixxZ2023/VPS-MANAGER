@@ -590,7 +590,7 @@ bhttp2_instalar() {
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     
     echo -e "${C_YELLOW}[+] Descargando e instalando motor BHTTP v2.0...${C_RST}"
-    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/master/core/bhttpv2.sh
+    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
     chmod +x /tmp/bhttpv2.sh
     
     bash /tmp/bhttpv2.sh install
@@ -685,11 +685,11 @@ bhttp2_cambiar_puerto() {
     local old_port new_port
     old_port=$(bhttp2_puerto)
     echo -e "  Puerto actual: ${C_NEON_YELLOW}${old_port:-N/D}${C_RST}"
-    echo -ne "${C_NEON_YELLOW}Nuevo puerto (1024-65535, 0 para cancelar): ${C_RST}"
+    echo -ne "${C_NEON_YELLOW}Nuevo puerto (1-65535, 0 para cancelar): ${C_RST}"
     read new_port
 
     [ "$new_port" = "0" ] && return
-    if [[ ! "$new_port" =~ ^[0-9]+$ ]] || [ "$new_port" -lt 1024 ] || [ "$new_port" -gt 65535 ]; then
+    if [[ ! "$new_port" =~ ^[0-9]+$ ]] || [ "$new_port" -lt 1 ] || [ "$new_port" -gt 65535 ]; then
         echo -e "${C_RED}[!] Puerto no válido.${C_RST}"; read -p "Presione Enter para continuar..."; return
     fi
     if [ "$new_port" = "$old_port" ]; then
@@ -836,7 +836,7 @@ menu_bhttp() {
             1)
                 clear
                 echo -e "${C_YELLOW}[+] Descargando e instalando BHTTP Proxy (Normal)...${C_RST}"
-                wget -qO /tmp/bhttp.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/bhttp.sh
+                wget -qO /tmp/bhttp.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttp.sh
                 chmod +x /tmp/bhttp.sh
                 bash /tmp/bhttp.sh
                 read -p "Presione Enter para continuar..."
@@ -1195,7 +1195,7 @@ menu_hcr() {
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
         read -p "Seleccione una opción: " hcr_opt
         case $hcr_opt in
-            1) clear; wget -qO /tmp/hcr.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/hcr.sh && chmod +x /tmp/hcr.sh && bash /tmp/hcr.sh ;;
+            1) clear; wget -qO /tmp/hcr.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/hcr.sh && chmod +x /tmp/hcr.sh && bash /tmp/hcr.sh ;;
             2) menu_hcr_v2 ;;
             0) break ;;
             *) echo -e "${C_RED}[!] Opción inválida.${C_RST}"; sleep 1 ;;
@@ -1205,7 +1205,7 @@ menu_hcr() {
 
 # Carpeta de HCR v2 (install.sh + hcr-server). Debe ser de root y sin espacios.
 HCR2_DIR="/etc/vps-manager/hcr-v2"
-HCR2_BASE="https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core"
+HCR2_BASE="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core"
 HCR2_INSTALLER_URL="$HCR2_BASE/hcrv2"
 HCR2_BIN_URL="$HCR2_BASE/hcr-server-v2"
 
