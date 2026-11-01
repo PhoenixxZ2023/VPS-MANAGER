@@ -1,142 +1,15 @@
 #!/bin/bash
 # ==========================================
-# VPS MANAGER  - Panel V2.1
+# VPS MANAGER  - Panel V2.1 (Sin Licencia)
 # ==========================================
 C_RST='\033[0m'; C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;36m'
 C_NEON_BLUE='\033[38;5;39m'; C_NEON_GREEN='\033[38;5;46m'; C_NEON_PURPLE='\033[38;5;141m'; C_NEON_YELLOW='\033[38;5;226m'
 mkdir -p /etc/vps-manager
 [ ! -f /etc/vps-manager/lang ] && echo "es" > /etc/vps-manager/lang
 if [ -f /etc/os-release ]; then . /etc/os-release; UBUNTU_VERSION=$VERSION_ID; else UBUNTU_VERSION="24.04"; fi
-# ══════════════════════════════════════════
-# 🛡️ VERIFICACIÓN DE LICENCIA PERMANENTE
-# Una vez instalada, la licencia es VINCULANTE
-# al HWID + IP del equipo. No expira.
-# ══════════════════════════════════════════
-verificar_licencia_activa() {
-local config_dir="/etc/vps-manager"
-local api_url="http://129.159.164.232/api/validar.php"
-
-# Archivos obligatorios (prueba de instalación previa)
-if [ ! -f "$config_dir/.license" ] || \
-   [ ! -f "$config_dir/.api_secret" ] || \
-   [ ! -f "$config_dir/.hwid" ] || \
-   [ ! -f "$config_dir/.ip_vps" ]; then
-    clear
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_RED}           [!] ACCESO DENEGADO                  ${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_YELLOW}  No se encontró una licencia válida.${C_RST}"
-    echo -e "${C_YELLOW}  Debes ejecutar el instalador oficial.${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    exit 1
-fi
-
-local key=$(cat "$config_dir/.license")
-local hwid_guardado=$(cat "$config_dir/.hwid")
-local ip_guardada=$(cat "$config_dir/.ip_vps")
-local api_secret=$(cat "$config_dir/.api_secret")
-
-# ══════════════════════════════════════════
-# 1) Verificación LOCAL de HWID (sin API)
-# ══════════════════════════════════════════
-local machine=$(cat /etc/machine-id 2>/dev/null || echo "unknown")
-local mac=$(ip link show 2>/dev/null | grep "link/ether" | head -1 | awk '{print $2}' || echo "unknown")
-local hwid_actual=$(echo -n "${machine}${mac}" | sha256sum | awk '{print $1}')
-
-if [ "$hwid_actual" != "$hwid_guardado" ]; then
-    clear
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_RED}        [!] VPS NO AUTORIZADO                   ${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_YELLOW}  Esta licencia pertenece a OTRO servidor.${C_RST}"
-    echo -e "${C_YELLOW}  El HWID del equipo no coincide.${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    exit 1
-fi
-
-# ══════════════════════════════════════════
-# 2) Verificación LOCAL de IP (sin API)
-# ══════════════════════════════════════════
-local ip_actual=$(curl -s --max-time 5 https://api.ipify.org 2>/dev/null)
-if [ -z "$ip_actual" ]; then
-    # Si no hay internet, permitimos acceso (licencia local permanente)
-    # pero marcamos que no se pudo validar online
-    ip_actual="OFFLINE"
-fi
-
-if [ "$ip_actual" != "OFFLINE" ] && [ "$ip_actual" != "$ip_guardada" ]; then
-    clear
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_RED}          [!] LICENCIA INVÁLIDA                 ${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_YELLOW}  La IP actual no coincide con la licencia.${C_RST}"
-    echo -e "${C_YELLOW}  IP actual:     $ip_actual${C_RST}"
-    echo -e "${C_YELLOW}  IP registrada: $ip_guardada${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    exit 1
-fi
-
-# ══════════════════════════════════════════
-# 3) Consulta opcional a la API (solo para
-#    detectar si el admin BANEÓ la key).
-#    NO se valida expiración (es permanente).
-# ══════════════════════════════════════════
-local timestamp=$(date +%s)
-local firma=$(echo -n "${key}${hwid_actual}${ip_actual}${timestamp}${api_secret}" | sha256sum | awk '{print $1}')
-
-local respuesta=$(curl -sL --max-time 8 \
-    "${api_url}?mode=check&key=${key}&hwid=${hwid_actual}&ip=${ip_actual}&t=${timestamp}&sig=${firma}" 2>/dev/null)
-
-case "$respuesta" in
-    "✅ VALIDA"*|"✅ ACTIVA"*)
-        # Licencia válida y permanente
-        return 0
-        ;;
-    "❌ BANEADA")
-        clear
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_RED}           [!] LICENCIA BLOQUEADA               ${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_YELLOW}  Esta licencia fue bloqueada por el admin.${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        exit 1
-        ;;
-    "❌ EXPIRADA"|"❌ YA_USADA")
-        # ⭐ IGNORAMOS: la licencia es PERMANENTE una vez instalada
-        # Estos estados solo aplican al momento de la instalación, no al uso
-        return 0
-        ;;
-    "❌ IP_MISMATCH"|"❌ HWID_MISMATCH")
-        # Doble verificación: si localmente coincide, confiamos en lo local
-        # (por si la API tiene datos desactualizados)
-        if [ "$hwid_actual" = "$hwid_guardado" ] && [ "$ip_actual" = "$ip_guardada" -o "$ip_actual" = "OFFLINE" ]; then
-            return 0
-        fi
-        clear
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_RED}          [!] LICENCIA INVÁLIDA                 ${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_YELLOW}  El servidor rechazó esta licencia.${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        exit 1
-        ;;
-    "")
-        # Sin respuesta del servidor (sin internet o API caída)
-        # Permitimos acceso porque la licencia es LOCAL y PERMANENTE
-        return 0
-        ;;
-    *)
-        # Respuesta desconocida: confiamos en la validación local
-        return 0
-        ;;
-esac
-}
-
-# 🚀 EJECUTAR VERIFICACIÓN ANTES DE CUALQUIER COSA
-verificar_licencia_activa
 
 # ==========================================
-# FIN DE VERIFICACIÓN - INICIO DEL MENÚ NORMAL
+# INICIO DEL MENÚ NORMAL
 # ==========================================
 
 generar_banner_usuario() {
@@ -308,7 +181,7 @@ read -p "Presione Enter para continuar..."
 else
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         ACTIVAR CHECKUSER (CONECTA4G)        ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         ACTIVAR CHECKUSER (CONECTA4G)         ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 echo -ne "${C_YELLOW}Ingrese el puerto para CheckUser 4G (1024-65535): ${C_RST}"
 read porta
@@ -416,7 +289,7 @@ H_OPT0="🔙 Volver al Menú Principal"
 H_SEL="Seleccione una opción: "
 fi
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         ${H_TITLE}            ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         ${H_TITLE}             ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} ${H_OPT1}"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} ${H_OPT2}"
@@ -456,7 +329,7 @@ done
 menu_idioma() {
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}       🌐 SELECCIONA TU IDIOMA / LANGUAGE     ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}        🌐 SELECCIONA TU IDIOMA / LANGUAGE     ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🇬🇹 Español (Spanish)"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🇺🇸 English (Inglés)"
@@ -554,18 +427,18 @@ fi
 clear; echo -e "${C_NEON_BLUE}================================================${C_RST}
 ${C_GREEN}        ✅ CUENTA CREADA EXITOSAMENTE ✅        ${C_RST}
 ${C_NEON_BLUE}================================================${C_RST}"
-echo -e " 👤 Usuario       : ${C_YELLOW}$user${C_RST}"
-echo -e " 🔑 Clave         : ${C_YELLOW}$pass${C_RST}"
-echo -e " 📅 Vence         : ${C_YELLOW}$EXP_DATE ($dias días)${C_RST}"
+echo -e " 👤 Usuario        : ${C_YELLOW}$user${C_RST}"
+echo -e " 🔑 Clave          : ${C_YELLOW}$pass${C_RST}"
+echo -e " 📅 Vence          : ${C_YELLOW}$EXP_DATE ($dias días)${C_RST}"
 echo -e " 🔒 Límite IPs    : ${C_YELLOW}$limite${C_RST}"
 echo -e " 🛡️ Protecc. HWID : ${C_YELLOW}$HWID_MSG${C_RST}"
 echo -e "${C_NEON_BLUE}------------------------------------------------${C_RST}"
-echo -e " 🌐 Host/IP       : ${C_YELLOW}$DOM${C_RST}"
-echo -e " 🌍 NS Domain     : ${C_YELLOW}$NS_DOM${C_RST}"
+echo -e " 🌐 Host/IP        : ${C_YELLOW}$DOM${C_RST}"
+echo -e " 🌍 NS Domain      : ${C_YELLOW}$NS_DOM${C_RST}"
 echo -e " 🗝️ Pub Key (DNS) : ${C_YELLOW}$PUB_KEY${C_RST}"
-echo -e " 🔗 OpenVPN       : ${C_YELLOW}$OPENVPN_LINK${C_RST}"
+echo -e " 🔗 OpenVPN        : ${C_YELLOW}$OPENVPN_LINK${C_RST}"
 echo -e " ⚡ Zivpn Pass    : ${C_YELLOW}$ZIVPN_PASS${C_RST}"
-echo -e " 🎯 Puertos       : ${C_YELLOW}SSH(22) Xray/TLS(443)${C_RST}"
+echo -e " 🎯 Puertos        : ${C_YELLOW}SSH(22) Xray/TLS(443)${C_RST}"
 echo -e "                     ${C_YELLOW}SSL Stunnel($PORT_SSL)${C_RST}"
 echo -e "                     ${C_YELLOW}BHTTP($PORT_BHTTP) HCR($PORT_HCR)${C_RST}"
 echo -e "                     ${C_YELLOW}UDP Custom(25000)${C_RST}"
@@ -574,11 +447,8 @@ echo -e "${C_NEON_BLUE}================================================${C_RST}"
 2) read -p "Usuario a eliminar: " user; userdel -f $user 2>/dev/null; rm -f /etc/vps-manager/banner_${user}.net /etc/vps-manager/limite_${user} /etc/vps-manager/hwid_${user}; sed -i "/Match User $user/,+1d" /etc/ssh/sshd_config; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] Eliminado.${C_RST}"; sleep 2 ;;
 3) read -p "Usuario a renovar: " user; read -p "Nuevos días: " dias; EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d"); chage -E $EXP_DATE $user; limite=$(cat /etc/vps-manager/limite_${user} 2>/dev/null || echo "1"); generar_banner_usuario "$user" "$EXP_DATE" "$dias" "$limite"; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] Renovado.${C_RST}"; sleep 2 ;;
 4) clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
- ${C_GREEN}       📋 LISTA DE USUARIOS Y VENCIMIENTO     ${C_NEON_BLUE} 
-╚══════════════════════════════════════════════╝${C_RST}"; printf "${C_YELLOW}%-15s %-15s %-15s${C_RST}
-" "USUARIO" "EXPIRA" "DÍAS RESTANTES"; echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"; for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do exp_date=$(chage -l $user | grep "Account expires" | awk -F": " '{print $2}'); if [[ "$exp_date" != "never" && -n "$exp_date" ]]; then exp_fmt=$(date -d "$exp_date" "+%Y-%m-%d" 2>/dev/null); sec_exp=$(date -d "$exp_date" +%s 2>/dev/null); sec_now=$(date +%s); dias=$(( (sec_exp - sec_now) / 86400 )); [ $dias -lt 0 ] && dias=0; printf "%-15s %-15s %-15s
-" "$user" "$exp_fmt" "$dias Días"; else printf "%-15s %-15s %-15s
-" "$user" "Ilimitado" "∞"; fi; done; read -p "Enter..." ;;
+ ${C_GREEN}        📋 LISTA DE USUARIOS Y VENCIMIENTO     ${C_NEON_BLUE} 
+╚══════════════════════════════════════════════╝${C_RST}"; printf "${C_YELLOW}%-15s %-15s %-15s${C_RST}\n" "USUARIO" "EXPIRA" "DÍAS RESTANTES"; echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"; for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do exp_date=$(chage -l $user | grep "Account expires" | awk -F": " '{print $2}'); if [[ "$exp_date" != "never" && -n "$exp_date" ]]; then exp_fmt=$(date -d "$exp_date" "+%Y-%m-%d" 2>/dev/null); sec_exp=$(date -d "$exp_date" +%s 2>/dev/null); sec_now=$(date +%s); dias=$(( (sec_exp - sec_now) / 86400 )); [ $dias -lt 0 ] && dias=0; printf "%-15s %-15s %-15s\n" "$user" "$exp_fmt" "$dias Días"; else printf "%-15s %-15s %-15s\n" "$user" "Ilimitado" "∞"; fi; done; read -p "Enter..." ;;
 5) clear; echo -e "${C_YELLOW}      VERIFICAR CONEXIONES EN VIVO      ${C_RST}"; ps -ef | grep -E "sshd|dropbear" | grep -v root | grep -v grep | awk '{print $1}' | sort | uniq -c | awk '{print " 👤 "$2" -> "$1" conexión(es)"}'; read -p "Enter..." ;;
 6) read -p "Usuario: " user; read -p "Nuevo Límite de IPs: " n_limite; echo "$n_limite" > "/etc/vps-manager/limite_${user}"; echo -e "${C_GREEN}[✔] Actualizado.${C_RST}"; sleep 2 ;;
 7) read -p "Usuario a Bloquear: " user; usermod -L $user; pkill -u $user; echo -e "${C_RED}[✔] BLOQUEADO.${C_RST}"; sleep 2 ;;
@@ -896,7 +766,7 @@ EOF
 fail2ban_ver() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ ESTADO E IPs BLOQUEADAS           ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ ESTADO E IPs BLOQUEADAS            ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if ! systemctl is-active --quiet fail2ban 2>/dev/null; then
         echo -e "${C_YELLOW}[!] Fail2ban no está activo.${C_RST}"
@@ -1134,7 +1004,7 @@ menu_hcr() {
         local hcr2_ind=" 🔴 "
         systemctl is-active --quiet hcr-server.service 2>/dev/null && hcr2_ind=" 🟢 "
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🚀 INSTALAR HCR NATIVO               ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🚀 INSTALAR HCR NATIVO                ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 Instalar HCR (v1.0)"
         echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 Instalar HCR (v2.0) ${C_GREEN}${hcr2_ind}${C_RST}"
@@ -1366,7 +1236,7 @@ case $ws_opt in
     else
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         INICIANDO WEBSOCKET PROXY            ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         INICIANDO WEBSOCKET PROXY             ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
         
         echo -ne "${C_YELLOW}¿Qué puerto quieres usar? (1-65535): ${C_RST}"
@@ -1532,7 +1402,7 @@ local limiter_color="$C_RED"
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🐻 GESTIÓN DE DROPBEAR SSH           ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🐻 GESTIÓN DE DROPBEAR SSH            ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 
 if [ "$is_running" -gt 0 ]; then
@@ -1943,10 +1813,8 @@ local drp=$(pgrep -f "dropbear" 2>/dev/null | wc -l)
 drp_count=$(( drp > 0 ? drp - 1 : 0 ))
 fi
 local online=$(( ssh_count + vpn_count + drp_count ))
-printf '{"onlines":"%s","limite":"2500"}
-' "$online" > "$OUT_DIR/online_app"
-printf '%s
-' "$online" > "$OUT_DIR/online"
+printf '{"onlines":"%s","limite":"2500"}\n' "$online" > "$OUT_DIR/online_app"
+printf '%s\n' "$online" > "$OUT_DIR/online"
 }
 while true; do
 fun_online
@@ -2006,7 +1874,7 @@ esac
 menu_puertos() {
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🔍 ESTADO DE PUERTOS Y SERVICIOS     ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🔍 ESTADO DE PUERTOS Y SERVICIOS      ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
 PORT_BHTTP=$(cat /etc/vps-manager/bhttp_port 2>/dev/null || echo "8080")
@@ -2070,8 +1938,7 @@ menu_dominio() { clear; echo -e "${C_YELLOW}[+] Iniciando Gestor SSL...${C_RST}"
 menu_update() { clear; echo -e "${C_YELLOW}[+] Actualizando Panel...${C_RST}"; wget -qO /tmp/update.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/update.sh && chmod +x /tmp/update.sh && bash /tmp/update.sh; }
 menu_firewall() { clear; echo -e "${C_YELLOW}[+] Iniciando Firewall...${C_RST}"; wget -qO /tmp/firewall.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/firewall.sh && chmod +x /tmp/firewall.sh && bash /tmp/firewall.sh; }
 menu_swap() { clear; echo -e "${C_YELLOW}[+] Descargando Gestor de Memoria Virtual...${C_RST}"; if wget -qO /tmp/swapmemory.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/swapmemory.sh && [ -s /tmp/swapmemory.sh ]; then bash /tmp/swapmemory.sh; else echo -e "${C_RED}[!] No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub.${C_RST}"; sleep 3; fi; rm -f /tmp/swapmemory.sh; }
-menu_autostart() { clear; grep -q "menu" /root/.bashrc && echo -e "${C_GREEN}[✔] Ya activo.${C_RST}" || (echo -e "
-menu" >> /root/.bashrc; echo -e "${C_GREEN}[✔] Activado.${C_RST}"); read -p "Enter..." ;}
+menu_autostart() { clear; grep -q "menu" /root/.bashrc && echo -e "${C_GREEN}[✔] Ya activo.${C_RST}" || (echo -e "\nmenu" >> /root/.bashrc; echo -e "${C_GREEN}[✔] Activado.${C_RST}"); read -p "Enter..." ;}
 menu_banner() { clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
  ${C_NEON_GREEN}         GESTOR DE BANNER BASE HTML           ${C_NEON_BLUE} 
 ╚══════════════════════════════════════════════╝${C_RST}
@@ -2116,8 +1983,7 @@ C_T='\033[38;5;111m'
 C_V='\033[38;5;114m'
 C_L='\033[38;5;239m'
 print_line() {
-printf "${C_T}%-22s${C_RST} : ${C_V}%s${C_RST}
-" "$1" "$2"
+printf "${C_T}%-22s${C_RST} : ${C_V}%s${C_RST}\n" "$1" "$2"
 }
 print_line "Developer" "$DEV"
 print_line "Version" "$VER"
@@ -2285,7 +2151,6 @@ case $opcion in
 8) menu_herramientas ;;
 88) uninstall_script ;;
 0) clear; exit 0 ;;
-*) echo -e "
-${C_RED}[!] ${M_ERR}${C_RST}"; sleep 1 ;;
+*) echo -e "\n${C_RED}[!] ${M_ERR}${C_RST}"; sleep 1 ;;
 esac
 done
