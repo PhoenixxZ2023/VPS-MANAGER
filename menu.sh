@@ -526,7 +526,7 @@ Description=BadVPN UDPGW Port $port
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/badvpn-udpgw --listen-addr 127.0.0.1:$port --max-clients 500 --max-connections-for-client 20
+ExecStart=/usr/local/bin/badvpn-udpgw --listen-addr 127.0.0.1:$port --max-clients 1000 --max-connections-for-client 20
 Restart=always
 RestartSec=3
 
@@ -598,9 +598,9 @@ menu_bhttp() {
                 local current_port=$(grep -E "^BHTTP_PORT=" /etc/superflash-bhttp.conf 2>/dev/null | cut -d'=' -f2 | tr -d '"')
                 
                 if [ -z "$current_port" ]; then
-                    echo -ne "${C_NEON_YELLOW}Ingrese el puerto para BHTTP v2.0 (1024-65535): ${C_RST}"
+                    echo -ne "${C_NEON_YELLOW}Ingrese el puerto para BHTTP v2.0 (0-65535): ${C_RST}"
                     read bhttp_port
-                    if [[ ! "$bhttp_port" =~ ^[0-9]+$ ]] || [ "$bhttp_port" -lt 1024 ] || [ "$bhttp_port" -gt 65535 ]; then
+                    if [[ ! "$bhttp_port" =~ ^[0-9]+$ ]] || [ "$bhttp_port" -lt 0 ] || [ "$bhttp_port" -gt 65535 ]; then
                         echo -e "${C_RED}[!] Puerto no válido. Se cancela la configuración de puerto.${C_RST}"
                     else
                         mkdir -p /etc/superflash-bhttp
