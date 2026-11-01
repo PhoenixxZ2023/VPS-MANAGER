@@ -599,9 +599,9 @@ bhttp2_instalar() {
     local current_port=$(grep -E "^BHTTP_PORT=" /etc/superflash-bhttp.conf 2>/dev/null | cut -d'=' -f2 | tr -d '"')
     
     if [ -z "$current_port" ]; then
-        echo -ne "${C_NEON_YELLOW}Ingrese el puerto para BHTTP v2.0 (1024-65535): ${C_RST}"
+        echo -ne "${C_NEON_YELLOW}Ingrese el puerto para BHTTP v2.0 (1-65535): ${C_RST}"
         read bhttp_port
-        if [[ ! "$bhttp_port" =~ ^[0-9]+$ ]] || [ "$bhttp_port" -lt 1024 ] || [ "$bhttp_port" -gt 65535 ]; then
+        if [[ ! "$bhttp_port" =~ ^[0-9]+$ ]] || [ "$bhttp_port" -lt 1 ] || [ "$bhttp_port" -gt 65535 ]; then
             echo -e "${C_RED}[!] Puerto no válido. Se cancela la configuración de puerto.${C_RST}"
         else
             mkdir -p /etc/superflash-bhttp
@@ -625,7 +625,7 @@ EXTRA_PORTS=
 EXTRA_UFW_PORTS=
 EXTRA_FIREWALLD_PORTS=
 EOF
-            chmod 600 /etc/superflash-bhttp.conf /etc/superflash-bhttp/config
+            chmod 775 /etc/superflash-bhttp.conf /etc/superflash-bhttp/config
             
             cat > /etc/systemd/system/superflash-bhttp.service << EOF
 [Unit]
