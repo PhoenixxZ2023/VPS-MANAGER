@@ -5,7 +5,7 @@
 set -o pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-REPO_BASE="https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main"
+REPO_BASE="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main"
 
 clear
 echo -e "\033[1;36m================================================\033[0m"
