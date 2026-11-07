@@ -28,8 +28,8 @@ app.config["MAX_CONTENT_LENGTH"] = 16 * 1024  # los formularios son pequeños
 #  como variables de entorno en vez de dejarlos en el código)
 # ──────────────────────────────────────────────────────────────
 # Valores iniciales solo si aún no hay archivo de auth hasheado
-_DEFAULT_USER = os.environ.get("PANEL_USER", "CHADGT")
-_DEFAULT_PASS = os.environ.get("PANEL_PASS", "123456")
+_DEFAULT_USER = os.environ.get("PANEL_USER", "")
+_DEFAULT_PASS = os.environ.get("PANEL_PASS", "")
 HOST = os.environ.get("PANEL_HOST", "0.0.0.0")   # usa 127.0.0.1 si pones Nginx delante
 PORT = int(os.environ.get("PANEL_PORT", "8181"))
 
