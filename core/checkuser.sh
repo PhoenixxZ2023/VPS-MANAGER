@@ -4,7 +4,11 @@
 # ==========================================
 C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;36m'; C_NC='\033[0m'
 CHK_DIR="/etc/vps-manager/checkuser"
-CHK_PORT=5432
+CHK_SVC="checkuser-multi"
+CHK_PORT_FILE="/etc/vps-manager/checkuser_multi_port"
+# Conserva el puerto configurado si ya existía una instalación previa
+CHK_PORT=$(cat "$CHK_PORT_FILE" 2>/dev/null)
+[[ "$CHK_PORT" =~ ^[0-9]+$ ]] || CHK_PORT=5432
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
@@ -14,6 +18,14 @@ echo -e "${C_CYAN}================================================${C_NC}"
 apt update -y >/dev/null 2>&1
 apt install python3 jq iptables ufw -y >/dev/null 2>&1
 mkdir -p $CHK_DIR
+
+# Migración: versiones anteriores de Multi-App usaban "checkuser.service" (choca con CheckUser Avanzado)
+if [ -f /etc/systemd/system/checkuser.service ] && grep -q "Multi-App" /etc/systemd/system/checkuser.service 2>/dev/null; then
+    echo -e "${C_YELLOW}[+] Migrando servicio antiguo checkuser -> $CHK_SVC...${C_NC}"
+    systemctl stop checkuser 2>/dev/null
+    systemctl disable checkuser 2>/dev/null
+    rm -f /etc/systemd/system/checkuser.service
+fi
 
 echo -e "${C_YELLOW}[+] Creando API de CheckUser en Python...${C_NC}"
 cat << 'EOF' > $CHK_DIR/check.py
@@ -88,6 +100,9 @@ def run(port=5432):
 if __name__ == '__main__':
     run()
 EOF
+# Aplicar el puerto elegido (por defecto 5432)
+sed -i -E "s/def run\(port=[0-9]+\)/def run(port=${CHK_PORT})/" $CHK_DIR/check.py
+echo "$CHK_PORT" > "$CHK_PORT_FILE"
 
 # Reglas de Firewall para el puerto 5432
 iptables -D INPUT -p tcp --dport $CHK_PORT -j ACCEPT 2>/dev/null
@@ -96,7 +111,7 @@ iptables-save > /etc/iptables.up.rules 2>/dev/null
 ufw allow $CHK_PORT/tcp >/dev/null 2>&1
 
 echo -e "${C_YELLOW}[+] Activando servicio Systemd...${C_NC}"
-cat << EOF > /etc/systemd/system/checkuser.service
+cat << EOF > /etc/systemd/system/$CHK_SVC.service
 [Unit]
 Description=CheckUser Multi-App API
 After=network.target
@@ -113,8 +128,8 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable checkuser >/dev/null 2>&1
-systemctl restart checkuser
+systemctl enable $CHK_SVC >/dev/null 2>&1
+systemctl restart $CHK_SVC
 
 IP_VPS=$(curl -s ipv4.icanhazip.com)
 clear

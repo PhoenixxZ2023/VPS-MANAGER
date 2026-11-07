@@ -1,149 +1,94 @@
 #!/bin/bash
 # ==========================================
-# Gestor HCR Nativo (Manager PRO v1.5.2) - PYTHON NATIVO
+# Gestor HCR Plain - Instalación y Desinstalación
 # ==========================================
-C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;36m'; C_NC='\033[0m'
-HCR_DIR="/etc/vps-manager/hcr"
-mkdir -p "$HCR_DIR"
+C_ORANGE='\033[38;5;214m'; C_BLUE='\033[1;34m'; C_CYAN='\033[1;36m'; C_GREEN='\033[1;32m'; C_RED='\033[1;31m'; C_NC='\033[0m'
+DEFAULT_PORT=8880
 
-VCPU=$(nproc)
-RAM_MB=$(free -m | awk 'NR==2{print $2}')
-MEM_HIGH=$((RAM_MB * 60 / 100))
-MEM_MAX=$((RAM_MB * 80 / 100))
+clear
+echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+echo -e "               ${C_BLUE}GESTOR DE HCR PLAIN${C_NC}"
+echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+echo -e " ${C_CYAN}1.${C_NC} Instalar / Cambiar Puerto HCR"
+echo -e " ${C_RED}2.${C_NC} Desinstalar y Liberar Puerto"
+echo -e " ${C_CYAN}0.${C_NC} Volver al Menú Principal"
+echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+read -p " Selecciona una opción: " opcion
 
-check_status() {
-    if systemctl is-active --quiet hcr-server; then
-        ESTADO="${C_GREEN}ON${C_NC}"
-    else
-        ESTADO="${C_RED}OFF${C_NC}"
-    fi
-}
+case $opcion in
+    2)
+        echo -e "\n${C_ORANGE}Desinstalando HCR y liberando puerto...${C_NC}"
+        systemctl stop hcr > /dev/null 2>&1
+        systemctl disable hcr > /dev/null 2>&1
+        rm -f /etc/systemd/system/hcr.service
+        rm -rf /etc/vps-manager/hcr
+        systemctl daemon-reload
+        echo -e " ${C_GREEN}✅ HCR desinstalado correctamente.${C_NC}"
+        read -p " Presiona Enter para volver..."
+        exit 0
+        ;;
+    0)
+        exit 0
+        ;;
+    1)
+        echo -e "\n${C_CYAN}Iniciando instalación...${C_NC}"
+        ;;
+    *)
+        echo -e " ${C_RED}[!] Opción inválida.${C_NC}"
+        sleep 2
+        exit 1
+        ;;
+esac
 
-install_hcr_plain() {
-    clear
-    echo -e "${C_GREEN}Instalando HCR Plain en TCP 8880...${C_NC}"
-    
-    apt update -y >/dev/null 2>&1
-    apt install -y python3 iptables >/dev/null 2>&1
-    cd "$HCR_DIR"
-    
-    echo -e "${C_YELLOW}[+] Construyendo Motor HCR Local (Python)...${C_NC}"
-    
-    # Construcción 100% local, sin depender de descargas de GitHub
-    cat << 'EOF' > "$HCR_DIR/hcr_core.py"
-import socket, threading
+mkdir -p /etc/vps-manager/hcr
+systemctl stop hcr > /dev/null 2>&1
 
-PORT = 8880
-SSH_PORT = 22
+wget -qO /etc/vps-manager/hcr/hcr-server "https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/hcr-server"
+chmod +x /etc/vps-manager/hcr/hcr-server
 
-def handle(client):
-    try:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.connect(('127.0.0.1', SSH_PORT))
-        
-        first_data = client.recv(8192)
-        if not first_data:
-            client.close()
-            return
-            
-        if b"HTTP/" in first_data or b"GET " in first_data or b"CONNECT " in first_data:
-            client.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
-            if b"SSH-" in first_data:
-                server.sendall(first_data[first_data.find(b"SSH-"):])
-        else:
-            server.sendall(first_data)
-            
-        def forward(src, dst):
-            while True:
-                try:
-                    d = src.recv(8192)
-                    if not d: break
-                    dst.sendall(d)
-                except: break
+if grep -q "404: Not Found" /etc/vps-manager/hcr/hcr-server || [ ! -s /etc/vps-manager/hcr/hcr-server ]; then
+    echo -e "\n${C_RED}[!] ERROR CRÍTICO: El archivo 'hcr-server' no fue encontrado en GitHub.${C_NC}"
+    rm -f /etc/vps-manager/hcr/hcr-server
+    read -p " Presiona Enter para cancelar la instalación..."
+    exit 1
+fi
 
-        threading.Thread(target=forward, args=(client, server), daemon=True).start()
-        threading.Thread(target=forward, args=(server, client), daemon=True).start()
-    except:
-        client.close()
+while true; do
+    read -p "$(echo -e "${C_ORANGE}Puerto de escucha [Default $DEFAULT_PORT]: ${C_NC}")" INPUT_PORT
+    FINAL_PORT=${INPUT_PORT:-$DEFAULT_PORT}
+    if ! [[ "$FINAL_PORT" =~ ^[0-9]+$ ]]; then echo -e " ${C_RED}[!] Número inválido.${C_NC}"; continue; fi
+    if netstat -tuln | grep -qE ":$FINAL_PORT\b"; then echo -e " ${C_RED}[!] Puerto en uso.${C_NC}"; else break; fi
+done
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(('0.0.0.0', PORT))
-s.listen(1024)
-while True:
-    c, a = s.accept()
-    threading.Thread(target=handle, args=(c,), daemon=True).start()
-EOF
-    
-    chmod +x "$HCR_DIR/hcr_core.py"
-
-    iptables -I INPUT -p tcp --dport 8880 -j ACCEPT
-    iptables-save > /etc/iptables.up.rules 2>/dev/null
-
-    # Servicio apuntando directamente a Python3
-    cat << EOF > /etc/systemd/system/hcr-server.service
+cat << EOF > /etc/systemd/system/hcr.service
 [Unit]
-Description=HCR Native Server Plain (Python)
+Description=HCR Plain Server
 After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=$HCR_DIR
-ExecStart=/usr/bin/python3 $HCR_DIR/hcr_core.py
+User=root
+WorkingDirectory=/etc/vps-manager/hcr
+ExecStart=/etc/vps-manager/hcr/hcr-server --listen :$FINAL_PORT --target 127.0.0.1:22 --transport plain --max-download-frame 6144 --download-poll-timeout 8s
+LimitNOFILE=65535
 Restart=always
 RestartSec=3
-LimitNOFILE=65536
-MemoryHigh=${MEM_HIGH}M
-MemoryMax=${MEM_MAX}M
-TasksMax=2048
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-    systemctl daemon-reload
-    systemctl enable hcr-server >/dev/null 2>&1
-    systemctl restart hcr-server
-    
-    echo -e "${C_GREEN}[✔] ¡Motor HCR Plain Python (Puerto 8880) Instalado y Activo!${C_NC}"
-    read -p "Presione Enter para regresar..."
-}
+systemctl daemon-reload
+systemctl enable hcr >/dev/null 2>&1
+systemctl restart hcr
+sleep 2
 
-while true; do
-    check_status
-    clear
-    echo -e "${C_YELLOW}======================================================${C_NC}"
-    echo -e "${C_CYAN}    GESTOR HCR NATIVO (MANAGER PRO v1.5.2)            ${C_NC}"
-    echo -e "${C_YELLOW}======================================================${C_NC}"
-    echo -e ""
-    echo -e "Estado Principal: $ESTADO"
-    echo -e "Configuración: ${C_CYAN}TCP | Frame | Poll${C_NC}"
-    echo -e "Puertos HCR adicionales:"
-    echo -e " - Ninguno"
-    echo -e "${C_CYAN}AUTO-TUNE: BALANCED+ | CPU $VCPU vCPU | RAM $RAM_MB MB${C_NC}"
-    echo -e "${C_GREEN}Recursos: NOFILE 65536 | Tasks 2048 | MemMax ${MEM_MAX}M${C_NC}"
-    echo -e ""
-    echo -e "${C_RED}──────────────────────────────────────────────────────${C_NC}"
-    echo -e "${C_GREEN}[1] > Instalación rápida HCR Plain :8880 [16384 / 8s]${C_NC}"
-    echo -e "[2] > Estado completo HCR"
-    echo -e "${C_CYAN}[3] > Reiniciar HCR principal${C_NC}"
-    echo -e "[4] > Ver registros HCR"
-    echo -e "${C_RED}[5] > Desinstalar HCR completo${C_NC}"
-    echo -e "${C_RED}[0] > Volver${C_NC}"
-    echo -e "${C_RED}──────────────────────────────────────────────────────${C_NC}"
-    
-    read -p "Opción: " hcr_opt
-    case $hcr_opt in
-        1) install_hcr_plain ;;
-        2) systemctl status hcr-server --no-pager; read -p "Enter..." ;;
-        3) systemctl restart hcr-server; echo -e "${C_GREEN}Reiniciado.${C_NC}"; sleep 1 ;;
-        4) journalctl -u hcr-server -n 20 --no-pager; read -p "Enter..." ;;
-        5) 
-           systemctl stop hcr-server; systemctl disable hcr-server
-           rm -f /etc/systemd/system/hcr-server.service
-           systemctl daemon-reload
-           echo -e "${C_RED}HCR Desinstalado.${C_NC}"; sleep 1 ;;
-        0) break ;;
-        *) echo -e "${C_RED}[!] Opción inválida.${C_NC}"; sleep 1 ;;
-    esac
-done
+if systemctl is-active --quiet hcr; then
+    echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+    echo -e " ${C_GREEN}✅ HCR operando en el puerto $FINAL_PORT con éxito${C_NC}"
+    echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+else
+    echo -e "\n${C_RED}[!] Error: El servicio HCR colapsó.${C_NC}"
+    journalctl -u hcr -n 10 --no-pager
+fi
+read -p " Presiona Enter para volver..."

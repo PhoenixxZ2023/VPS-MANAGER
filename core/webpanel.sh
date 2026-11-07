@@ -1,9 +1,12 @@
 #!/bin/bash
 # ==========================================
 # Módulo: Panel Web Ultra PRO (Admin + Creador)
+# Instala panel viejo + prepara auth hasheada para panel.py
 # ==========================================
 C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;36m'; C_NC='\033[0m'
 WEB_DIR="/etc/vps-manager/webpanel"
+AUTH_FILE="/etc/vps-manager/panel_auth.json"
+ENV_FILE="/etc/vps-manager/panel.env"
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
@@ -11,10 +14,55 @@ echo -e "${C_GREEN}    INSTALADOR WEB PANEL PRO (DARK UI)          ${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
 
 read -p "Crea un Usuario Admin para el Web: " WEB_USER
-read -p "Crea una Contraseña Admin para el Web: " WEB_PASS
+read -s -p "Crea una Contraseña Admin para el Web: " WEB_PASS; echo
+read -s -p "Repite la Contraseña: " WEB_PASS2; echo
+
+if [ "$WEB_PASS" != "$WEB_PASS2" ]; then
+    echo -e "${C_RED}[✗] Las contraseñas no coinciden.${C_NC}"
+    exit 1
+fi
+if [ ${#WEB_PASS} -lt 8 ]; then
+    echo -e "${C_RED}[✗] La contraseña debe tener al menos 8 caracteres.${C_NC}"
+    exit 1
+fi
 
 apt update -y >/dev/null 2>&1
-apt install -y python3 python3-pip python3-venv uuid-runtime >/dev/null 2>&1
+apt install -y python3 python3-pip python3-venv uuid-runtime curl iptables >/dev/null 2>&1
+
+# ── Crear panel_auth.json con hash PBKDF2 (lo usará panel.py al actualizar) ──
+mkdir -p /etc/vps-manager
+WEB_USER="$WEB_USER" WEB_PASS="$WEB_PASS" AUTH_FILE="$AUTH_FILE" \
+python3 - <<'PY'
+import os, json, base64, hashlib, secrets
+u, p = os.environ["WEB_USER"], os.environ["WEB_PASS"]
+iters = 200_000
+salt = secrets.token_bytes(16)
+dk = hashlib.pbkdf2_hmac("sha256", p.encode(), salt, iters)
+payload = {
+    "user": u,
+    "hash": "pbkdf2_sha256$%d$%s$%s" % (
+        iters,
+        base64.b64encode(salt).decode(),
+        base64.b64encode(dk).decode(),
+    ),
+}
+path = os.environ["AUTH_FILE"]
+fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+with os.fdopen(fd, "w") as f:
+    json.dump(payload, f, indent=2)
+PY
+chmod 600 "$AUTH_FILE"
+
+# ── PANEL_SECRET persistente (para que las sesiones de panel.py sobrevivan reinicios) ──
+if [ ! -s "$ENV_FILE" ] || ! grep -q '^PANEL_SECRET=' "$ENV_FILE"; then
+    umask 077
+    {
+        echo "PANEL_SECRET=$(python3 -c 'import secrets;print(secrets.token_hex(32))')"
+        echo "PANEL_PORT=8181"
+        echo "PANEL_HOST=0.0.0.0"
+    } > "$ENV_FILE"
+    chmod 600 "$ENV_FILE"
+fi
 
 mkdir -p "$WEB_DIR"
 cd "$WEB_DIR"
@@ -242,7 +290,7 @@ EOF
 sed -i "s/REPLACE_USER/$WEB_USER/g" "$WEB_DIR/app.py"
 sed -i "s/REPLACE_PASS/$WEB_PASS/g" "$WEB_DIR/app.py"
 
-iptables -I INPUT -p tcp --dport 8181 -j ACCEPT
+iptables -I INPUT -p tcp --dport 8181 -j ACCEPT 2>/dev/null
 iptables-save > /etc/iptables.up.rules 2>/dev/null
 
 cat << EOF > /etc/systemd/system/vps-webpanel.service
@@ -253,6 +301,7 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=$WEB_DIR
+EnvironmentFile=$ENV_FILE
 ExecStart=$WEB_DIR/venv/bin/python $WEB_DIR/app.py
 Restart=always
 
@@ -267,4 +316,6 @@ systemctl restart vps-webpanel
 IP_VPS=$(curl -s ipv4.icanhazip.com)
 clear
 echo -e "${C_GREEN}[✔] ¡Panel Web PRO Instalado!${C_NC}\nURL: ${C_YELLOW}http://$IP_VPS:8181${C_NC}"
+echo -e "User: ${C_YELLOW}$WEB_USER${C_NC}  (auth hasheada en $AUTH_FILE)"
+echo -e "Nota: cuando actualices con panel.py, podrás entrar con este mismo usuario/contraseña."
 read -p "Presione Enter para regresar..."

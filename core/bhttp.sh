@@ -1,96 +1,79 @@
 #!/bin/bash
 # ==========================================
-# Módulo: BHTTP Pro (Núcleo Python 100% Compatible)
+# Gestor BHTTP Proxy - Instalación y Desinstalación
 # ==========================================
-C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;36m'; C_NC='\033[0m'
-BHTTP_DIR="/etc/vps-manager/bhttp"
-
+C_ORANGE='\033[38;5;214m'; C_BLUE='\033[1;34m'; C_CYAN='\033[1;36m'; C_GREEN='\033[1;32m'; C_RED='\033[1;31m'; C_NC='\033[0m'
+DEFAULT_PORT=8180
 clear
-echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "${C_GREEN}   INSTALADOR BHTTP PRO (NÚCLEO PYTHON)         ${C_NC}"
-echo -e "${C_CYAN}================================================${C_NC}"
+echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+echo -e "               ${C_BLUE}GESTOR DE BHTTP PROXY${C_NC}"
+echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+echo -e " ${C_CYAN}1.${C_NC} Instalar / Cambiar Puerto BHTTP"
+echo -e " ${C_RED}2.${C_NC} Desinstalar y Liberar Puerto"
+echo -e " ${C_CYAN}0.${C_NC} Volver al Menú Principal"
+echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+read -p " Selecciona una opción: " opcion
 
-read -p "Ingresa el puerto para BHTTP [Por defecto 8080]: " INPUT_PORT
-BHTTP_PORT=${INPUT_PORT:-8080}
-mkdir -p /etc/vps-manager
-echo "$BHTTP_PORT" > /etc/vps-manager/bhttp_port
+case $opcion in
+    2)
+        echo -e "\n${C_ORANGE}Desinstalando BHTTP y liberando puerto...${C_NC}"
+        systemctl stop bhttp > /dev/null 2>&1
+        systemctl disable bhttp > /dev/null 2>&1
+        rm -f /etc/systemd/system/bhttp.service
+        rm -rf /etc/vps-manager/bhttp
+        systemctl daemon-reload
+        echo -e " ${C_GREEN}✅ BHTTP desinstalado correctamente.${C_NC}"
+        read -p " Presiona Enter para volver..."
+        exit 0
+        ;;
+    0)
+        exit 0
+        ;;
+    1)
+        echo -e "\n${C_CYAN}Iniciando instalación...${C_NC}"
+        ;;
+    *)
+        echo -e " ${C_RED}[!] Opción inválida.${C_NC}"
+        sleep 2
+        exit 1
+        ;;
+esac
 
-echo -e "${C_YELLOW}[+] Deteniendo servicios y preparando entorno...${C_NC}"
-apt update -y >/dev/null 2>&1
-apt install -y python3 iptables ufw >/dev/null 2>&1
+mkdir -p /etc/vps-manager/bhttp
+systemctl stop bhttp > /dev/null 2>&1
 
-systemctl stop bhttp.service >/dev/null 2>&1
-fuser -k ${BHTTP_PORT}/tcp >/dev/null 2>&1
-mkdir -p $BHTTP_DIR
+apt-get install -y python3-pam > /dev/null 2>&1
+wget -qO /etc/vps-manager/bhttp/BHTTP.py "https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/BHTTP.py"
 
-cat << 'EOF' > $BHTTP_DIR/bhttp.py
-import socket, threading, select
-LISTEN_PORT = PORT_PLACEHOLDER
+if [ ! -s /etc/vps-manager/bhttp/BHTTP.py ]; then
+    echo -e " ${C_RED}[!] Error: no se pudo descargar BHTTP.py${C_NC}"
+    exit 1
+fi
 
-def handle_client(client_sock):
-    client_sock.settimeout(10)
-    try:
-        request = client_sock.recv(65535)
-        if not request: return
-    except: return
-    client_sock.settimeout(None)
-    
-    ssh_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try: ssh_sock.connect(('127.0.0.1', 22))
-    except: return
-    
-    # Puente compatible con túneles BHTTP y Payload
-    if b'SSH-' in request:
-        ssh_sock.sendall(request[request.find(b'SSH-'):])
-    else:
-        client_sock.sendall(b"HTTP/1.1 200 OK\r\nConnection: keep-alive\r\n\r\n")
-        if b'\r\n\r\n' in request:
-            body = request.split(b'\r\n\r\n', 1)[1]
-            if body: ssh_sock.sendall(body)
-        
-    sockets = [client_sock, ssh_sock]
-    while True:
-        r, _, e = select.select(sockets, [], sockets, 300)
-        if e or not r: break
-        for s in r:
-            try:
-                data = s.recv(65535)
-                if not data: return
-                if s is client_sock: ssh_sock.sendall(data)
-                else: client_sock.sendall(data)
-            except: return
+while true; do
+    read -p "$(echo -e "${C_ORANGE}Puerto de escucha [Default $DEFAULT_PORT]: ${C_NC}")" INPUT_PORT
+    FINAL_PORT=${INPUT_PORT:-$DEFAULT_PORT}
+    if ! [[ "$FINAL_PORT" =~ ^[0-9]+$ ]]; then echo -e " ${C_RED}[!] Número inválido.${C_NC}"; continue; fi
+    if netstat -tuln | grep -qE ":$FINAL_PORT\b"; then echo -e " ${C_RED}[!] Puerto en uso.${C_NC}"; else break; fi
+done
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind(('0.0.0.0', LISTEN_PORT))
-server.listen(1024)
-while True:
-    try:
-        client, _ = server.accept()
-        threading.Thread(target=handle_client, args=(client,), daemon=True).start()
-    except: continue
-EOF
+echo -e "\n${C_GREEN}[OK] Configurando puerto $FINAL_PORT...${C_NC}"
 
-sed -i "s/PORT_PLACEHOLDER/$BHTTP_PORT/g" $BHTTP_DIR/bhttp.py
-
-iptables -D INPUT -p tcp --dport $BHTTP_PORT -j ACCEPT 2>/dev/null
-iptables -I INPUT -p tcp --dport $BHTTP_PORT -j ACCEPT
-iptables-save > /etc/iptables.up.rules 2>/dev/null
-ufw allow ${BHTTP_PORT}/tcp >/dev/null 2>&1
+sed -i "s/\"port\": 80/\"port\": $FINAL_PORT/g" /etc/vps-manager/bhttp/BHTTP.py
+sed -i 's/"ssl": True/"ssl": False/g' /etc/vps-manager/bhttp/BHTTP.py
 
 cat << EOF > /etc/systemd/system/bhttp.service
 [Unit]
-Description=BHTTP Core Python (Port $BHTTP_PORT)
-After=network.target ssh.service
+Description=BHTTP Proxy Server
+After=network.target
 
 [Service]
 Type=simple
 User=root
-WorkingDirectory=$BHTTP_DIR
-ExecStart=/usr/bin/python3 $BHTTP_DIR/bhttp.py
-Restart=always
-RestartSec=2
+WorkingDirectory=/etc/vps-manager/bhttp
+ExecStart=/usr/bin/python3 /etc/vps-manager/bhttp/BHTTP.py
 LimitNOFILE=65535
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
@@ -99,6 +82,14 @@ EOF
 systemctl daemon-reload
 systemctl enable bhttp >/dev/null 2>&1
 systemctl restart bhttp
+sleep 2
 
-echo -e "${C_GREEN}[✔] ¡Motor BHTTP activo y estable en el puerto $BHTTP_PORT!${C_NC}"
-read -p "Presione Enter para regresar..."
+if systemctl is-active --quiet bhttp; then
+    echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+    echo -e " ${C_GREEN}✅ BHTTP operando en el puerto $FINAL_PORT con éxito${C_NC}"
+    echo -e "${C_ORANGE}------------------------------------------------------${C_NC}"
+else
+    echo -e "\n${C_RED}[!] Error crítico: El servicio BHTTP colapsó al iniciar.${C_NC}"
+    journalctl -u bhttp -n 10 --no-pager
+fi
+read -p " Presiona Enter para volver..."
