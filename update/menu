@@ -180,9 +180,9 @@ apt update -y >/dev/null 2>&1
 apt install python3-pip flask -y >/dev/null 2>&1
 pip3 install flask >/dev/null 2>&1
 echo -e "${C_YELLOW}[+] Descargando archivos de CheckUser...${C_RST}"
-wget -qO /etc/vps-manager/check.py https://raw.githubusercontent.com/rogellevi/SSHPLUS-fixed/master/Modulos/check.py
-wget -qO /etc/vps-manager/4gcheck.py https://raw.githubusercontent.com/rogellevi/SSHPLUS-fixed/master/Modulos/4gcheck.py
-wget -qO /bin/check https://raw.githubusercontent.com/rogellevi/SSHPLUS-fixed/master/Modulos/check
+wget -qO /etc/vps-manager/check.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER//main/core/check.py
+wget -qO /etc/vps-manager/4gcheck.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER//main/core/4gcheck.py
+wget -qO /bin/check https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER//main/core/check
 chmod +x /bin/check /etc/vps-manager/check.py /etc/vps-manager/4gcheck.py
 echo -e "${C_GREEN}[✔] Archivos instalados correctamente.${C_RST}"
 sleep 2
@@ -720,7 +720,7 @@ bhttp2_instalar() {
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     
     echo -e "${C_YELLOW}[+] Descargando e instalando motor BHTTP v2.0...${C_RST}"
-    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/master/core/bhttpv2.sh
+    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
     chmod +x /tmp/bhttpv2.sh
     
     bash /tmp/bhttpv2.sh install
@@ -966,7 +966,7 @@ menu_bhttp() {
             1)
                 clear
                 echo -e "${C_YELLOW}[+] Descargando e instalando BHTTP Proxy (Normal)...${C_RST}"
-                wget -qO /tmp/bhttp.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/bhttp.sh
+                wget -qO /tmp/bhttp.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttp.sh
                 chmod +x /tmp/bhttp.sh
                 bash /tmp/bhttp.sh
                 read -p "Presione Enter para continuar..."
@@ -1322,7 +1322,7 @@ menu_hcr() {
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
         read -p "Seleccione una opción: " hcr_opt
         case $hcr_opt in
-            1) clear; wget -qO /tmp/hcr.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/hcr.sh && chmod +x /tmp/hcr.sh && bash /tmp/hcr.sh ;;
+            1) clear; wget -qO /tmp/hcr.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/hcr.sh && chmod +x /tmp/hcr.sh && bash /tmp/hcr.sh ;;
             2) menu_hcr_v2 ;;
             0) break ;;
             *) echo -e "${C_RED}[!] Opción inválida.${C_RST}"; sleep 1 ;;
@@ -1715,7 +1715,7 @@ case $ws_opt in
         
         echo -e "${C_YELLOW}[+] Descargando wsproxy.py...${C_RST}"
         mkdir -p /etc/vps-manager
-        wget -qO /etc/vps-manager/wsproxy.py https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/wsproxy.py
+        wget -qO /etc/vps-manager/wsproxy.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/wsproxy.py
         
         if [ ! -f /etc/vps-manager/wsproxy.py ]; then
             echo -e "${C_RED}[!] Error al descargar wsproxy.py.${C_RST}"
@@ -2048,7 +2048,7 @@ case $db_opt in
         else
             if ! command -v droplimiter >/dev/null 2>&1; then
                 echo -e "${C_YELLOW}[+] Descargando Droplimiter desde GitHub...${C_RST}"
-                wget -qO /usr/local/bin/droplimiter https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/droplimiter
+                wget -qO /usr/local/bin/droplimiter https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/droplimiter
                 chmod +x /usr/local/bin/droplimiter 2>/dev/null
             fi
             
@@ -2127,7 +2127,7 @@ if [ "$is_installed" -eq 0 ]; then
     case $ssl_opt in
     1)
         clear
-        wget -qO /tmp/ssl.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/ssl.sh && chmod +x /tmp/ssl.sh && bash /tmp/ssl.sh
+        wget -qO /tmp/ssl.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/ssl.sh && chmod +x /tmp/ssl.sh && bash /tmp/ssl.sh
         read -p "Presione Enter para continuar..." ;;
     0) break ;;
     *) echo -e "${C_RED}[!] Opción inválida.${C_RST}"; sleep 1; continue ;;
@@ -2266,7 +2266,7 @@ if [ "$is_installed" -eq 0 ]; then
     1)
         clear
         echo -e "${C_YELLOW}[+] Descargando CheckUser (Multi-App)...${C_RST}"
-        if wget -qO /tmp/checkuser.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/checkuser.sh && [ -s /tmp/checkuser.sh ]; then
+        if wget -qO /tmp/checkuser.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/checkuser.sh && [ -s /tmp/checkuser.sh ]; then
             chmod +x /tmp/checkuser.sh && bash /tmp/checkuser.sh
         else
             echo -e "${C_RED}[!] No se pudo descargar checkuser.sh. Revisa tu conexión o la ruta en GitHub.${C_RST}"
@@ -2386,24 +2386,24 @@ echo -e "  ${C_RED}0.${C_RST} 🔙 Volver al Menú Principal"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 read -p "Seleccione una opción: " hopt
 case $hopt in
-1) clear; wget -qO /tmp/vmess.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/vmess.sh && chmod +x /tmp/vmess.sh && bash /tmp/vmess.sh ;;
-2) clear; wget -qO /tmp/vless.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/vless.sh && chmod +x /tmp/vless.sh && bash /tmp/vless.sh ;;
-3) clear; wget -qO /tmp/trojan.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/trojan.sh && chmod +x /tmp/trojan.sh && bash /tmp/trojan.sh ;;
-4) clear; wget -qO /tmp/setup_openvpn.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/setup_openvpn.sh && chmod +x /tmp/setup_openvpn.sh && bash /tmp/setup_openvpn.sh; read -p "Enter..." ;;
+1) clear; wget -qO /tmp/vmess.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/vmess.sh && chmod +x /tmp/vmess.sh && bash /tmp/vmess.sh ;;
+2) clear; wget -qO /tmp/vless.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/vless.sh && chmod +x /tmp/vless.sh && bash /tmp/vless.sh ;;
+3) clear; wget -qO /tmp/trojan.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/trojan.sh && chmod +x /tmp/trojan.sh && bash /tmp/trojan.sh ;;
+4) clear; wget -qO /tmp/setup_openvpn.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/setup_openvpn.sh && chmod +x /tmp/setup_openvpn.sh && bash /tmp/setup_openvpn.sh; read -p "Enter..." ;;
 5) menu_hcr ;;
-6) clear; wget -qO /tmp/udp_custom.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/udp_custom.sh && chmod +x /tmp/udp_custom.sh && bash /tmp/udp_custom.sh ;;
-7) clear; wget -qO /tmp/Slowdns.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/Slowdns.sh && chmod +x /tmp/Slowdns.sh && bash /tmp/Slowdns.sh ;;
+6) clear; wget -qO /tmp/udp_custom.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/udp_custom.sh && chmod +x /tmp/udp_custom.sh && bash /tmp/udp_custom.sh ;;
+7) clear; wget -qO /tmp/Slowdns.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/Slowdns.sh && chmod +x /tmp/Slowdns.sh && bash /tmp/Slowdns.sh ;;
 8) menu_bhttp ;;
-#9) clear; wget -qO /tmp/sshws.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/sshws.sh && chmod +x /tmp/sshws.sh && bash /tmp/sshws.sh ;;
-9) clear; wget -qO /tmp/sshws.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/sshws.sh && chmod +x /tmp/sshws.sh && bash /tmp/sshws.sh; read -p "Enter..." ;;
+#9) clear; wget -qO /tmp/sshws.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/sshws.sh && chmod +x /tmp/sshws.sh && bash /tmp/sshws.sh ;;
+9) clear; wget -qO /tmp/sshws.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/sshws.sh && chmod +x /tmp/sshws.sh && bash /tmp/sshws.sh; read -p "Enter..." ;;
 10) instalar_badvpn ;;
 11) clear; curl -sSL "https://raw.githubusercontent.com/gol/php-8.5.12-vps/main/install.sh?t=$(date +%s)" | sed '59s/[()]//g' | bash; read -p "Enter..." ;;
-12) clear; wget -qO /tmp/Bbr.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/Bbr.sh && chmod +x /tmp/Bbr.sh && bash /tmp/Bbr.sh; read -p "Enter..." ;;
-13) clear; wget -qO /tmp/zivpn.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/zivpn.sh && chmod +x /tmp/zivpn.sh && bash /tmp/zivpn.sh ;;
-14) clear; wget -qO /tmp/hysteria.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/hysteria.sh && chmod +x /tmp/hysteria.sh && bash /tmp/hysteria.sh ;;
+12) clear; wget -qO /tmp/Bbr.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/Bbr.sh && chmod +x /tmp/Bbr.sh && bash /tmp/Bbr.sh; read -p "Enter..." ;;
+13) clear; wget -qO /tmp/zivpn.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/zivpn.sh && chmod +x /tmp/zivpn.sh && bash /tmp/zivpn.sh ;;
+14) clear; wget -qO /tmp/hysteria.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/hysteria.sh && chmod +x /tmp/hysteria.sh && bash /tmp/hysteria.sh ;;
 15) menu_ssl ;;
 16) menu_dropbear ;;
-#16) clear; echo -e "${C_YELLOW}[+] Descargando e instalando Dropbear...${C_RST}"; wget -qO /tmp/dropbear.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/dropbear.sh && chmod +x /tmp/dropbear.sh && bash /tmp/dropbear.sh ;;
+#16) clear; echo -e "${C_YELLOW}[+] Descargando e instalando Dropbear...${C_RST}"; wget -qO /tmp/dropbear.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/dropbear.sh && chmod +x /tmp/dropbear.sh && bash /tmp/dropbear.sh ;;
 17) menu_wsproxy ;;
 0) break ;;
 *) echo -e "${C_RED}[!] Opción inválida.${C_RST}"; sleep 1 ;;
@@ -2430,7 +2430,7 @@ case $wopt in
 5)
 echo -e "${C_YELLOW}[+] Descargando actualización del Panel Web...${C_RST}"
 mkdir -p /etc/vps-manager/webpanel
-wget -qO /tmp/app.py https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/update/panel.py
+wget -qO /tmp/app.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/update/panel.py
 if [ -f /tmp/app.py ]; then
 mv /tmp/app.py /etc/vps-manager/webpanel/app.py
 chmod +x /etc/vps-manager/webpanel/app.py
@@ -2665,11 +2665,11 @@ echo -e "${C_NEON_BLUE}───────────────────
 read -p "Presione Enter para regresar..."
 }
 
-menu_bot() { clear; echo -e "${C_YELLOW}[+] Configurando Bot...${C_RST}"; wget -qO /tmp/bot.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/bot.sh && chmod +x /tmp/bot.sh && bash /tmp/bot.sh; read -p "Enter..." ;}
-menu_dominio() { clear; echo -e "${C_YELLOW}[+] Iniciando Gestor SSL...${C_RST}"; wget -qO /tmp/domain.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/domain.sh && chmod +x /tmp/domain.sh && bash /tmp/domain.sh; }
-menu_update() { clear; echo -e "${C_YELLOW}[+] Actualizando Panel...${C_RST}"; wget -qO /tmp/update.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/update.sh && chmod +x /tmp/update.sh && bash /tmp/update.sh; }
-menu_firewall() { clear; echo -e "${C_YELLOW}[+] Iniciando Firewall...${C_RST}"; wget -qO /tmp/firewall.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/firewall.sh && chmod +x /tmp/firewall.sh && bash /tmp/firewall.sh; }
-menu_swap() { clear; echo -e "${C_YELLOW}[+] Descargando Gestor de Memoria Virtual...${C_RST}"; if wget -qO /tmp/swapmemory.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/swapmemory.sh && [ -s /tmp/swapmemory.sh ]; then bash /tmp/swapmemory.sh; else echo -e "${C_RED}[!] No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub.${C_RST}"; sleep 3; fi; rm -f /tmp/swapmemory.sh; }
+menu_bot() { clear; echo -e "${C_YELLOW}[+] Configurando Bot...${C_RST}"; wget -qO /tmp/bot.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bot.sh && chmod +x /tmp/bot.sh && bash /tmp/bot.sh; read -p "Enter..." ;}
+menu_dominio() { clear; echo -e "${C_YELLOW}[+] Iniciando Gestor SSL...${C_RST}"; wget -qO /tmp/domain.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/domain.sh && chmod +x /tmp/domain.sh && bash /tmp/domain.sh; }
+menu_update() { clear; echo -e "${C_YELLOW}[+] Actualizando Panel...${C_RST}"; wget -qO /tmp/update.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/update.sh && chmod +x /tmp/update.sh && bash /tmp/update.sh; }
+menu_firewall() { clear; echo -e "${C_YELLOW}[+] Iniciando Firewall...${C_RST}"; wget -qO /tmp/firewall.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/firewall.sh && chmod +x /tmp/firewall.sh && bash /tmp/firewall.sh; }
+menu_swap() { clear; echo -e "${C_YELLOW}[+] Descargando Gestor de Memoria Virtual...${C_RST}"; if wget -qO /tmp/swapmemory.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/swapmemory.sh && [ -s /tmp/swapmemory.sh ]; then bash /tmp/swapmemory.sh; else echo -e "${C_RED}[!] No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub.${C_RST}"; sleep 3; fi; rm -f /tmp/swapmemory.sh; }
 menu_autostart() {
 clear
 touch /root/.bashrc
