@@ -7,137 +7,6 @@ C_NEON_BLUE='\033[38;5;39m'; C_NEON_GREEN='\033[38;5;46m'; C_NEON_PURPLE='\033[3
 mkdir -p /etc/vps-manager
 [ ! -f /etc/vps-manager/lang ] && echo "es" > /etc/vps-manager/lang
 if [ -f /etc/os-release ]; then . /etc/os-release; UBUNTU_VERSION=$VERSION_ID; else UBUNTU_VERSION="24.04"; fi
-# ══════════════════════════════════════════
-# 🛡️ VERIFICACIÓN DE LICENCIA PERMANENTE
-# Una vez instalada, la licencia es VINCULANTE
-# al HWID + IP del equipo. No expira.
-# ══════════════════════════════════════════
-verificar_licencia_activa() {
-local config_dir="/etc/vps-manager"
-local api_url="https://update.cloudgt.xyz/api/validar.php"
-
-# Archivos obligatorios (prueba de instalación previa)
-if [ ! -f "$config_dir/.license" ] || \
-   [ ! -f "$config_dir/.api_secret" ] || \
-   [ ! -f "$config_dir/.hwid" ] || \
-   [ ! -f "$config_dir/.ip_vps" ]; then
-    clear
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_RED}           [!] ACCESO DENEGADO                  ${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_YELLOW}  No se encontró una licencia válida.${C_RST}"
-    echo -e "${C_YELLOW}  Debes ejecutar el instalador oficial.${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    exit 1
-fi
-
-local key=$(cat "$config_dir/.license")
-local hwid_guardado=$(cat "$config_dir/.hwid")
-local ip_guardada=$(cat "$config_dir/.ip_vps")
-local api_secret=$(cat "$config_dir/.api_secret")
-
-# ══════════════════════════════════════════
-# 1) Verificación LOCAL de HWID (sin API)
-# ══════════════════════════════════════════
-local machine=$(cat /etc/machine-id 2>/dev/null || echo "unknown")
-local mac=$(ip link show 2>/dev/null | grep "link/ether" | head -1 | awk '{print $2}' || echo "unknown")
-local hwid_actual=$(echo -n "${machine}${mac}" | sha256sum | awk '{print $1}')
-
-if [ "$hwid_actual" != "$hwid_guardado" ]; then
-    clear
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_RED}        [!] VPS NO AUTORIZADO                   ${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_YELLOW}  Esta licencia pertenece a OTRO servidor.${C_RST}"
-    echo -e "${C_YELLOW}  El HWID del equipo no coincide.${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    exit 1
-fi
-
-# ══════════════════════════════════════════
-# 2) Verificación LOCAL de IP (sin API)
-# ══════════════════════════════════════════
-local ip_actual=$(curl -s --max-time 5 https://api.ipify.org 2>/dev/null)
-if [ -z "$ip_actual" ]; then
-    # Si no hay internet, permitimos acceso (licencia local permanente)
-    # pero marcamos que no se pudo validar online
-    ip_actual="OFFLINE"
-fi
-
-if [ "$ip_actual" != "OFFLINE" ] && [ "$ip_actual" != "$ip_guardada" ]; then
-    clear
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_RED}          [!] LICENCIA INVÁLIDA                 ${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    echo -e "${C_YELLOW}  La IP actual no coincide con la licencia.${C_RST}"
-    echo -e "${C_YELLOW}  IP actual:     $ip_actual${C_RST}"
-    echo -e "${C_YELLOW}  IP registrada: $ip_guardada${C_RST}"
-    echo -e "${C_RED}================================================${C_RST}"
-    exit 1
-fi
-
-# ══════════════════════════════════════════
-# 3) Consulta opcional a la API (solo para
-#    detectar si el admin BANEÓ la key).
-#    NO se valida expiración (es permanente).
-# ══════════════════════════════════════════
-local timestamp=$(date +%s)
-local firma=$(echo -n "${key}${hwid_actual}${ip_actual}${timestamp}${api_secret}" | sha256sum | awk '{print $1}')
-
-local respuesta=$(curl -sL --max-time 8 \
-    "${api_url}?mode=check&key=${key}&hwid=${hwid_actual}&ip=${ip_actual}&t=${timestamp}&sig=${firma}" 2>/dev/null)
-
-case "$respuesta" in
-    "✅ VALIDA"*|"✅ ACTIVA"*)
-        # Licencia válida y permanente
-        return 0
-        ;;
-    "❌ BANEADA")
-        clear
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_RED}           [!] LICENCIA BLOQUEADA               ${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_YELLOW}  Esta licencia fue bloqueada por el admin.${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        exit 1
-        ;;
-    "❌ EXPIRADA"|"❌ YA_USADA")
-        # ⭐ IGNORAMOS: la licencia es PERMANENTE una vez instalada
-        # Estos estados solo aplican al momento de la instalación, no al uso
-        return 0
-        ;;
-    "❌ IP_MISMATCH"|"❌ HWID_MISMATCH")
-        # Doble verificación: si localmente coincide, confiamos en lo local
-        # (por si la API tiene datos desactualizados)
-        if [ "$hwid_actual" = "$hwid_guardado" ] && [ "$ip_actual" = "$ip_guardada" -o "$ip_actual" = "OFFLINE" ]; then
-            return 0
-        fi
-        clear
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_RED}          [!] LICENCIA INVÁLIDA                 ${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        echo -e "${C_YELLOW}  El servidor rechazó esta licencia.${C_RST}"
-        echo -e "${C_RED}================================================${C_RST}"
-        exit 1
-        ;;
-    "")
-        # Sin respuesta del servidor (sin internet o API caída)
-        # Permitimos acceso porque la licencia es LOCAL y PERMANENTE
-        return 0
-        ;;
-    *)
-        # Respuesta desconocida: confiamos en la validación local
-        return 0
-        ;;
-esac
-}
-
-# 🚀 EJECUTAR VERIFICACIÓN ANTES DE CUALQUIER COSA
-verificar_licencia_activa
-
-# ==========================================
-# FIN DE VERIFICACIÓN - INICIO DEL MENÚ NORMAL
-# ==========================================
 
 generar_banner_usuario() {
 local u=$1; local exp=$2; local dias=$3; local limit=$4
@@ -161,7 +30,7 @@ local check4g_file_exists=$( [ -f /etc/vps-manager/4gcheck.py ] && echo "1" || e
 if [ "$check_file_exists" == "0" ] || [ "$check4g_file_exists" == "0" ]; then
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ INSTALAR CHECKUSER AVANZADO        ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ INSTALAR CHECKUSER AVANZADO        ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  Se descargarán los siguientes archivos:"
 echo -e "  - ${C_NEON_YELLOW}/etc/vps-manager/check.py${C_RST}"
@@ -209,7 +78,7 @@ local status_4g="❌ INACTIVO"
 local color_4g="$C_RED"
 [ "$is_4g_running" -gt 0 ] && { status_4g="✅ ACTIVO"; color_4g="$C_GREEN"; }
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ GESTIÓN DE CHECKUSER AVANZADO       ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ GESTIÓN DE CHECKUSER AVANZADO       ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} 👤 CheckUser (Estándar) ......... [ ${std_color}${std_status}${C_RST} ]"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} 📱 CheckUser (Conecta4G) ........ [ ${color_4g}${status_4g}${C_RST} ]"
@@ -234,7 +103,7 @@ read -p "Presione Enter para continuar..."
 else
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         ACTIVAR CHECKUSER (ESTÁNDAR)         ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ACTIVAR CHECKUSER (ESTÁNDAR)         ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 echo -ne "${C_YELLOW}Ingrese el puerto para CheckUser (1-65535): ${C_RST}"
 read porta
@@ -308,7 +177,7 @@ read -p "Presione Enter para continuar..."
 else
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         ACTIVAR CHECKUSER (CONECTA4G)        ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ACTIVAR CHECKUSER (CONECTA4G)        ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 echo -ne "${C_YELLOW}Ingrese el puerto para CheckUser 4G (1024-65535): ${C_RST}"
 read porta
@@ -416,7 +285,7 @@ H_OPT0="🔙 Volver al Menú Principal"
 H_SEL="Seleccione una opción: "
 fi
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         ${H_TITLE}            ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ${H_TITLE}             ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} ${H_OPT1}"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} ${H_OPT2}"
@@ -456,7 +325,7 @@ done
 menu_idioma() {
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}       🌐 SELECCIONA TU IDIOMA / LANGUAGE     ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}        🌐 SELECCIONA TU IDIOMA / LANGUAGE     ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🇬🇹 Español (Spanish)"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🇺🇸 English (Inglés)"
@@ -476,7 +345,7 @@ menu_ssh() {
 while true; do
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛰️ GESTION DE USUARIOS (SSH)         ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛰️ GESTION DE USUARIOS (SSH)         ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1${C_RST} ➔ Crear Usuario (Normal / HWID)"
 echo -e "  ${C_NEON_YELLOW}2${C_RST} ➔ Eliminar Usuario"
@@ -554,18 +423,18 @@ fi
 clear; echo -e "${C_NEON_BLUE}================================================${C_RST}
 ${C_GREEN}        ✅ CUENTA CREADA EXITOSAMENTE ✅        ${C_RST}
 ${C_NEON_BLUE}================================================${C_RST}"
-echo -e " 👤 Usuario       : ${C_YELLOW}$user${C_RST}"
-echo -e " 🔑 Clave         : ${C_YELLOW}$pass${C_RST}"
-echo -e " 📅 Vence         : ${C_YELLOW}$EXP_DATE ($dias días)${C_RST}"
+echo -e " 👤 Usuario        : ${C_YELLOW}$user${C_RST}"
+echo -e " 🔑 Clave          : ${C_YELLOW}$pass${C_RST}"
+echo -e " 📅 Vence          : ${C_YELLOW}$EXP_DATE ($dias días)${C_RST}"
 echo -e " 🔒 Límite IPs    : ${C_YELLOW}$limite${C_RST}"
 echo -e " 🛡️ Protecc. HWID : ${C_YELLOW}$HWID_MSG${C_RST}"
 echo -e "${C_NEON_BLUE}------------------------------------------------${C_RST}"
-echo -e " 🌐 Host/IP       : ${C_YELLOW}$DOM${C_RST}"
-echo -e " 🌍 NS Domain     : ${C_YELLOW}$NS_DOM${C_RST}"
+echo -e " 🌐 Host/IP        : ${C_YELLOW}$DOM${C_RST}"
+echo -e " 🌍 NS Domain      : ${C_YELLOW}$NS_DOM${C_RST}"
 echo -e " 🗝️ Pub Key (DNS) : ${C_YELLOW}$PUB_KEY${C_RST}"
-echo -e " 🔗 OpenVPN       : ${C_YELLOW}$OPENVPN_LINK${C_RST}"
+echo -e " 🔗 OpenVPN        : ${C_YELLOW}$OPENVPN_LINK${C_RST}"
 echo -e " ⚡ Zivpn Pass    : ${C_YELLOW}$ZIVPN_PASS${C_RST}"
-echo -e " 🎯 Puertos       : ${C_YELLOW}SSH(22) Xray/TLS(443)${C_RST}"
+echo -e " 🎯 Puertos        : ${C_YELLOW}SSH(22) Xray/TLS(443)${C_RST}"
 echo -e "                     ${C_YELLOW}SSL Stunnel($PORT_SSL)${C_RST}"
 echo -e "                     ${C_YELLOW}BHTTP($PORT_BHTTP) HCR($PORT_HCR)${C_RST}"
 echo -e "                     ${C_YELLOW}UDP Custom(25000)${C_RST}"
@@ -574,7 +443,7 @@ echo -e "${C_NEON_BLUE}================================================${C_RST}"
 2) read -p "Usuario a eliminar: " user; userdel -f $user 2>/dev/null; rm -f /etc/vps-manager/banner_${user}.net /etc/vps-manager/limite_${user} /etc/vps-manager/hwid_${user}; sed -i "/Match User $user/,+1d" /etc/ssh/sshd_config; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] Eliminado.${C_RST}"; sleep 2 ;;
 3) read -p "Usuario a renovar: " user; read -p "Nuevos días: " dias; EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d"); chage -E $EXP_DATE $user; limite=$(cat /etc/vps-manager/limite_${user} 2>/dev/null || echo "1"); generar_banner_usuario "$user" "$EXP_DATE" "$dias" "$limite"; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] Renovado.${C_RST}"; sleep 2 ;;
 4) clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
- ${C_GREEN}       📋 LISTA DE USUARIOS Y VENCIMIENTO     ${C_NEON_BLUE} 
+ ${C_GREEN}        📋 LISTA DE USUARIOS Y VENCIMIENTO     ${C_NEON_BLUE} 
 ╚══════════════════════════════════════════════╝${C_RST}"; printf "${C_YELLOW}%-15s %-15s %-15s${C_RST}
 " "USUARIO" "EXPIRA" "DÍAS RESTANTES"; echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"; for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do exp_date=$(chage -l $user | grep "Account expires" | awk -F": " '{print $2}'); if [[ "$exp_date" != "never" && -n "$exp_date" ]]; then exp_fmt=$(date -d "$exp_date" "+%Y-%m-%d" 2>/dev/null); sec_exp=$(date -d "$exp_date" +%s 2>/dev/null); sec_now=$(date +%s); dias=$(( (sec_exp - sec_now) / 86400 )); [ $dias -lt 0 ] && dias=0; printf "%-15s %-15s %-15s
 " "$user" "$exp_fmt" "$dias Días"; else printf "%-15s %-15s %-15s
@@ -594,7 +463,7 @@ menu_revendedores() {
 while true; do
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🤝 GESTIÓN DE REVENDEDORES (BOT)     ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🤝 GESTIÓN DE REVENDEDORES (BOT)     ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1${C_RST} ➔ Agregar Revendedor / Recargar Créditos"
 echo -e "  ${C_NEON_YELLOW}2${C_RST} ➔ Eliminar Revendedor"
@@ -808,7 +677,7 @@ bhttp2_requiere_instalado() {
 bhttp2_cambiar_puerto() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🔧 CAMBIAR PUERTO BHTTP v2.0         ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔧 CAMBIAR PUERTO BHTTP v2.0         ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     bhttp2_requiere_instalado || return
 
@@ -920,7 +789,7 @@ menu_bhttp_v2() {
         clear
         local port; port=$(bhttp2_puerto)
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🌐 BHTTP v2.0 - GESTIÓN              ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 BHTTP v2.0 - GESTIÓN             ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  Estado : $(bhttp2_estado_texto)"
         echo -e "  Puerto : ${C_NEON_YELLOW}${port:-N/D}${C_RST}"
@@ -954,7 +823,7 @@ menu_bhttp() {
     while true; do
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🌐 INSTALAR BHTTP PROXY              ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 INSTALAR BHTTP PROXY             ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 Instalar BHTTP  (v1.0)"
         echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 Instalar BHTTP  (v2.0 Nuevo)"
@@ -997,7 +866,7 @@ fail2ban_estado_texto() {
 fail2ban_instalar() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ INSTALAR / CONFIGURAR FAIL2BAN    ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ INSTALAR / CONFIGURAR FAIL2BAN    ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
     if ! command -v fail2ban-client >/dev/null 2>&1; then
@@ -1075,7 +944,7 @@ EOF
 fail2ban_ver() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ ESTADO E IPs BLOQUEADAS           ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ ESTADO E IPs BLOQUEADAS           ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if ! systemctl is-active --quiet fail2ban 2>/dev/null; then
         echo -e "${C_YELLOW}[!] Fail2ban no está activo.${C_RST}"
@@ -1098,7 +967,7 @@ fail2ban_ver() {
 fail2ban_desbloquear() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🔓 DESBLOQUEAR IP                    ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔓 DESBLOQUEAR IP                    ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if ! systemctl is-active --quiet fail2ban 2>/dev/null; then
         echo -e "${C_YELLOW}[!] Fail2ban no está activo.${C_RST}"
@@ -1140,7 +1009,7 @@ menu_fail2ban() {
     while true; do
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ FAIL2BAN (ANTI FUERZA BRUTA)      ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ FAIL2BAN (ANTI FUERZA BRUTA)       ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_NEON_GREEN}Estado:${C_RST} $(fail2ban_estado_texto)"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
@@ -1174,7 +1043,7 @@ torrent_activo() { command -v iptables >/dev/null 2>&1 && iptables -C OUTPUT -j 
 torrent_activar() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🚫 ACTIVAR BLOQUEO DE TORRENTS       ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚫 ACTIVAR BLOQUEO DE TORRENTS       ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if ! command -v iptables >/dev/null 2>&1; then
         echo -e "${C_YELLOW}[+] Instalando iptables...${C_RST}"
@@ -1284,7 +1153,7 @@ menu_torrents() {
             bloq=$(iptables -nvxL VPS_BLOCK_TORRENT 2>/dev/null | awk '$3=="DROP"{s+=$1} END{print s+0}')
         fi
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🚫 BLOQUEO DE TORRENTS               ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚫 BLOQUEO DE TORRENTS               ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_NEON_GREEN}Estado             :${C_RST} $estado"
         [ -n "$bloq" ] && echo -e "  ${C_NEON_GREEN}Paquetes bloqueados:${C_RST} $bloq"
@@ -1313,7 +1182,7 @@ menu_hcr() {
         local hcr2_ind=" 🔴 "
         systemctl is-active --quiet hcr-server.service 2>/dev/null && hcr2_ind=" 🟢 "
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🚀 INSTALAR HCR NATIVO               ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚀 INSTALAR HCR NATIVO               ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 Instalar HCR (v1.0)"
         echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 Instalar HCR (v2.0)  ${C_GREEN}${hcr2_ind}${C_RST}"
@@ -1349,7 +1218,7 @@ menu_hcr_v2() {
         else estado="🔴 DETENIDO"; fi
         port=$(cat /etc/vps-manager/hcr_port 2>/dev/null)
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🚀 HCR v2.0 - GESTIÓN                ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚀 HCR v2.0 - GESTIÓN                ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  Estado : $estado"
         hcr2_instalado && echo -e "  Puerto : ${C_NEON_YELLOW}${port:-N/D}${C_RST}"
@@ -1379,7 +1248,7 @@ hcr2_instalar() {
     local DIR="$HCR2_DIR"
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🚀 Instalar HCR (v2.0)        ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚀 Instalar HCR (v2.0)        ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
     # 1) Arquitectura del servidor
@@ -1508,7 +1377,7 @@ hcr2_cambiar_puerto() {
     local DIR="$HCR2_DIR"
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🔧 CAMBIAR PUERTO HCR v2.0           ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔧 CAMBIAR PUERTO HCR v2.0           ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     hcr2_requiere_instalado || return
     if [ ! -x "$DIR/install.sh" ]; then
@@ -1602,7 +1471,7 @@ hcr2_desinstalar() {
     local DIR="$HCR2_DIR"
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🗑️ DESInstalar HCR (v2.0)      ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🗑️ DESInstalar HCR (v2.0)      ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if [ ! -f "$DIR/hcr-server" ] && [ ! -e /etc/systemd/system/hcr-server.service ]; then
         echo -e "${C_YELLOW}[!] HCR v2.0 no está instalado.${C_RST}"
@@ -1648,7 +1517,7 @@ local WS_MSG=""
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🌐 GESTIÓN DE WSPROXY (WebSocket)      ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 GESTIÓN DE WSPROXY (WebSocket)      ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 
 if [ "$is_running" -gt 0 ]; then
@@ -1690,7 +1559,7 @@ case $ws_opt in
     else
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         INICIANDO WEBSOCKET PROXY            ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          INICIANDO WEBSOCKET PROXY             ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
         
         echo -ne "${C_YELLOW}¿Qué puerto quieres usar? (1-65535): ${C_RST}"
@@ -1856,7 +1725,7 @@ local limiter_color="$C_RED"
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🐻 GESTIÓN DE DROPBEAR SSH           ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🐻 GESTIÓN DE DROPBEAR SSH           ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 
 if [ "$is_running" -gt 0 ]; then
@@ -1907,7 +1776,7 @@ case $db_opt in
     else
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         INSTALADOR DROPBEAR SSH              ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          INSTALADOR DROPBEAR SSH              ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
         
         echo -ne "${C_YELLOW}¿Qué puerto principal quieres usar? (1-65535): ${C_RST}"
@@ -2139,7 +2008,7 @@ menu_webpanel_gestion() {
 while true; do
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🌐 GESTIÓN DEL PANEL WEB (Dashboard)   ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 GESTIÓN DEL PANEL WEB (Dashboard)   ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 Instalar Panel Web (Nuevo)"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} ⚙️ Cambiar Puerto del Panel"
@@ -2213,7 +2082,7 @@ systemctl is-active --quiet onlineapp.service 2>/dev/null && is_running=1
 
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         📱 GESTIÓN DE ONLINE APP             ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          📱 GESTIÓN DE ONLINE APP             ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 if [ "$is_running" -gt 0 ]; then
 echo -e "  Estado: ${C_GREEN}✅ ACTIVO (systemd)${C_RST}"
@@ -2330,7 +2199,7 @@ esac
 menu_puertos() {
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🔍 ESTADO DE PUERTOS Y SERVICIOS     ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔍 ESTADO DE PUERTOS Y SERVICIOS     ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
 PORT_BHTTP=$(cat /etc/vps-manager/bhttp_port 2>/dev/null || echo "8080")
@@ -2397,7 +2266,7 @@ menu_swap() { clear; echo -e "${C_YELLOW}[+] Descargando Gestor de Memoria Virtu
 menu_autostart() { clear; grep -q "menu" /root/.bashrc && echo -e "${C_GREEN}[✔] Ya activo.${C_RST}" || (echo -e "
 menu" >> /root/.bashrc; echo -e "${C_GREEN}[✔] Activado.${C_RST}"); read -p "Enter..." ;}
 menu_banner() { clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
- ${C_NEON_GREEN}         GESTOR DE BANNER BASE HTML           ${C_NEON_BLUE} 
+ ${C_NEON_GREEN}          GESTOR DE BANNER BASE HTML           ${C_NEON_BLUE} 
 ╚══════════════════════════════════════════════╝${C_RST}
 ${C_NEON_YELLOW}1.${C_RST} Banner por Defecto
 ${C_NEON_YELLOW}2.${C_RST} Personalizado HTML
@@ -2497,7 +2366,7 @@ while true; do
 clear
 SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "es")
 if [ "$SYS_LANG" == "en" ]; then
-M_TITLE="            🔥 VPS MANAGER - V2.1  🔥"
+M_TITLE="             🔥 VPS MANAGER - V2.1  🔥"
 M_OS="💻 OS        "
 M_IP="🌐 IP        "
 M_DOM="🎯 Domain    "
@@ -2523,7 +2392,7 @@ M_OPT0="🚪 Exit"
 M_SEL="Select an option: "
 M_ERR="Invalid option."
 else
-M_TITLE="           🔥 VPS MANAGER - V2.1 🔥"
+M_TITLE="            🔥 VPS MANAGER - V2.1 🔥"
 M_OS="💻 SO       "
 M_IP="🌐 IP       "
 M_DOM="🎯 Dominio  "
