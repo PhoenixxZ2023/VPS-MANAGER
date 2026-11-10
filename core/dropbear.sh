@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # INSTALADOR DROPBEAR COMPATIBLE CON APPS VPN
 # VPS MANAGER V5.2
@@ -13,22 +28,22 @@ C_NEON_BLUE='\033[38;5;39m'
 C_NEON_GREEN='\033[38;5;46m'
 
 if [ "$EUID" -ne 0 ]; then
-    echo -e "${C_RED}[!] Este script debe ejecutarse como root.${C_RST}"
+    echo -e "${C_RED}[!] ${T[Este script debe ejecutarse como root]:-Este script debe ejecutarse como root}.${C_RST}"
     sleep 2
     exit 1
 fi
 
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}   🐻 INSTALADOR DROPBEAR (Compatible VPN)  ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}   🐻 ${T[INSTALADOR DROPBEAR (Compatible VPN]:-INSTALADOR DROPBEAR (Compatible VPN})  ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
 # Verificar si ya está instalado
 if systemctl is-active --quiet dropbear 2>/dev/null || netstat -tlpn 2>/dev/null | grep -q 'dropbear'; then
-    echo -e "${C_YELLOW}[!] Dropbear ya está instalado.${C_RST}"
-    read -p "¿Desea reinstalarlo con configuración compatible? (s/n): " reinst
+    echo -e "${C_YELLOW}[!] ${T[Dropbear ya está instalado]:-Dropbear ya está instalado}.${C_RST}"
+    read -p "${T[¿Desea reinstalarlo con configuración compatible? (s/n]:-¿Desea reinstalarlo con configuración compatible? (s/n}): " reinst
     if [[ "$reinst" == "s" || "$reinst" == "S" ]]; then
-        echo -e "${C_YELLOW}[+] Desinstalando Dropbear actual...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Desinstalando Dropbear actual]:-Desinstalando Dropbear actual}...${C_RST}"
         systemctl stop dropbear 2>/dev/null
         systemctl disable dropbear 2>/dev/null
         apt-get remove dropbear -y >/dev/null 2>&1
@@ -36,37 +51,37 @@ if systemctl is-active --quiet dropbear 2>/dev/null || netstat -tlpn 2>/dev/null
         rm -rf /etc/default/dropbear
         rm -rf /etc/dropbear
     else
-        echo -e "${C_GREEN}[✔] Instalación cancelada.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Instalación cancelada]:-Instalación cancelada}.${C_RST}"
         sleep 2
         exit 0
     fi
 fi
 
 # Solicitar puerto principal
-echo -ne "${C_YELLOW}¿Qué puerto principal quieres usar? (1-65535): ${C_RST}"
+echo -ne "${C_YELLOW}${T[¿Qué puerto principal quieres usar]:-¿Qué puerto principal quieres usar}? (1-65535): ${C_RST}"
 read porta
 
 if [[ ! "$porta" =~ ^[0-9]+$ ]] || [ "$porta" -lt 1 ] || [ "$porta" -gt 65535 ]; then
-    echo -e "${C_RED}[!] Puerto no válido.${C_RST}"
+    echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"
     sleep 2
     exit 1
 fi
 
 if [ "$porta" = "22" ]; then
-    echo -e "${C_RED}[!] ADVERTENCIA: El puerto 22 está en uso por OpenSSH.${C_RST}"
-    echo -e "${C_YELLOW}Se recomienda usar otro puerto como 444, 445, 8080.${C_RST}"
-    read -p "¿Continuar de todos modos? (s/n): " continuar
+    echo -e "${C_RED}[!] ${T[ADVERTENCIA: El puerto 22 está en uso por OpenSSH]:-ADVERTENCIA: El puerto 22 está en uso por OpenSSH}.${C_RST}"
+    echo -e "${C_YELLOW}${T[Se recomienda usar otro puerto como]:-Se recomienda usar otro puerto como} 444, 445, 8080.${C_RST}"
+    read -p "${T[¿Continuar de todos modos? (s/n]:-¿Continuar de todos modos? (s/n}): " continuar
     [[ "$continuar" != "s" && "$continuar" != "S" ]] && exit 0
 fi
 
 if ss -lntp 2>/dev/null | grep -q ":$porta "; then
     local svc=$(ss -lntp 2>/dev/null | grep ":$porta " | awk '{print $NF}' | cut -d'"' -f2)
-    echo -e "${C_RED}[!] El puerto $porta ya está en uso por: $svc${C_RST}"
+    echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $porta ${T[ya está en uso por]:-ya está en uso por}: $svc${C_RST}"
     sleep 3
     exit 1
 fi
 
-echo -e "${C_YELLOW}[+] Instalando Dropbear...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Instalando Dropbear]:-Instalando Dropbear}...${C_RST}"
 apt-get update -y >/dev/null 2>&1
 apt-get install dropbear -y >/dev/null 2>&1
 
@@ -83,10 +98,10 @@ echo "PermitTunnel yes" >> /etc/ssh/sshd_config
 
 # Crear directorio y banner
 mkdir -p /etc/dropbear
-echo "Bienvenido a VPS Manager" > /etc/dropbear/banner
+echo "${T[Bienvenido a VPS Manager]:-Bienvenido a VPS Manager}" > /etc/dropbear/banner
 
 # 🚨 GENERAR CLAVES CRIPTOGRÁFICAS (CRÍTICO PARA COMPATIBILIDAD)
-echo -e "${C_YELLOW}[+] Generando claves criptográficas RSA y ECDSA...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Generando claves criptográficas RSA y ECDSA]:-Generando claves criptográficas RSA y ECDSA}...${C_RST}"
 rm -f /etc/dropbear/dropbear_rsa_host_key
 rm -f /etc/dropbear/dropbear_ecdsa_host_key
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key >/dev/null 2>&1
@@ -126,21 +141,21 @@ systemctl restart ssh >/dev/null 2>&1
 # Verificar que realmente esté corriendo
 sleep 2
 if systemctl is-active --quiet dropbear 2>/dev/null; then
-    echo -e "${C_GREEN}[✔] Dropbear instalado y activo.${C_RST}"
-    echo -e "${C_CYAN}Puertos: ${C_YELLOW}$porta${C_RST} (principal) y ${C_YELLOW}110${C_RST} (extra)${C_RST}"
-    echo -e "${C_CYAN}Configuración compatible con TLS Túnel y HTTP Injector.${C_RST}"
+    echo -e "${C_GREEN}[✔] ${T[Dropbear instalado y activo]:-Dropbear instalado y activo}.${C_RST}"
+    echo -e "${C_CYAN}${T[Puertos]:-Puertos}: ${C_YELLOW}$porta${C_RST} (${T[principal) y]:-principal) y} ${C_YELLOW}110${C_RST} (extra)${C_RST}"
+    echo -e "${C_CYAN}${T[Configuración compatible con TLS Túnel y HTTP Injector]:-Configuración compatible con TLS Túnel y HTTP Injector}.${C_RST}"
     echo ""
-    echo -e "${C_YELLOW}Si aún no conecta desde tu app VPN, ejecuta:${C_RST}"
+    echo -e "${C_YELLOW}${T[Si aún no conecta desde tu app VPN, ejecuta]:-Si aún no conecta desde tu app VPN, ejecuta}:${C_RST}"
     echo -e "${C_NEON_BLUE}dropbear -h 2>&1 | grep -A 5 'Available'${C_RST}"
-    echo -e "${C_YELLOW}Y verifica que aparezcan estos algoritmos:${C_RST}"
+    echo -e "${C_YELLOW}${T[Y verifica que aparezcan estos algoritmos]:-Y verifica que aparezcan estos algoritmos}:${C_RST}"
     echo -e "  ${C_GREEN}• diffie-hellman-group14-sha1${C_RST}"
     echo -e "  ${C_GREEN}• aes128-cbc, aes256-cbc${C_RST}"
     echo -e "  ${C_GREEN}• hmac-sha1${C_RST}"
 else
-    echo -e "${C_RED}[!] Dropbear NO pudo iniciar.${C_RST}"
-    echo -e "${C_YELLOW}Verifica con: systemctl status dropbear${C_RST}"
-    echo -e "${C_YELLOW}O revisa los logs: journalctl -u dropbear -n 50${C_RST}"
+    echo -e "${C_RED}[!] ${T[Dropbear NO pudo iniciar]:-Dropbear NO pudo iniciar}.${C_RST}"
+    echo -e "${C_YELLOW}${T[Verifica con: systemctl status dropbear]:-Verifica con: systemctl status dropbear}${C_RST}"
+    echo -e "${C_YELLOW}${T[O revisa los logs: journalctl -u dropbear -n]:-O revisa los logs: journalctl -u dropbear -n} 50${C_RST}"
 fi
 
-echo -e "${C_GREEN}[✔] Volviendo al menú en 3 segundos...${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[Volviendo al menú en 3 segundos]:-Volviendo al menú en 3 segundos}...${C_RST}"
 sleep 3

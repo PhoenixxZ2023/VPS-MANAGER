@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # AutoConfig: SSL + ( Payload / Directo )
 # ==========================================
@@ -7,14 +22,14 @@ C_ORANGE='\033[38;5;214m' # Naranja similar a la imagen
 
 activar_autoconfig() {
     clear
-    echo -e "${C_YELLOW}Verificando puertos 80 y 443...${C_NC}"
+    echo -e "${C_YELLOW}${T[Verificando puertos 80 y]:-Verificando puertos 80 y} 443...${C_NC}"
     
     # Liberar puertos si están ocupados por servicios viejos
     systemctl stop ws-python stunnel4 apache2 nginx > /dev/null 2>&1
     fuser -k 80/tcp > /dev/null 2>&1
     fuser -k 443/tcp > /dev/null 2>&1
     
-    echo -e "${C_GREEN}Generando Proxy Python Dual en puerto 80...${C_NC}"
+    echo -e "${C_GREEN}${T[Generando Proxy Python Dual en puerto]:-Generando Proxy Python Dual en puerto} 80...${C_NC}"
     mkdir -p /etc/vps-manager/proxy
     
     cat << 'EOF' > /etc/vps-manager/proxy/proxy.py
@@ -124,7 +139,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
-    echo -e "${C_GREEN}Configurando Certificado y Stunnel4 en puerto 443...${C_NC}"
+    echo -e "${C_GREEN}${T[Configurando Certificado y Stunnel4 en puerto]:-Configurando Certificado y Stunnel4 en puerto} 443...${C_NC}"
     apt-get install stunnel4 -y > /dev/null 2>&1
     openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -subj "/C=PE/ST=Lima/L=Lima/O=GolbertVPS/CN=golbertvps.net.pe" -keyout /etc/stunnel/stunnel.pem -out /etc/stunnel/stunnel.pem > /dev/null 2>&1
     
@@ -146,18 +161,18 @@ EOF
     systemctl enable ws-python stunnel4 >/dev/null 2>&1
     systemctl restart ws-python stunnel4
 
-    echo -e "\n${C_GREEN}✅ AUTOCONFIGURACIÓN COMPLETADA.${C_NC}"
-    echo -e " ${C_CYAN}▶️ Puerto SSL     : 443${C_NC}"
-    echo -e " ${C_CYAN}▶️ Puerto Payload : 80${C_NC}"
+    echo -e "\n${C_GREEN}✅ ${T[AUTOCONFIGURACIÓN COMPLETADA]:-AUTOCONFIGURACIÓN COMPLETADA}.${C_NC}"
+    echo -e " ${C_CYAN}▶️ ${T[Puerto SSL]:-Puerto SSL}     : 443${C_NC}"
+    echo -e " ${C_CYAN}▶️ ${T[Puerto Payload]:-Puerto Payload} : 80${C_NC}"
     sleep 3
 }
 
 desactivar_autoconfig() {
     clear
-    echo -e "${C_RED}Desactivando servicios SSL y Proxy...${C_NC}"
+    echo -e "${C_RED}${T[Desactivando servicios SSL y Proxy]:-Desactivando servicios SSL y Proxy}...${C_NC}"
     systemctl stop ws-python stunnel4 > /dev/null 2>&1
     systemctl disable ws-python stunnel4 > /dev/null 2>&1
-    echo -e "${C_GREEN}✅ Servicios desactivados correctamente.${C_NC}"
+    echo -e "${C_GREEN}✅ ${T[Servicios desactivados correctamente]:-Servicios desactivados correctamente}.${C_NC}"
     sleep 2
 }
 
@@ -171,23 +186,23 @@ while true; do
     fi
 
     echo -e "${C_ORANGE}======================================================${C_NC}"
-    echo -e "    ${C_CYAN}SSL + ( Payload / Directo )  |  $estado_servicio${C_NC}"
+    echo -e "    ${C_CYAN}${T[SSL + ( Payload / Directo]:-SSL + ( Payload / Directo} )  |  $estado_servicio${C_NC}"
     echo -e "${C_ORANGE}======================================================${C_NC}"
-    echo -e "      ${C_CYAN}SCRIPT REESTRUCTURA y AUTOCONFIGURACION${C_NC}"
+    echo -e "      ${C_CYAN}${T[SCRIPT REESTRUCTURA y AUTOCONFIGURACION]:-SCRIPT REESTRUCTURA y AUTOCONFIGURACION}${C_NC}"
     echo -e "${C_ORANGE}======================================================${C_NC}"
-    echo -e "       ${C_NC}Requiere tener el puerto libre 443 y el 80${C_NC}"
+    echo -e "       ${C_NC}${T[Requiere tener el puerto libre 443 y el]:-Requiere tener el puerto libre 443 y el} 80${C_NC}"
     echo -e "${C_ORANGE}======================================================${C_NC}"
     echo -e ""
-    echo -e " ${C_YELLOW}[1]${C_NC} ${C_NC}Activar AUTOCONFIG (Python + SSL)${C_NC}"
-    echo -e " ${C_YELLOW}[2]${C_NC} ${C_NC}Desactivar (Payload+SSL)   |  ${C_YELLOW}[0]${C_NC} ${C_RED}Regresar${C_NC}"
+    echo -e " ${C_YELLOW}[1]${C_NC} ${C_NC}${T[Activar AUTOCONFIG (Python + SSL]:-Activar AUTOCONFIG (Python + SSL})${C_NC}"
+    echo -e " ${C_YELLOW}[2]${C_NC} ${C_NC}${T[Desactivar (Payload+SSL]:-Desactivar (Payload+SSL})   |  ${C_YELLOW}[0]${C_NC} ${C_RED}${T[Regresar]:-Regresar}${C_NC}"
     echo -e ""
     echo -e "${C_ORANGE}======================================================${C_NC}"
-    read -p " Seleccione una opción [0-2]: " op_ssl
+    read -p " ${T[Seleccione una opción]:-Seleccione una opción} [0-2]: " op_ssl
 
     case $op_ssl in
         1) activar_autoconfig ;;
         2) desactivar_autoconfig ;;
         0) break ;;
-        *) echo -e "${C_RED}Opción inválida.${C_NC}" ; sleep 1 ;;
+        *) echo -e "${C_RED}${T[Opción inválida]:-Opción inválida}.${C_NC}" ; sleep 1 ;;
     esac
 done

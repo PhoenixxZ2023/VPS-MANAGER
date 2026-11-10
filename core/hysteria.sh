@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo: Hysteria v1 Pro (Alineado a Puerto 20000 y Obfs)
 # ==========================================
@@ -9,7 +24,7 @@ HYS_PORT=20000
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "${C_GREEN}   INSTALADOR HYSTERIA v1 (PUERTO 20000)        ${C_NC}"
+echo -e "${C_GREEN}   ${T[INSTALADOR HYSTERIA v1 (PUERTO]:-INSTALADOR HYSTERIA v1 (PUERTO} 20000)        ${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
 
 apt update -y >/dev/null 2>&1
@@ -32,12 +47,12 @@ openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 \
     -keyout "$HYS_DIR/server.key" -out "$HYS_DIR/server.crt" 2>/dev/null
 
 echo -e "\n${C_CYAN}================================================${C_NC}"
-echo -e " 🔑 ${C_GREEN}CONFIGURACIÓN DE CREDENCIALES Hysteria v1${C_NC}"
+echo -e " 🔑 ${C_GREEN}${T[CONFIGURACIÓN DE CREDENCIALES Hysteria v]:-CONFIGURACIÓN DE CREDENCIALES Hysteria v}1${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-read -p "Contraseña (la misma que pusiste en Autenticación 'grey:grey' o similar) [Enter para 'grey']: " HYS_PASS
+read -p "${T[Contraseña (la misma que pusiste en Autenticación 'grey:grey' o similar]:-Contraseña (la misma que pusiste en Autenticación 'grey:grey' o similar}) [${T[Enter para 'grey]:-Enter para 'grey}']: " HYS_PASS
 [ -z "$HYS_PASS" ] && HYS_PASS="grey"
 
-read -p "Puerto UDP [Por defecto 20000]: " INPUT_PORT
+read -p "${T[Puerto UDP]:-Puerto UDP} [${T[Por defecto]:-Por defecto} 20000]: " INPUT_PORT
 [ -n "$INPUT_PORT" ] && HYS_PORT="$INPUT_PORT"
 
 # Archivo de configuración JSON completo con Obfs y Auth alineados a la app
@@ -86,11 +101,11 @@ IP_VPS=$(curl -s ipv4.icanhazip.com)
 DOM=$( [ -f /etc/vps-manager/dominio ] && cat /etc/vps-manager/dominio || echo "$IP_VPS" )
 
 clear
-echo -e "${C_GREEN}[✔] ¡Hysteria v1 configurado perfectamente en el puerto $HYS_PORT!${C_NC}"
+echo -e "${C_GREEN}[✔] ${T[¡Hysteria v1 configurado perfectamente en el puerto]:-¡Hysteria v1 configurado perfectamente en el puerto} $HYS_PORT!${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e " 🌐 Host / Servidor : ${C_YELLOW}$DOM${C_NC}"
-echo -e " 🎯 Puerto UDP      : ${C_YELLOW}$HYS_PORT${C_NC}"
-echo -e " 🔑 Autenticación   : ${C_YELLOW}$HYS_PASS${C_NC}"
-echo -e " 🛡️ Obfuscación     : ${C_YELLOW}golbert${C_NC}"
+echo -e " 🌐 ${T[Host / Servidor]:-Host / Servidor} : ${C_YELLOW}$DOM${C_NC}"
+echo -e " 🎯 ${T[Puerto UDP]:-Puerto UDP}      : ${C_YELLOW}$HYS_PORT${C_NC}"
+echo -e " 🔑 ${T[Autenticación]:-Autenticación}   : ${C_YELLOW}$HYS_PASS${C_NC}"
+echo -e " 🛡️ ${T[Obfuscación]:-Obfuscación}     : ${C_YELLOW}golbert${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-read -p "Presione Enter para regresar..."
+read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."

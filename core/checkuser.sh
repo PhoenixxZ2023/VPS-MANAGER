@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo: CheckUser Multi-App API (Puerto 5432)
 # ==========================================
@@ -12,7 +27,7 @@ CHK_PORT=$(cat "$CHK_PORT_FILE" 2>/dev/null)
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "${C_GREEN}      INSTALANDO CHECKUSER MULTI-APP (API)      ${C_NC}"
+echo -e "${C_GREEN}      ${T[INSTALANDO CHECKUSER MULTI-APP (API]:-INSTALANDO CHECKUSER MULTI-APP (API})      ${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
 
 apt update -y >/dev/null 2>&1
@@ -21,13 +36,13 @@ mkdir -p $CHK_DIR
 
 # Migración: versiones anteriores de Multi-App usaban "checkuser.service" (choca con CheckUser Avanzado)
 if [ -f /etc/systemd/system/checkuser.service ] && grep -q "Multi-App" /etc/systemd/system/checkuser.service 2>/dev/null; then
-    echo -e "${C_YELLOW}[+] Migrando servicio antiguo checkuser -> $CHK_SVC...${C_NC}"
+    echo -e "${C_YELLOW}[+] ${T[Migrando servicio antiguo checkuser]:-Migrando servicio antiguo checkuser} -> $CHK_SVC...${C_NC}"
     systemctl stop checkuser 2>/dev/null
     systemctl disable checkuser 2>/dev/null
     rm -f /etc/systemd/system/checkuser.service
 fi
 
-echo -e "${C_YELLOW}[+] Creando API de CheckUser en Python...${C_NC}"
+echo -e "${C_YELLOW}[+] ${T[Creando API de CheckUser en Python]:-Creando API de CheckUser en Python}...${C_NC}"
 cat << 'EOF' > $CHK_DIR/check.py
 import socket, sys, os, subprocess, json
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -110,7 +125,7 @@ iptables -I INPUT -p tcp --dport $CHK_PORT -j ACCEPT
 iptables-save > /etc/iptables.up.rules 2>/dev/null
 ufw allow $CHK_PORT/tcp >/dev/null 2>&1
 
-echo -e "${C_YELLOW}[+] Activando servicio Systemd...${C_NC}"
+echo -e "${C_YELLOW}[+] ${T[Activando servicio Systemd]:-Activando servicio Systemd}...${C_NC}"
 cat << EOF > /etc/systemd/system/$CHK_SVC.service
 [Unit]
 Description=CheckUser Multi-App API
@@ -133,10 +148,10 @@ systemctl restart $CHK_SVC
 
 IP_VPS=$(curl -s ipv4.icanhazip.com)
 clear
-echo -e "${C_GREEN}[✔] ¡CheckUser Multi-App Instalado Correctamente!${C_NC}"
+echo -e "${C_GREEN}[✔] ${T[¡CheckUser Multi-App Instalado Correctamente]:-¡CheckUser Multi-App Instalado Correctamente}!${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e " 🌐 URL API   : ${C_YELLOW}http://$IP_VPS:$CHK_PORT/USUARIO${C_NC}"
-echo -e " 🎯 Puerto    : ${C_YELLOW}$CHK_PORT${C_NC}"
-echo -e " ⚙️ Soporte   : ${C_YELLOW}HTTP Custom, HTTP Injector, Paneles Web${C_NC}"
+echo -e " 🌐 URL API   : ${C_YELLOW}http://$IP_VPS:$CHK_PORT/${T[USUARIO]:-USUARIO}${C_NC}"
+echo -e " 🎯 ${T[Puerto]:-Puerto}    : ${C_YELLOW}$CHK_PORT${C_NC}"
+echo -e " ⚙️ ${T[Soporte]:-Soporte}   : ${C_YELLOW}${T[HTTP Custom, HTTP Injector, Paneles Web]:-HTTP Custom, HTTP Injector, Paneles Web}${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-read -p "Presione Enter para regresar al menú..."
+read -p "${T[Presione Enter para regresar al menú]:-Presione Enter para regresar al menú}..."

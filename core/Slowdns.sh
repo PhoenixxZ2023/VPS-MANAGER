@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo: SlowDNS / DNSTT Oficial (Bind Universal 0.0.0.0:53)
 # ==========================================
@@ -8,12 +23,12 @@ mkdir -p "$DNS_DIR"
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "${C_GREEN}   INSTALADOR OFICIAL SLOWDNS (PUERTO 53 -> 22)  ${C_NC}"
+echo -e "${C_GREEN}   ${T[INSTALADOR OFICIAL SLOWDNS (PUERTO]:-INSTALADOR OFICIAL SLOWDNS (PUERTO} 53 -> 22)  ${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
 
-read -p "Ingresa tu subdominio NS (Ej: ns-centrix.golbertvps.online): " NS_DOMAIN
+read -p "${T[Ingresa tu subdominio NS (Ej: ns-centrix.golbertvps.online]:-Ingresa tu subdominio NS (Ej: ns-centrix.golbertvps.online}): " NS_DOMAIN
 if [ -z "$NS_DOMAIN" ]; then
-    echo -e "${C_RED}[!] Error: Debes ingresar un subdominio NS válido.${C_NC}"
+    echo -e "${C_RED}[!] ${T[Error: Debes ingresar un subdominio NS válido]:-Error: Debes ingresar un subdominio NS válido}.${C_NC}"
     sleep 2
     exit 1
 fi
@@ -66,10 +81,10 @@ systemctl enable vps-slowdns >/dev/null 2>&1
 systemctl restart vps-slowdns
 
 clear
-echo -e "${C_GREEN}[✔] ¡SlowDNS Oficial (DNSTT) instalado y activo!${C_NC}"
+echo -e "${C_GREEN}[✔] ${T[¡SlowDNS Oficial (DNSTT) instalado y activo]:-¡SlowDNS Oficial (DNSTT) instalado y activo}!${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
 echo -e " 🌐 NS Domain : ${C_YELLOW}$NS_DOMAIN${C_NC}"
 echo -e " 🔑 Pub Key   : ${C_YELLOW}$PUB_KEY${C_NC}"
-echo -e " 🎯 Túnel     : UDP 0.0.0.0:53 ➔ SSH 127.0.0.1:22"
+echo -e " 🎯 ${T[Túnel     : UDP 0.0.0.0:53 ➔ SSH]:-Túnel     : UDP 0.0.0.0:53 ➔ SSH} 127.0.0.1:22"
 echo -e "${C_CYAN}================================================${C_NC}"
-read -p "Presione Enter para regresar..."
+read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."

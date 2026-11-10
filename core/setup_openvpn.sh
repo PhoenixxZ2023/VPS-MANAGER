@@ -1,9 +1,24 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Instalador Real de OpenVPN + Certificados
 # ==========================================
 clear
-echo -e "\033[1;33m[+] Instalando y configurando OpenVPN...\033[0m"
+echo -e "\033[1;33m[+] ${T[Instalando y configurando OpenVPN]:-Instalando y configurando OpenVPN}...\033[0m"
 apt update -y && apt install -y openvpn iptables python3 curl openssl >/dev/null 2>&1
 
 # Encontrar el plugin de autenticación PAM automáticamente
@@ -103,4 +118,4 @@ systemctl daemon-reload
 systemctl enable openvpn-web >/dev/null 2>&1
 systemctl restart openvpn-web
 
-echo -e "\033[1;32m[✔] Servidor OpenVPN y Certificados configurados exitosamente.\033[0m"
+echo -e "\033[1;32m[✔] ${T[Servidor OpenVPN y Certificados configurados exitosamente]:-Servidor OpenVPN y Certificados configurados exitosamente}.\033[0m"

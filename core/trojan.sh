@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo Independiente: TROJAN (XRAY)
 # Puertos: 80 (NTLS) y 443 (TLS)
@@ -11,32 +26,32 @@ DOM_FILE="/etc/vps-manager/dominio"
 instalar_xray_trojan() {
     clear
     echo -e "${C_CYAN}================================================${C_NC}"
-    echo -e "${C_GREEN}   INSTALACIÓN DE XRAY (TROJAN) Y CERTIFICADO   ${C_NC}"
+    echo -e "${C_GREEN}   ${T[INSTALACIÓN DE XRAY (TROJAN) Y CERTIFICADO]:-INSTALACIÓN DE XRAY (TROJAN) Y CERTIFICADO}   ${C_NC}"
     echo -e "${C_CYAN}================================================${C_NC}"
     
-    read -p "Ingresa tu dominio (Ej: centrix.golbertvps.online): " DOMINIO
-    if [ -z "$DOMINIO" ]; then echo -e "${C_RED}[!] Dominio inválido.${C_NC}"; sleep 2; return; fi
+    read -p "${T[Ingresa tu dominio (Ej: centrix.golbertvps.online]:-Ingresa tu dominio (Ej: centrix.golbertvps.online}): " DOMINIO
+    if [ -z "$DOMINIO" ]; then echo -e "${C_RED}[!] ${T[Dominio inválido]:-Dominio inválido}.${C_NC}"; sleep 2; return; fi
     echo "$DOMINIO" > $DOM_FILE
 
-    echo -e "${C_YELLOW}[+] Instalando dependencias...${C_NC}"
+    echo -e "${C_YELLOW}[+] ${T[Instalando dependencias]:-Instalando dependencias}...${C_NC}"
     apt update -y >/dev/null 2>&1
     apt install -y certbot jq uuid-runtime curl iptables ufw >/dev/null 2>&1
 
-    echo -e "${C_YELLOW}[+] Liberando puertos 80 y 443...${C_NC}"
+    echo -e "${C_YELLOW}[+] ${T[Liberando puertos 80 y]:-Liberando puertos 80 y} 443...${C_NC}"
     systemctl stop nginx apache2 haproxy xray 2>/dev/null
     fuser -k 80/tcp 2>/dev/null
     fuser -k 443/tcp 2>/dev/null
 
-    echo -e "${C_YELLOW}[+] Generando Certificado SSL...${C_NC}"
+    echo -e "${C_YELLOW}[+] ${T[Generando Certificado SSL]:-Generando Certificado SSL}...${C_NC}"
     certbot certonly --standalone -d "$DOMINIO" --non-interactive --agree-tos -m "admin@$DOMINIO"
     
     if [ ! -f "/etc/letsencrypt/live/$DOMINIO/fullchain.pem" ]; then
-        echo -e "${C_RED}[!] Error SSL. Revisa que tu IP apunte al dominio en Cloudflare.${C_NC}"
-        read -p "Presiona Enter..."
+        echo -e "${C_RED}[!] ${T[Error SSL. Revisa que tu IP apunte al dominio en Cloudflare]:-Error SSL. Revisa que tu IP apunte al dominio en Cloudflare}.${C_NC}"
+        read -p "${T[Presiona Enter]:-Presiona Enter}..."
         exit 1
     fi
 
-    echo -e "${C_YELLOW}[+] Instalando núcleo Xray...${C_NC}"
+    echo -e "${C_YELLOW}[+] ${T[Instalando núcleo Xray]:-Instalando núcleo Xray}...${C_NC}"
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install >/dev/null 2>&1
     
     # IMPORTANTE: ¡Abrir el Firewall!
@@ -84,7 +99,7 @@ instalar_xray_trojan() {
 }
 EOF
     systemctl restart xray
-    echo -e "${C_GREEN}[✔] ¡Instalación TROJAN completada!${C_NC}"; sleep 2
+    echo -e "${C_GREEN}[✔] ${T[¡Instalación TROJAN completada]:-¡Instalación TROJAN completada}!${C_NC}"; sleep 2
 }
 
 generar_link() {
@@ -101,22 +116,22 @@ menu_trojan() {
     
     while true; do
         clear
-        echo -e "${C_YELLOW}        GESTION DE TROJAN (XRAY)        ${C_NC}"
+        echo -e "${C_YELLOW}        ${T[GESTION DE TROJAN (XRAY]:-GESTION DE TROJAN (XRAY})        ${C_NC}"
         echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
-        echo -e "${C_CYAN}[1] >${C_NC} Crear Cuenta Trojan"
-        echo -e "${C_CYAN}[2] >${C_NC} Eliminar Cuenta Trojan"
-        echo -e "${C_CYAN}[x] >${C_NC} Salir del Gestor"
+        echo -e "${C_CYAN}[1] >${C_NC} ${T[Crear Cuenta Trojan]:-Crear Cuenta Trojan}"
+        echo -e "${C_CYAN}[2] >${C_NC} ${T[Eliminar Cuenta Trojan]:-Eliminar Cuenta Trojan}"
+        echo -e "${C_CYAN}[x] >${C_NC} ${T[Salir del Gestor]:-Salir del Gestor}"
         echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
-        read -p "Digite su opción: " opc
+        read -p "${T[Digite su opción]:-Digite su opción}: " opc
 
         case $opc in
             1)
                 clear
-                echo -e "${C_YELLOW}      CREAR USUARIO XRAY TROJAN      ${C_NC}"
+                echo -e "${C_YELLOW}      ${T[CREAR USUARIO XRAY TROJAN]:-CREAR USUARIO XRAY TROJAN}      ${C_NC}"
                 echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
-                read -p "Nombre de usuario: " user
+                read -p "${T[Nombre de usuario]:-Nombre de usuario}: " user
                 [ -z "$user" ] && continue
-                read -p "Duración (días): " dias
+                read -p "${T[Duración (días]:-Duración (días}): " dias
                 
                 UUID=$(uuidgen)
                 EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d")
@@ -137,13 +152,13 @@ menu_trojan() {
                 LINK_XHTTP80=$(generar_link "$user-XHTTP80" "$DOM" "$UUID" "80" "xhttp" "" "/xhttp")
 
                 clear
-                echo -e "${C_YELLOW}    CUENTA TROJAN CREADA EXITOSAMENTE    ${C_NC}"
+                echo -e "${C_YELLOW}    ${T[CUENTA TROJAN CREADA EXITOSAMENTE]:-CUENTA TROJAN CREADA EXITOSAMENTE}    ${C_NC}"
                 echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
                 echo -e " Alias       : ${C_CYAN}$user${C_NC}"
-                echo -e " Dominio     : ${C_CYAN}$DOM${C_NC}"
+                echo -e " ${T[Dominio]:-Dominio}     : ${C_CYAN}$DOM${C_NC}"
                 echo -e " Password    : ${C_CYAN}$UUID${C_NC}"
-                echo -e " Red         : ${C_CYAN}WS / GRPC / XHTTP${C_NC}"
-                echo -e " Expira      : ${C_CYAN}$EXP_DATE${C_NC}"
+                echo -e " ${T[Red]:-Red}         : ${C_CYAN}WS / GRPC / XHTTP${C_NC}"
+                echo -e " ${T[Expira]:-Expira}      : ${C_CYAN}$EXP_DATE${C_NC}"
                 echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
                 echo -e "\n ${C_GREEN}LINK TLS (443) :${C_NC}\n$LINK_TLS\n"
                 echo -e " ${C_GREEN}LINK NTLS (80) :${C_NC}\n$LINK_NTLS\n"
@@ -151,17 +166,17 @@ menu_trojan() {
                 echo -e " ${C_GREEN}LINK XHTTP     :${C_NC}\n$LINK_XHTTP\n"
                 echo -e " ${C_GREEN}LINK XHTTP80   :${C_NC}\n$LINK_XHTTP80\n"
                 echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
-                read -p "Presiona ENTER para volver al menú " foo
+                read -p "${T[Presiona ENTER para volver al menú]:-Presiona ENTER para volver al menú} " foo
                 ;;
             2)
-                read -p "Usuario a eliminar: " user
+                read -p "${T[Usuario a eliminar]:-Usuario a eliminar}: " user
                 jq ".inbounds[0].settings.clients |= map(select(.email != \"$user\"))" $CONF_FILE > tmp.json && mv tmp.json $CONF_FILE
                 jq ".inbounds[1].settings.clients |= map(select(.email != \"$user\"))" $CONF_FILE > tmp.json && mv tmp.json $CONF_FILE
                 jq ".inbounds[2].settings.clients |= map(select(.email != \"$user\"))" $CONF_FILE > tmp.json && mv tmp.json $CONF_FILE
                 jq ".inbounds[3].settings.clients |= map(select(.email != \"$user\"))" $CONF_FILE > tmp.json && mv tmp.json $CONF_FILE
                 jq ".inbounds[4].settings.clients |= map(select(.email != \"$user\"))" $CONF_FILE > tmp.json && mv tmp.json $CONF_FILE
                 systemctl restart xray
-                echo -e "${C_GREEN}[✔] Eliminado.${C_NC}"; sleep 2
+                echo -e "${C_GREEN}[✔] ${T[Eliminado]:-Eliminado}.${C_NC}"; sleep 2
                 ;;
             x|X|"") break ;;
         esac

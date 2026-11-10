@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo: Panel Web Ultra PRO (Admin + Creador)
 # Instala panel viejo + prepara auth hasheada para panel.py
@@ -10,19 +25,19 @@ ENV_FILE="/etc/vps-manager/panel.env"
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "${C_GREEN}    INSTALADOR WEB PANEL PRO (DARK UI)          ${C_NC}"
+echo -e "${C_GREEN}    ${T[INSTALADOR WEB PANEL PRO (DARK UI]:-INSTALADOR WEB PANEL PRO (DARK UI})          ${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
 
-read -p "Crea un Usuario Admin para el Web: " WEB_USER
-read -s -p "Crea una Contraseña Admin para el Web: " WEB_PASS; echo
-read -s -p "Repite la Contraseña: " WEB_PASS2; echo
+read -p "${T[Crea un Usuario Admin para el Web]:-Crea un Usuario Admin para el Web}: " WEB_USER
+read -s -p "${T[Crea una Contraseña Admin para el Web]:-Crea una Contraseña Admin para el Web}: " WEB_PASS; echo
+read -s -p "${T[Repite la Contraseña]:-Repite la Contraseña}: " WEB_PASS2; echo
 
 if [ "$WEB_PASS" != "$WEB_PASS2" ]; then
-    echo -e "${C_RED}[✗] Las contraseñas no coinciden.${C_NC}"
+    echo -e "${C_RED}[✗] ${T[Las contraseñas no coinciden]:-Las contraseñas no coinciden}.${C_NC}"
     exit 1
 fi
 if [ ${#WEB_PASS} -lt 8 ]; then
-    echo -e "${C_RED}[✗] La contraseña debe tener al menos 8 caracteres.${C_NC}"
+    echo -e "${C_RED}[✗] ${T[La contraseña debe tener al menos 8 caracteres]:-La contraseña debe tener al menos 8 caracteres}.${C_NC}"
     exit 1
 fi
 
@@ -315,7 +330,7 @@ systemctl restart vps-webpanel
 
 IP_VPS=$(curl -s ipv4.icanhazip.com)
 clear
-echo -e "${C_GREEN}[✔] ¡Panel Web PRO Instalado!${C_NC}\nURL: ${C_YELLOW}http://$IP_VPS:8181${C_NC}"
-echo -e "User: ${C_YELLOW}$WEB_USER${C_NC}  (auth hasheada en $AUTH_FILE)"
-echo -e "Nota: cuando actualices con panel.py, podrás entrar con este mismo usuario/contraseña."
-read -p "Presione Enter para regresar..."
+echo -e "${C_GREEN}[✔] ${T[¡Panel Web PRO Instalado]:-¡Panel Web PRO Instalado}!${C_NC}\nURL: ${C_YELLOW}http://$IP_VPS:8181${C_NC}"
+echo -e "${T[User]:-User}: ${C_YELLOW}$WEB_USER${C_NC}  (${T[auth hasheada en]:-auth hasheada en} $AUTH_FILE)"
+echo -e "${T[Nota: cuando actualices con panel.py, podrás entrar con este mismo usuario/contraseña]:-Nota: cuando actualices con panel.py, podrás entrar con este mismo usuario/contraseña}."
+read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."

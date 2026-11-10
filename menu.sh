@@ -1,11 +1,24 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # VPS MANAGER  - Panel V2.1
 # ==========================================
 C_RST='\033[0m'; C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;36m'
 C_NEON_BLUE='\033[38;5;39m'; C_NEON_GREEN='\033[38;5;46m'; C_NEON_PURPLE='\033[38;5;141m'; C_NEON_YELLOW='\033[38;5;226m'
-C_BOLD='\033[1m'
-
 mkdir -p /etc/vps-manager
 [ ! -f /etc/vps-manager/lang ] && echo "pt" > /etc/vps-manager/lang
 if [ -f /etc/os-release ]; then . /etc/os-release; UBUNTU_VERSION=$VERSION_ID; else UBUNTU_VERSION="24.04"; fi
@@ -14,7 +27,7 @@ generar_banner_usuario() {
 local u=$1; local exp=$2; local dias=$3; local limit=$4
 local base=$(cat /etc/issue.net 2>/dev/null)
 local banner_file="/etc/vps-manager/banner_${u}.net"
-echo -e "${base}<br><font color='cyan'>=======================</font><br><font color='yellow'>👤 USUÁRIO:</font> <font color='white'>${u}</font><br><font color='yellow'>📅 EXPIRA:</font> <font color='white'>${exp} (${dias} Dias)</font><br><font color='yellow'>🔒 LIMITE:</font> <font color='white'>${limit} Conexões</font><br><font color='cyan'>=======================</font><br>" > "$banner_file"
+echo -e "${base}<br><font color='cyan'>=======================</font><br><font color='yellow'>👤 Usuario:</font> <font color='white'>${u}</font><br><font color='yellow'>📅 Expira:</font> <font color='white'>${exp} (${dias} Días)</font><br><font color='yellow'>🔒 Límite:</font> <font color='white'>${limit} Conexiones</font><br><font color='cyan'>=======================</font><br>" > "$banner_file"
 sed -i "/Match User $u/d" /etc/ssh/sshd_config
 sed -i "/Banner \/etc\/vps-manager\/banner_${u}.net/d" /etc/ssh/sshd_config
 echo -e "
@@ -23,7 +36,7 @@ Banner $banner_file" >> /etc/ssh/sshd_config
 }
 
 # ==========================================
-# FUNÇÃO CHECKUSER AVANÇADO
+# FUNCIÓN CHECKUSER AVANZADO
 # ==========================================
 menu_checkuser() {
 mkdir -p /etc/vps-manager
@@ -32,110 +45,110 @@ local check4g_file_exists=$( [ -f /etc/vps-manager/4gcheck.py ] && echo "1" || e
 if [ "$check_file_exists" == "0" ] || [ "$check4g_file_exists" == "0" ]; then
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🛡️ INSTALAR CHECKUSER AVANÇADO         ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ ${T[INSTALAR CHECKUSER AVANZADO]:-INSTALAR CHECKUSER AVANZADO}        ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  Os seguintes arquivos serão baixados:"
+echo -e "  ${T[Se descargarán los siguientes archivos]:-Se descargarán los siguientes archivos}:"
 echo -e "  - ${C_NEON_YELLOW}/etc/vps-manager/check.py${C_RST}"
 echo -e "  - ${C_NEON_YELLOW}/etc/vps-manager/4gcheck.py${C_RST}"
 echo -e "  - ${C_NEON_YELLOW}/bin/check${C_RST}"
-echo -e "  Além disso serão instalados: ${C_NEON_YELLOW}python3-pip, flask${C_RST}"
+echo -e "  ${T[Además se instalarán]:-Además se instalarán}: ${C_NEON_YELLOW}python3-pip, flask${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR ARQUIVOS DO CHECKUSER"
-echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU PRINCIPAL"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar archivos de CheckUser]:-Instalar archivos de CheckUser}"
+echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Principal]:-Volver al Menú Principal}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " inst_opt
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " inst_opt
 case $inst_opt in
 1)
-echo -e "${C_YELLOW}[+] Instalando dependências (python3-pip, flask)...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Instalando dependencias (python3-pip, flask]:-Instalando dependencias (python3-pip, flask})...${C_RST}"
 apt update -y >/dev/null 2>&1
 apt install python3-pip flask -y >/dev/null 2>&1
 pip3 install flask >/dev/null 2>&1
-echo -e "${C_YELLOW}[+] Baixando arquivos do CheckUser...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Descargando archivos de CheckUser]:-Descargando archivos de CheckUser}...${C_RST}"
 wget -qO /etc/vps-manager/check.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/check.py
 wget -qO /etc/vps-manager/4gcheck.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/4gcheck.py
 wget -qO /bin/check https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/check
 chmod +x /bin/check /etc/vps-manager/check.py /etc/vps-manager/4gcheck.py
-echo -e "${C_GREEN}[✔] Arquivos instalados com sucesso.${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[Archivos instalados correctamente]:-Archivos instalados correctamente}.${C_RST}"
 sleep 2
 ;;
 0) return ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1; return ;;
+*) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1; return ;;
 esac
 fi
 while true; do
 clear
-# Estado via systemd (mais confiável)
+# Estado vía systemd (más fiable)
 local is_std_running=0
 local is_4g_running=0
 systemctl is-active --quiet checkuser.service 2>/dev/null && is_std_running=1
 systemctl is-active --quiet checkuser-4g.service 2>/dev/null && is_4g_running=1
-# Fallback para screen
+# Fallback a screen por si aún queda sesión antigua
 [ "$is_std_running" -eq 0 ] && [ "$(screen -ls 2>/dev/null | grep -c '\.checkuser')" -gt 0 ] && is_std_running=1
 [ "$is_4g_running" -eq 0 ] && [ "$(screen -ls 2>/dev/null | grep -c '\.4gcheck')" -gt 0 ] && is_4g_running=1
 
-local std_status="❌ INATIVO"
+local std_status="❌ INACTIVO"
 local std_color="$C_RED"
-[ "$is_std_running" -gt 0 ] && { std_status="✅ ATIVO"; std_color="$C_GREEN"; }
-local status_4g="❌ INATIVO"
+[ "$is_std_running" -gt 0 ] && { std_status="✅ ACTIVO"; std_color="$C_GREEN"; }
+local status_4g="❌ INACTIVO"
 local color_4g="$C_RED"
-[ "$is_4g_running" -gt 0 ] && { status_4g="✅ ATIVO"; color_4g="$C_GREEN"; }
+[ "$is_4g_running" -gt 0 ] && { status_4g="✅ ACTIVO"; color_4g="$C_GREEN"; }
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🛡️ GESTÃO DE CHECKUSER AVANÇADO       ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ ${T[GESTIÓN DE CHECKUSER AVANZADO]:-GESTIÓN DE CHECKUSER AVANZADO}       ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} 👤 CHECKUSER (PADRÃO) ......... [ ${std_color}${std_status}${C_RST} ]"
-echo -e "  ${C_NEON_YELLOW}2.${C_RST} 📱 CHECKUSER (CONECTA4G) ........ [ ${color_4g}${status_4g}${C_RST} ]"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} 👤 ${T[CheckUser (Estándar]:-CheckUser (Estándar}) ......... [ ${std_color}${std_status}${C_RST} ]"
+echo -e "  ${C_NEON_YELLOW}2.${C_RST} 📱 CheckUser (Conecta4G) ........ [ ${color_4g}${status_4g}${C_RST} ]"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU PRINCIPAL"
+echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Principal]:-Volver al Menú Principal}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " cu_opt
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " cu_opt
 case $cu_opt in
 1)
 if [ "$is_std_running" -gt 0 ]; then
-echo -e "${C_YELLOW}[+] Desativando CheckUser (Padrão)...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Desactivando CheckUser (Estándar]:-Desactivando CheckUser (Estándar})...${C_RST}"
 systemctl stop checkuser.service 2>/dev/null
 systemctl disable checkuser.service 2>/dev/null
 rm -f /etc/systemd/system/checkuser.service
 systemctl daemon-reload 2>/dev/null
-# Limpar restos de screen e autostart antigos
+# Limpiar restos de screen y autostart antiguos
 screen -S checkuser -X quit 2>/dev/null
 screen -wipe >/dev/null 2>&1
 sed -i '/check\.py/d' /etc/autostart 2>/dev/null
-echo -e "${C_GREEN}[✔] CheckUser (Padrão) desativado.${C_RST}"
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+echo -e "${C_GREEN}[✔] ${T[CheckUser (Estándar) desactivado]:-CheckUser (Estándar) desactivado}.${C_RST}"
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 else
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          ATIVAR CHECKUSER (PADRÃO)            ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ${T[ACTIVAR CHECKUSER (ESTÁNDAR]:-ACTIVAR CHECKUSER (ESTÁNDAR})         ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-echo -ne "${C_YELLOW}DIGITE A PORTA PARA O CHECKUSER (1-65535): ${C_RST}"
+echo -ne "${C_YELLOW}${T[Ingrese el puerto para CheckUser]:-Ingrese el puerto para CheckUser} (1-65535): ${C_RST}"
 read porta
 if [[ ! "$porta" =~ ^[0-9]+$ ]] || [ "$porta" -lt 1 ] || [ "$porta" -gt 65535 ]; then
-echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"
+echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"
 sleep 2
 continue
 fi
 if ss -lntp 2>/dev/null | grep -q ":$porta "; then
 local svc=$(ss -lntp 2>/dev/null | grep ":$porta " | awk '{print $NF}' | cut -d'"' -f2)
-echo -e "${C_RED}[!] A PORTA $porta JÁ ESTÁ EM USO POR: $svc${C_RST}"
+echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $porta ${T[ya está en uso por]:-ya está en uso por}: $svc${C_RST}"
 sleep 3
 continue
 fi
-echo -e "${C_NEON_YELLOW}SELECIONE O FORMATO DE DATA:${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} YYYY/MM/DD (Mais comum)"
-echo -e "  ${C_NEON_YELLOW}2.${C_RST} DD/MM/YYYY"
-read -p "OPÇÃO: " fmt_opt
+echo -e "${C_NEON_YELLOW}${T[Seleccione el formato de fecha]:-Seleccione el formato de fecha}:${C_RST}"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} ${T[YYYY/MM/DD (Más común]:-YYYY/MM/DD (Más común})"
+echo -e "  ${C_NEON_YELLOW}2.${C_RST} ${T[DD/MM/YYYY]:-DD/MM/YYYY}"
+read -p "${T[Opción]:-Opción}: " fmt_opt
 local format=1
 [ "$fmt_opt" == "2" ] && format=2
-echo -e "${C_YELLOW}[+] Configurando serviço systemd CheckUser (Padrão) na porta $porta...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Configurando servicio systemd CheckUser (Estándar) en puerto]:-Configurando servicio systemd CheckUser (Estándar) en puerto} $porta...${C_RST}"
 
-# Guardar porta e formato
+# Guardar puerto y formato para referencia
 echo "$porta" > /etc/vps-manager/checkuser_port
 echo "$format" > /etc/vps-manager/checkuser_format
 
-# Criar unit systemd
+# Crear unit systemd
 cat > /etc/systemd/system/checkuser.service << EOF
 [Unit]
-Description=VPS-Manager CheckUser (Padrao)
+Description=VPS-Manager CheckUser (Estándar)
 After=network-online.target
 Wants=network-online.target
 
@@ -154,19 +167,19 @@ systemctl daemon-reload
 systemctl enable checkuser.service >/dev/null 2>&1
 systemctl restart checkuser.service
 
-# Limpar restos antigos
+# Limpiar restos antiguos
 sed -i '/check\.py/d' /etc/autostart 2>/dev/null
 screen -S checkuser -X quit 2>/dev/null
 
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
-echo -e "${C_GREEN}[✔] CheckUser (Padrão) ativado com systemd.${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[CheckUser (Estándar) activado con systemd (se reinicia al arrancar el VPS]:-CheckUser (Estándar) activado con systemd (se reinicia al arrancar el VPS}).${C_RST}"
 echo -e "${C_CYAN}URL: http://$IP:$porta/checkUser${C_RST}"
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 fi
 ;;
 2)
 if [ "$is_4g_running" -gt 0 ]; then
-echo -e "${C_YELLOW}[+] Desativando CheckUser (Conecta4G)...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Desactivando CheckUser (Conecta4G]:-Desactivando CheckUser (Conecta4G})...${C_RST}"
 systemctl stop checkuser-4g.service 2>/dev/null
 systemctl disable checkuser-4g.service 2>/dev/null
 rm -f /etc/systemd/system/checkuser-4g.service
@@ -174,27 +187,27 @@ systemctl daemon-reload 2>/dev/null
 screen -S 4gcheck -X quit 2>/dev/null
 screen -wipe >/dev/null 2>&1
 sed -i '/4gcheck\.py/d' /etc/autostart 2>/dev/null
-echo -e "${C_GREEN}[✔] CheckUser (Conecta4G) desativado.${C_RST}"
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+echo -e "${C_GREEN}[✔] ${T[CheckUser (Conecta4G) desactivado]:-CheckUser (Conecta4G) desactivado}.${C_RST}"
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 else
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          ATIVAR CHECKUSER (CONECTA4G)         ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ${T[ACTIVAR CHECKUSER (CONECTA4G]:-ACTIVAR CHECKUSER (CONECTA4G})        ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-echo -ne "${C_YELLOW}DIGITE A PORTA PARA O CHECKUSER 4G (1024-65535): ${C_RST}"
+echo -ne "${C_YELLOW}${T[Ingrese el puerto para CheckUser 4G]:-Ingrese el puerto para CheckUser 4G} (1024-65535): ${C_RST}"
 read porta
 if [[ ! "$porta" =~ ^[0-9]+$ ]] || [ "$porta" -lt 1024 ] || [ "$porta" -gt 65535 ]; then
-echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"
+echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"
 sleep 2
 continue
 fi
 if ss -lntp 2>/dev/null | grep -q ":$porta "; then
 local svc=$(ss -lntp 2>/dev/null | grep ":$porta " | awk '{print $NF}' | cut -d'"' -f2)
-echo -e "${C_RED}[!] A PORTA $porta JÁ ESTÁ EM USO POR: $svc${C_RST}"
+echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $porta ${T[ya está en uso por]:-ya está en uso por}: $svc${C_RST}"
 sleep 3
 continue
 fi
-echo -e "${C_YELLOW}[+] Configurando serviço systemd CheckUser (Conecta4G) na porta $porta...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Configurando servicio systemd CheckUser (Conecta4G) en puerto]:-Configurando servicio systemd CheckUser (Conecta4G) en puerto} $porta...${C_RST}"
 
 echo "$porta" > /etc/vps-manager/checkuser4g_port
 
@@ -223,25 +236,25 @@ sed -i '/4gcheck\.py/d' /etc/autostart 2>/dev/null
 screen -S 4gcheck -X quit 2>/dev/null
 
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
-echo -e "${C_GREEN}[✔] CheckUser (Conecta4G) ativado com systemd.${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[CheckUser (Conecta4G) activado con systemd (se reinicia al arrancar el VPS]:-CheckUser (Conecta4G) activado con systemd (se reinicia al arrancar el VPS}).${C_RST}"
 echo -e "${C_CYAN}URL: http://$IP:$porta/checkUser${C_RST}"
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 fi
 ;;
 0) break ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+*) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac
 done
 }
 
 
 # ==========================================
-# SUBMENU: FERRAMENTAS E SISTEMA
+# SUBMENÚ: HERRAMIENTAS Y SISTEMA
 # ==========================================
 menu_herramientas() {
 while true; do
 clear
-SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+load_lang
 local onlineapp_running=0
 systemctl is-active --quiet onlineapp.service 2>/dev/null && onlineapp_running=1
 [ "$onlineapp_running" -eq 0 ] && [ "$(screen -ls 2>/dev/null | grep -c onlineapp)" -gt 0 ] && onlineapp_running=1
@@ -253,7 +266,6 @@ systemctl is-active --quiet checkuser-4g.service 2>/dev/null && checkuser_runnin
 [ "$checkuser_running" -eq 0 ] && [ "$(screen -ls 2>/dev/null | grep -cE '\.(checkuser|4gcheck)')" -gt 0 ] && checkuser_running=1
 local checkuser_indicator=" 🔴 "
 [ "$checkuser_running" -gt 0 ] && checkuser_indicator=" 🟢 "
-
 if [ "$SYS_LANG" == "en" ]; then
 H_TITLE="🔧 TOOLS & SYSTEM"
 H_OPT1="🤝 Reseller Management (Credits)"
@@ -270,7 +282,23 @@ H_OPT11="🛡️ Fail2ban (Anti Brute-Force)"
 H_OPT12="🚫 Block Torrents"
 H_OPT0="🔙 Back to Main Menu"
 H_SEL="Select an option: "
-elif [ "$SYS_LANG" == "es" ]; then
+elif [ "$SYS_LANG" == "pt" ]; then
+H_TITLE="🔧 ${PT_B}FERRAMENTAS E SISTEMA${PT_N}"
+H_OPT1="🤝 ${PT_B}GESTÃO DE REVENDEDORES${PT_N}"
+H_OPT2="⚙️ ${PT_B}GERENCIADOR DE DOMÍNIO E CERTIFICADOS SSL${PT_N}"
+H_OPT3="🤖 ${PT_B}VINCULAR BOT DO TELEGRAM${PT_N}"
+H_OPT4="🤖 ${PT_B}ATIVAR AUTO-INÍCIO${PT_N}"
+H_OPT5="🖥️ ${PT_B}ESPECIFICAÇÕES E CAPACIDADE DA VPS${PT_N}"
+H_OPT6="🛡️ ${PT_B}GERENCIADOR DE FIREWALL (REGRAS E SEGURANÇA)${PT_N}"
+H_OPT7="📱 ${PT_B}ATIVAR ONLINE APP${PT_N}"
+H_OPT8="🛡️ ${PT_B}CHECKUSER AVANÇADO${PT_N} "
+H_OPT9="🌍 ${PT_B}ALTERAR IDIOMA (PT/ES/EN)${PT_N}"
+H_OPT10="💾 ${PT_B}MEMÓRIA VIRTUAL (SWAP)${PT_N}"
+H_OPT11="🛡️ ${PT_B}FAIL2BAN (ANTI FORÇA BRUTA)${PT_N}"
+H_OPT12="🚫 ${PT_B}BLOQUEIO DE TORRENTS${PT_N}"
+H_OPT0="🔙 ${PT_B}VOLTAR AO MENU PRINCIPAL${PT_N}"
+H_SEL="${PT_B}SELECIONE UMA OPÇÃO: ${PT_N}"
+else
 H_TITLE="🔧 HERRAMIENTAS Y SISTEMA"
 H_OPT1="🤝 Gestión de Revendedores"
 H_OPT2="⚙️ Gestor de Dominio y Certificados SSL"
@@ -286,26 +314,9 @@ H_OPT11="🛡️ Fail2ban (Anti Fuerza Bruta)"
 H_OPT12="🚫 Bloqueo de Torrents"
 H_OPT0="🔙 Volver al Menú Principal"
 H_SEL="Seleccione una opción: "
-else
-H_TITLE="🔧 FERRAMENTAS E SISTEMA"
-H_OPT1="🤝 GESTÃO DE REVENDEDORES"
-H_OPT2="⚙️ GESTOR DE DOMÍNIO E CERTIFICADOS SSL"
-H_OPT3="🤖 VINCULAR BOT DO TELEGRAM"
-H_OPT4="🤖 ATIVAR AUTO-INÍCIO"
-H_OPT5="🖥️ ESPECIFICAÇÕES E CAPACIDADE DA VPS"
-H_OPT6="🛡️ GESTOR DE FIREWALL (REGRAS E SEGURANÇA)"
-H_OPT7="📱 ATIVAR ONLINE APP"
-H_OPT8="🛡️ CHECKUSER AVANÇADO"
-H_OPT9="🌍 ALTERAR IDIOMA (PT/ES/EN)"
-H_OPT10="💾 MEMÓRIA VIRTUAL (SWAP)"
-H_OPT11="🛡️ FAIL2BAN (ANTI FORÇA BRUTA)"
-H_OPT12="🚫 BLOQUEIO DE TORRENTS"
-H_OPT0="🔙 VOLTAR AO MENU PRINCIPAL"
-H_SEL="SELECIONE UMA OPÇÃO: "
 fi
-
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          ${H_TITLE}             ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ${H_TITLE}             ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} ${H_OPT1}"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} ${H_OPT2}"
@@ -316,9 +327,9 @@ echo -e "  ${C_NEON_YELLOW}6.${C_RST} ${H_OPT6}"
 echo -e "  ${C_NEON_YELLOW}7.${C_RST} ${H_OPT7} ${C_GREEN}${onlineapp_indicator}${C_RST}"
 echo -e "  ${C_NEON_YELLOW}8.${C_RST} ${H_OPT8} ${C_GREEN}${checkuser_indicator}${C_RST}"
 echo -e "  ${C_NEON_YELLOW}9.${C_RST} ${H_OPT9}"
-echo -e "  ${C_NEON_YELLOW}10.${C_RST} ${H_OPT10}"
-echo -e "  ${C_NEON_YELLOW}11.${C_RST} ${H_OPT11}"
-echo -e "  ${C_NEON_YELLOW}12.${C_RST} ${H_OPT12}"
+echo -e "  ${C_NEON_YELLOW}10.${C_RST}${H_OPT10}"
+echo -e "  ${C_NEON_YELLOW}11.${C_RST}${H_OPT11}"
+echo -e "  ${C_NEON_YELLOW}12.${C_RST}${H_OPT12}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_RED}0.${C_RST} ${H_OPT0}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
@@ -337,77 +348,96 @@ case $hopt in
 11) menu_fail2ban ;;
 12) menu_torrents ;;
 0) break ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+*) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac
 done
+}
+
+instalar_idioma_pt() {
+    local base="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/i18n"
+    local dir="/etc/vps-manager/i18n" tmp
+    mkdir -p "$dir"
+    tmp=$(mktemp) || return 1
+    if wget -qO "$tmp" "$base/pt-BR.tsv" && [ -s "$tmp" ] && ! grep -qi "<html" "$tmp"; then
+        mv -f "$tmp" "$dir/pt-BR.tsv"; chmod 644 "$dir/pt-BR.tsv"
+    else
+        rm -f "$tmp"
+    fi
+    [ -s "$dir/pt-BR.tsv" ]
 }
 
 menu_idioma() {
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}        🌐 SELECIONE SEU IDIOMA / LANGUAGE     ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}   🌐 SELECIONE O IDIOMA / LANGUAGE            ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🇧🇷 Português (Brasil)"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🇬🇹 Español (Spanish)"
-echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🇺🇸 English (Inglês)"
+echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🇺🇸 English (Inglés)"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p " OPÇÃO / OPTION: " lang_opt
+read -p " Opção / Opción / Option: " lang_opt
 case $lang_opt in
-1) echo "pt" > /etc/vps-manager/lang; echo -e "${C_GREEN}[✔] Idioma alterado para Português.${C_RST}"; sleep 2 ;;
-2) echo "es" > /etc/vps-manager/lang; echo -e "${C_GREEN}[✔] Idioma cambiado a Español.${C_RST}"; sleep 2 ;;
-3) echo "en" > /etc/vps-manager/lang; echo -e "${C_GREEN}[✔] Language changed to English.${C_RST}"; sleep 2 ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA / INVALID OPTION.${C_RST}"; sleep 2 ;;
+1) if instalar_idioma_pt; then
+       echo "pt" > /etc/vps-manager/lang; load_lang
+       echo -e "${C_GREEN}[✔] ${PT_B}IDIOMA ALTERADO PARA PORTUGUÊS (BRASIL).${PT_N}${C_RST}"; sleep 2
+   else
+       echo -e "${C_RED}[!] Não foi possível baixar o pacote de idioma / No se pudo descargar el paquete de idioma / Could not download the language pack.${C_RST}"; sleep 3
+   fi ;;
+2) echo "es" > /etc/vps-manager/lang; load_lang; echo -e "${C_GREEN}[✔] Idioma cambiado a Español.${C_RST}"; sleep 2 ;;
+3) echo "en" > /etc/vps-manager/lang; load_lang; echo -e "${C_GREEN}[✔] Language changed to English.${C_RST}"; sleep 2 ;;
+*) echo -e "${C_RED}[!] Opção inválida / Opción inválida / Invalid option.${C_RST}"; sleep 2 ;;
 esac
 }
 
 # ==========================================
-# GESTÃO DE SSH (COM LÓGICA DE TOKEN HWID)
+# GESTIÓN DE SSH (CON LÓGICA DE TOKEN HWID)
 # ==========================================
 menu_ssh() {
 while true; do
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🛰️ GESTÃO DE USUÁRIOS (SSH)          ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛰️ ${T[GESTION DE USUARIOS (SSH]:-GESTION DE USUARIOS (SSH})         ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1${C_RST} ➔ CRIAR USUÁRIO (NORMAL / HWID)"
-echo -e "  ${C_NEON_YELLOW}2${C_RST} ➔ REMOVER USUÁRIO"
-echo -e "  ${C_NEON_YELLOW}3${C_RST} ➔ RENOVAR USUÁRIO"
-echo -e "  ${C_NEON_YELLOW}4${C_RST} ➔ LISTA DE USUÁRIOS E VENCIMENTO"
-echo -e "  ${C_NEON_YELLOW}5${C_RST} ➔ VERIFICAR USUÁRIOS ONLINE"
-echo -e "  ${C_NEON_YELLOW}6${C_RST} ➔ ALTERAR LIMITE DE IPS (CONTA SSH)"
-echo -e "  ${C_NEON_YELLOW}7${C_RST} ➔ BLOQUEAR USUÁRIO SSH"
-echo -e "  ${C_NEON_YELLOW}8${C_RST} ➔ DESBLOQUEAR USUÁRIO SSH"
-echo -e "  ${C_NEON_YELLOW}9${C_RST} ➔ AUTOKILL (DESCONECTAR MULTI-LOGINS)"
+echo -e "  ${C_NEON_YELLOW}1${C_RST} ➔ ${T[Crear Usuario (Normal / HWID]:-Crear Usuario (Normal / HWID})"
+echo -e "  ${C_NEON_YELLOW}2${C_RST} ➔ ${T[Eliminar Usuario]:-Eliminar Usuario}"
+echo -e "  ${C_NEON_YELLOW}3${C_RST} ➔ ${T[Renovar Usuario]:-Renovar Usuario}"
+echo -e "  ${C_NEON_YELLOW}4${C_RST} ➔ ${T[Lista de Usuario y Vencimiento]:-Lista de Usuario y Vencimiento}"
+echo -e "  ${C_NEON_YELLOW}5${C_RST} ➔ ${T[Verificar Usuarios en Vivo]:-Verificar Usuarios en Vivo}"
+echo -e "  ${C_NEON_YELLOW}6${C_RST} ➔ ${T[Cambiar Límite de IPs (Cuenta SSH]:-Cambiar Límite de IPs (Cuenta SSH})"
+echo -e "  ${C_NEON_YELLOW}7${C_RST} ➔ ${T[Bloquear Usuario SSH]:-Bloquear Usuario SSH}"
+echo -e "  ${C_NEON_YELLOW}8${C_RST} ➔ ${T[Desbloquear Usuario SSH]:-Desbloquear Usuario SSH}"
+echo -e "  ${C_NEON_YELLOW}9${C_RST} ➔ ${T[AutoKill (Desconectar multi-logins]:-AutoKill (Desconectar multi-logins})"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_RED}0${C_RST} ➔ VOLTAR AO MENU PRINCIPAL"
+echo -e "  ${C_RED}0${C_RST} ➔ ${T[Volver al Menú Principal]:-Volver al Menú Principal}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " opt
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " opt
 case $opt in
 1)
 clear; echo -e "${C_NEON_BLUE}================================================${C_RST}
-${C_YELLOW}${C_BOLD}      CRIAR USUÁRIO SSH / PROTEÇÃO HWID        ${C_RST}
+${C_YELLOW}      CREAR USUARIO SSH / HWID PROTECTION       ${C_RST}
 ${C_NEON_BLUE}================================================${C_RST}"
-echo -e " [${C_GREEN}1${C_RST}] USUÁRIO NORMAL"
-echo -e " [${C_GREEN}2${C_RST}] USUÁRIO HWID"
-read -p "OPÇÃO: " tipo_creacion
+echo -e " [${C_GREEN}1${C_RST}] ${T[Usuario Normal]:-Usuario Normal}"
+echo -e " [${C_GREEN}2${C_RST}] ${T[Usuario HWID]:-Usuario HWID}"
+read -p "${T[Opción]:-Opción}: " tipo_creacion
 
-read -p "USUÁRIO: " user
+read -p "${T[Usuario]:-Usuario}: " user
 
 # Lógica de Token para HWID
 if [ "$tipo_creacion" == "2" ]; then
     if [ ! -f /etc/vps-manager/token ]; then
-        echo -e "${C_YELLOW}[+] Gerando senha global (Token) para HWID...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Generando contraseña global (Token) para HWID]:-Generando contraseña global (Token) para HWID}...${C_RST}"
+        # Genera una contraseña aleatoria segura de 12 caracteres alfanuméricos
         tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 12 > /etc/vps-manager/token
         chmod 600 /etc/vps-manager/token
     fi
     pass=$(cat /etc/vps-manager/token)
-    echo -e "${C_CYAN}🔑 SENHA HWID (Global): ${C_YELLOW}$pass${C_RST}"
+    echo -e "${C_CYAN}🔑 ${T[Contraseña HWID (Global]:-Contraseña HWID (Global}): ${C_YELLOW}$pass${C_RST}"
 else
-    read -p "SENHA: " pass
+    read -p "${T[Contraseña]:-Contraseña}: " pass
 fi
 
-read -p "DIAS: " dias
-read -p "LIMITE DE CONEXÕES: " limite
+read -p "${T[Días]:-Días}: " dias
+read -p "${T[Límite Conexiones]:-Límite Conexiones}: " limite
 [ -z "$limite" ] && limite=1
 
 EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d")
@@ -417,17 +447,17 @@ echo "$limite" > "/etc/vps-manager/limite_${user}"
 
 if [ "$tipo_creacion" == "2" ]; then 
     touch "/etc/vps-manager/hwid_${user}"
-    HWID_MSG="✅ (Bloqueado no Login)"
+    HWID_MSG="✅ (Bloqueado al Login)"
 else 
     rm -f "/etc/vps-manager/hwid_${user}"
-    HWID_MSG="❌ (Livre)"
+    HWID_MSG="❌ (Libre)"
 fi
 
 generar_banner_usuario "$user" "$EXP_DATE" "$dias" "$limite"
 systemctl restart ssh 2>/dev/null
 IP_V=$(curl -s ipv4.icanhazip.com); DOM=$( [ -f /etc/vps-manager/dominio ] && cat /etc/vps-manager/dominio || echo "$IP_V" )
-NS_DOM=$( [ -f /etc/vps-manager/nsdomain ] && cat /etc/vps-manager/nsdomain || echo "Não Configurado" )
-PUB_KEY=$( [ -f /etc/vps-manager/slowdns/server.pub ] && cat /etc/vps-manager/slowdns/server.pub | tr -d '\r' || echo "Não instalada" )
+NS_DOM=$( [ -f /etc/vps-manager/nsdomain ] && cat /etc/vps-manager/nsdomain || echo "${T[No configurado]:-No configurado}" )
+PUB_KEY=$( [ -f /etc/vps-manager/slowdns/server.pub ] && cat /etc/vps-manager/slowdns/server.pub | tr -d '\r' || echo "${T[No instalada]:-No instalada}" )
 OPENVPN_LINK="http://$DOM:2081"
 PORT_BHTTP=$(cat /etc/vps-manager/bhttp_port 2>/dev/null || echo "8080")
 PORT_HCR=$(cat /etc/vps-manager/hcr_port 2>/dev/null || echo "8880")
@@ -439,41 +469,41 @@ systemctl restart zivpn.service >/dev/null 2>&1
 fi
 ZIVPN_PASS="$pass"
 else
-ZIVPN_PASS="Não instalado"
+ZIVPN_PASS="No instalado"
 fi
 clear; echo -e "${C_NEON_BLUE}================================================${C_RST}
-${C_GREEN}${C_BOLD}        ✅ CONTA CRIADA COM SUCESSO ✅          ${C_RST}
+${C_GREEN}        ✅ CUENTA CREADA EXITOSAMENTE ✅        ${C_RST}
 ${C_NEON_BLUE}================================================${C_RST}"
-echo -e " 👤 USUÁRIO        : ${C_YELLOW}$user${C_RST}"
-echo -e " 🔑 SENHA          : ${C_YELLOW}$pass${C_RST}"
-echo -e " 📅 VENCE EM       : ${C_YELLOW}$EXP_DATE ($dias dias)${C_RST}"
-echo -e " 🔒 LIMITE IPs     : ${C_YELLOW}$limite${C_RST}"
-echo -e " 🛡️ PROTEÇÃO HWID  : ${C_YELLOW}$HWID_MSG${C_RST}"
+echo -e " 👤 ${T[Usuario]:-Usuario}        : ${C_YELLOW}$user${C_RST}"
+echo -e " 🔑 ${T[Clave]:-Clave}          : ${C_YELLOW}$pass${C_RST}"
+echo -e " 📅 ${T[Vence]:-Vence}          : ${C_YELLOW}$EXP_DATE ($dias ${T[días]:-días})${C_RST}"
+echo -e " 🔒 ${T[Límite IPs]:-Límite IPs}    : ${C_YELLOW}$limite${C_RST}"
+echo -e " 🛡️ ${T[Protecc. HWID]:-Protecc. HWID} : ${C_YELLOW}$HWID_MSG${C_RST}"
 echo -e "${C_NEON_BLUE}------------------------------------------------${C_RST}"
-echo -e " 🌐 HOST/IP        : ${C_YELLOW}$DOM${C_RST}"
-echo -e " 🌍 NS DOMAIN      : ${C_YELLOW}$NS_DOM${C_RST}"
-echo -e " 🗝️ PUB KEY (DNS)  : ${C_YELLOW}$PUB_KEY${C_RST}"
-echo -e " 🔗 OPENVPN        : ${C_YELLOW}$OPENVPN_LINK${C_RST}"
-echo -e " ⚡ ZIVPN PASS     : ${C_YELLOW}$ZIVPN_PASS${C_RST}"
-echo -e " 🎯 PORTAS         : ${C_YELLOW}SSH(22) Xray/TLS(443)${C_RST}"
+echo -e " 🌐 Host/IP        : ${C_YELLOW}$DOM${C_RST}"
+echo -e " 🌍 NS Domain      : ${C_YELLOW}$NS_DOM${C_RST}"
+echo -e " 🗝️ Pub Key (DNS) : ${C_YELLOW}$PUB_KEY${C_RST}"
+echo -e " 🔗 OpenVPN        : ${C_YELLOW}$OPENVPN_LINK${C_RST}"
+echo -e " ⚡ ${T[Zivpn Pass]:-Zivpn Pass}    : ${C_YELLOW}$ZIVPN_PASS${C_RST}"
+echo -e " 🎯 ${T[Puertos]:-Puertos}        : ${C_YELLOW}SSH(22) Xray/TLS(443)${C_RST}"
 echo -e "                     ${C_YELLOW}SSL Stunnel($PORT_SSL)${C_RST}"
 echo -e "                     ${C_YELLOW}BHTTP($PORT_BHTTP) HCR($PORT_HCR)${C_RST}"
 echo -e "                     ${C_YELLOW}UDP Custom(25000)${C_RST}"
 echo -e "                     ${C_YELLOW}Zivpn(6000-19999) DNSTT(53)${C_RST}"
-echo -e "${C_NEON_BLUE}================================================${C_RST}"; read -p "COPIE OS DADOS E PRESSIONE ENTER..." ;;
-2) read -p "USUÁRIO A REMOVER: " user; userdel -f $user 2>/dev/null; rm -f /etc/vps-manager/banner_${user}.net /etc/vps-manager/limite_${user} /etc/vps-manager/hwid_${user}; sed -i "/Match User $user/,+1d" /etc/ssh/sshd_config; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] Removido com sucesso.${C_RST}"; sleep 2 ;;
-3) read -p "USUÁRIO A RENOVAR: " user; read -p "NOVOS DIAS: " dias; EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d"); chage -E $EXP_DATE $user; limite=$(cat /etc/vps-manager/limite_${user} 2>/dev/null || echo "1"); generar_banner_usuario "$user" "$EXP_DATE" "$dias" "$limite"; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] Renovado com sucesso.${C_RST}"; sleep 2 ;;
+echo -e "${C_NEON_BLUE}================================================${C_RST}"; read -p "${T[Copia los datos y presiona Enter]:-Copia los datos y presiona Enter}..." ;;
+2) read -p "${T[Usuario a eliminar]:-Usuario a eliminar}: " user; userdel -f $user 2>/dev/null; rm -f /etc/vps-manager/banner_${user}.net /etc/vps-manager/limite_${user} /etc/vps-manager/hwid_${user}; sed -i "/Match User $user/,+1d" /etc/ssh/sshd_config; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] ${T[Eliminado]:-Eliminado}.${C_RST}"; sleep 2 ;;
+3) read -p "${T[Usuario a renovar]:-Usuario a renovar}: " user; read -p "${T[Nuevos días]:-Nuevos días}: " dias; EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d"); chage -E $EXP_DATE $user; limite=$(cat /etc/vps-manager/limite_${user} 2>/dev/null || echo "1"); generar_banner_usuario "$user" "$EXP_DATE" "$dias" "$limite"; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] ${T[Renovado]:-Renovado}.${C_RST}"; sleep 2 ;;
 4) clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
- ${C_GREEN}${C_BOLD}        📋 LISTA DE USUÁRIOS E VENCIMENTO      ${C_NEON_BLUE} 
+ ${C_GREEN}        📋 LISTA DE USUARIOS Y VENCIMIENTO     ${C_NEON_BLUE} 
 ╚══════════════════════════════════════════════╝${C_RST}"; printf "${C_YELLOW}%-15s %-15s %-15s${C_RST}
-" "USUÁRIO" "EXPIRA EM" "DIAS RESTANTES"; echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"; for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do exp_date=$(chage -l $user | grep "Account expires" | awk -F": " '{print $2}'); if [[ "$exp_date" != "never" && -n "$exp_date" ]]; then exp_fmt=$(date -d "$exp_date" "+%Y-%m-%d" 2>/dev/null); sec_exp=$(date -d "$exp_date" +%s 2>/dev/null); sec_now=$(date +%s); dias=$(( (sec_exp - sec_now) / 86400 )); [ $dias -lt 0 ] && dias=0; printf "%-15s %-15s %-15s
-" "$user" "$exp_fmt" "$dias Dias"; else printf "%-15s %-15s %-15s
-" "$user" "Ilimitado" "∞"; fi; done; read -p "PRESSIONE ENTER PARA VOLTAR..." ;;
-5) clear; echo -e "${C_YELLOW}${C_BOLD}      VERIFICAR CONEXÕES ONLINE       ${C_RST}"; ps -ef | grep -E "sshd|dropbear" | grep -v root | grep -v grep | awk '{print $1}' | sort | uniq -c | awk '{print " 👤 "$2" -> "$1" conexão(ões)"}'; read -p "PRESSIONE ENTER..." ;;
-6) read -p "USUÁRIO: " user; read -p "NOVO LIMITE DE IPS: " n_limite; echo "$n_limite" > "/etc/vps-manager/limite_${user}"; echo -e "${C_GREEN}[✔] Limite Atualizado.${C_RST}"; sleep 2 ;;
-7) read -p "USUÁRIO A BLOQUEAR: " user; usermod -L $user; pkill -u $user; echo -e "${C_RED}[✔] USUÁRIO BLOQUEADO.${C_RST}"; sleep 2 ;;
-8) read -p "USUÁRIO A DESBLOQUEAR: " user; usermod -U $user; echo -e "${C_GREEN}[✔] USUÁRIO DESBLOQUEADO.${C_RST}"; sleep 2 ;;
-9) clear; echo -e "${C_YELLOW}[+] Executando AutoKill (Buscando Multilogins)...${C_RST}"; for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do limite=$(cat /etc/vps-manager/limite_${user} 2>/dev/null || echo "999"); conexiones=$(ps -ef | grep sshd | grep "$user" | grep -v root | grep -v grep | wc -l); if [ "$conexiones" -gt "$limite" ]; then echo -e "${C_RED} ➔ $user excedeu o limite. Desconectando...${C_RST}"; pkill -u "$user"; fi; done; echo -e "${C_GREEN}[✔] Concluído.${C_RST}"; read -p "PRESSIONE ENTER..." ;;
+" "${TP[USUARIO]:-USUARIO}" "EXPIRA" "${TP[DÍAS RESTANTES]:-DÍAS RESTANTES}"; echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"; for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do exp_date=$(chage -l $user | grep "Account expires" | awk -F": " '{print $2}'); if [[ "$exp_date" != "never" && -n "$exp_date" ]]; then exp_fmt=$(date -d "$exp_date" "+%Y-%m-%d" 2>/dev/null); sec_exp=$(date -d "$exp_date" +%s 2>/dev/null); sec_now=$(date +%s); dias=$(( (sec_exp - sec_now) / 86400 )); [ $dias -lt 0 ] && dias=0; printf "%-15s %-15s %-15s
+" "$user" "$exp_fmt" "$dias ${TP[Días]:-Días}"; else printf "%-15s %-15s %-15s
+" "$user" "Ilimitado" "∞"; fi; done; read -p "Enter..." ;;
+5) clear; echo -e "${C_YELLOW}      ${T[VERIFICAR CONEXIONES EN VIVO]:-VERIFICAR CONEXIONES EN VIVO}      ${C_RST}"; ps -ef | grep -E "sshd|dropbear" | grep -v root | grep -v grep | awk '{print $1}' | sort | uniq -c | awk -v c="${TP[conexión(es)]:-conexión(es)}" '{print " 👤 "$2" -> "$1" "c}'; read -p "Enter..." ;;
+6) read -p "${T[Usuario]:-Usuario}: " user; read -p "${T[Nuevo Límite de IPs]:-Nuevo Límite de IPs}: " n_limite; echo "$n_limite" > "/etc/vps-manager/limite_${user}"; echo -e "${C_GREEN}[✔] ${T[Actualizado]:-Actualizado}.${C_RST}"; sleep 2 ;;
+7) read -p "${T[Usuario a Bloquear]:-Usuario a Bloquear}: " user; usermod -L $user; pkill -u $user; echo -e "${C_RED}[✔] ${T[BLOQUEADO]:-BLOQUEADO}.${C_RST}"; sleep 2 ;;
+8) read -p "${T[Usuario a Desbloquear]:-Usuario a Desbloquear}: " user; usermod -U $user; echo -e "${C_GREEN}[✔] ${T[DESBLOQUEADO]:-DESBLOQUEADO}.${C_RST}"; sleep 2 ;;
+9) clear; echo -e "${C_YELLOW}[+] ${T[AutoKill (Buscando Multilogins]:-AutoKill (Buscando Multilogins})...${C_RST}"; for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do limite=$(cat /etc/vps-manager/limite_${user} 2>/dev/null || echo "999"); conexiones=$(ps -ef | grep sshd | grep "$user" | grep -v root | grep -v grep | wc -l); if [ "$conexiones" -gt "$limite" ]; then echo -e "${C_RED} ➔ $user ${T[excedió el límite. Desconectando]:-excedió el límite. Desconectando}...${C_RST}"; pkill -u "$user"; fi; done; echo -e "${C_GREEN}[✔] ${T[Listo]:-Listo}.${C_RST}"; read -p "Enter..." ;;
 0) break ;;
 *) sleep 1 ;;
 esac
@@ -484,20 +514,20 @@ menu_revendedores() {
 while true; do
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🤝 GESTÃO DE REVENDEDORES (BOT)      ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🤝 ${T[GESTIÓN DE REVENDEDORES (BOT]:-GESTIÓN DE REVENDEDORES (BOT})     ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1${C_RST} ➔ ADICIONAR REVENDEDOR / RECARREGAR CRÉDITOS"
-echo -e "  ${C_NEON_YELLOW}2${C_RST} ➔ REMOVER REVENDEDOR"
-echo -e "  ${C_NEON_YELLOW}3${C_RST} ➔ LISTA DE REVENDEDORES ATIVOS"
+echo -e "  ${C_NEON_YELLOW}1${C_RST} ➔ ${T[Agregar Revendedor / Recargar Créditos]:-Agregar Revendedor / Recargar Créditos}"
+echo -e "  ${C_NEON_YELLOW}2${C_RST} ➔ ${T[Eliminar Revendedor]:-Eliminar Revendedor}"
+echo -e "  ${C_NEON_YELLOW}3${C_RST} ➔ ${T[Lista de Revendedores Activos]:-Lista de Revendedores Activos}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_RED}0${C_RST} ➔ VOLTAR AO MENU ANTERIOR"
+echo -e "  ${C_RED}0${C_RST} ➔ ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "OPÇÃO: " ropt
+read -p "${T[Opción]:-Opción}: " ropt
 RES_FILE="/etc/vps-manager/telegram_bot/resellers.txt"
 case $ropt in
-1) read -p "ID DE TELEGRAM DO REVENDEDOR: " r_id; read -p "QUANTIDADE DE CRÉDITOS: " r_cred; mkdir -p /etc/vps-manager/telegram_bot; touch $RES_FILE; sed -i "/^$r_id:/d" $RES_FILE; echo "$r_id:$r_cred" >> $RES_FILE; echo -e "${C_GREEN}[✔] Revendedor salvo.${C_RST}"; sleep 2 ;;
-2) read -p "ID DE TELEGRAM A REMOVER: " r_id; sed -i "/^$r_id:/d" $RES_FILE; echo -e "${C_RED}[✔] Revendedor removido.${C_RST}"; sleep 2 ;;
-3) clear; echo -e "${C_YELLOW}${C_BOLD}📋 LISTA DE REVENDEDORES:${C_RST}"; if [ -f "$RES_FILE" ]; then cat "$RES_FILE" | awk -F: '{print " 👤 ID: "$1" -> 💰 Créditos: "$2}'; else echo "Não há revendedores cadastrados."; fi; read -p "PRESSIONE ENTER..." ;;
+1) read -p "${T[ID de Telegram del Revendedor]:-ID de Telegram del Revendedor}: " r_id; read -p "${T[Cantidad de Créditos]:-Cantidad de Créditos}: " r_cred; mkdir -p /etc/vps-manager/telegram_bot; touch $RES_FILE; sed -i "/^$r_id:/d" $RES_FILE; echo "$r_id:$r_cred" >> $RES_FILE; echo -e "${C_GREEN}[✔] ${T[Revendedor guardado]:-Revendedor guardado}.${C_RST}"; sleep 2 ;;
+2) read -p "${T[ID de Telegram a eliminar]:-ID de Telegram a eliminar}: " r_id; sed -i "/^$r_id:/d" $RES_FILE; echo -e "${C_RED}[✔] ${T[Revendedor eliminado]:-Revendedor eliminado}.${C_RST}"; sleep 2 ;;
+3) clear; echo -e "${C_YELLOW}📋 ${T[LISTA DE REVENDEDORES]:-LISTA DE REVENDEDORES}:${C_RST}"; if [ -f "$RES_FILE" ]; then cat "$RES_FILE" | awk -F: -v cr="${TP[Créditos]:-Créditos}" '{print " 👤 ID: "$1" -> 💰 "cr": "$2}'; else echo "${T[No hay revendedores]:-No hay revendedores}."; fi; read -p "Enter..." ;;
 0) break ;;
 *) sleep 1 ;;
 esac
@@ -505,27 +535,27 @@ done
 }
 
 # ==========================================
-# INSTALADOR BADVPN (3 PORTAS)
+# INSTALADOR BADVPN (3 PUERTOS)
 # ==========================================
 instalar_badvpn() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}      🎮 INSTALADOR BADVPN (3 PORTAS)         ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}      🎮 ${T[INSTALADOR BADVPN (3 PUERTOS]:-INSTALADOR BADVPN (3 PUERTOS})        ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-    echo -e "  O BadVPN UDP Gateway será instalado nas portas:"
+    echo -e "  ${T[Se instalará BadVPN UDP Gateway en los puertos]:-Se instalará BadVPN UDP Gateway en los puertos}:"
     echo -e "  ${C_NEON_YELLOW}• 7100${C_RST} - BadVPN Game 1"
     echo -e "  ${C_NEON_YELLOW}• 7200${C_RST} - BadVPN Game 2"
     echo -e "  ${C_NEON_YELLOW}• 7300${C_RST} - BadVPN Game 3"
     echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-    echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR / REINSTALAR BADVPN"
-    echo -e "  ${C_NEON_YELLOW}2.${C_RST} ⏹️ PARAR E DESINSTALAR BADVPN"
-    echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+    echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar / Reinstalar BadVPN]:-Instalar / Reinstalar BadVPN}"
+    echo -e "  ${C_NEON_YELLOW}2.${C_RST} ⏹️ ${T[Detener y Desinstalar BadVPN]:-Detener y Desinstalar BadVPN}"
+    echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-    read -p "SELECIONE UMA OPÇÃO: " badvpn_opt
+    read -p "${T[Seleccione una opción]:-Seleccione una opción}: " badvpn_opt
 
     case $badvpn_opt in
         1)
-            echo -e "${C_YELLOW}[+] Instalando dependências...${C_RST}"
+            echo -e "${C_YELLOW}[+] ${T[Instalando dependencias]:-Instalando dependencias}...${C_RST}"
             apt update -y >/dev/null 2>&1
             apt install -y cmake g++ make git screen >/dev/null 2>&1
             
@@ -537,7 +567,7 @@ instalar_badvpn() {
             cmake ../badvpn -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1 >/dev/null 2>&1
             make install >/dev/null 2>&1
 
-            echo -e "${C_YELLOW}[+] Configurando serviços para as 3 portas...${C_RST}"
+            echo -e "${C_YELLOW}[+] ${T[Configurando servicios para los 3 puertos]:-Configurando servicios para los 3 puertos}...${C_RST}"
             
             for port in 7100 7200 7300; do
                 cat > /etc/systemd/system/badvpn-${port}.service << EOF
@@ -559,27 +589,27 @@ EOF
             systemctl enable badvpn-7100 badvpn-7200 badvpn-7300 >/dev/null 2>&1
             systemctl restart badvpn-7100 badvpn-7200 badvpn-7300
 
-            echo -e "${C_GREEN}[✔] ¡BadVPN configurado e ativo nas portas 7100, 7200 e 7300!${C_RST}"
-            read -p "PRESSIONE ENTER PARA VOLTAR..."
+            echo -e "${C_GREEN}[✔] ${T[¡BadVPN configurado y activo en puertos 7100, 7200 y]:-¡BadVPN configurado y activo en puertos 7100, 7200 y} 7300!${C_RST}"
+            read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."
             ;;
         2)
-            echo -e "${C_YELLOW}[+] Parando e desinstalando BadVPN...${C_RST}"
+            echo -e "${C_YELLOW}[+] ${T[Deteniendo y desinstalando BadVPN]:-Deteniendo y desinstalando BadVPN}...${C_RST}"
             for port in 7100 7200 7300; do
                 systemctl stop badvpn-${port}.service 2>/dev/null
                 systemctl disable badvpn-${port}.service 2>/dev/null
                 rm -f /etc/systemd/system/badvpn-${port}.service
             done
             systemctl daemon-reload
-            echo -e "${C_GREEN}[✔] BadVPN desinstalado com sucesso.${C_RST}"
-            read -p "PRESSIONE ENTER PARA CONTINUAR..."
+            echo -e "${C_GREEN}[✔] ${T[BadVPN desinstalado correctamente]:-BadVPN desinstalado correctamente}.${C_RST}"
+            read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
             ;;
         0) return ;;
-        *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+        *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
     esac
 }
 
 # ==========================================
-# SUBMENU: BHTTP v2.0 (Instalar / Porta / Reiniciar / Parar / Desinstalar)
+# SUBMENÚ: BHTTP v2.0 (Instalar / Puerto / Reiniciar / Detener / Desinstalar)
 # ==========================================
 BHTTP2_SVC="superflash-bhttp"
 BHTTP2_CONF1="/etc/superflash-bhttp.conf"
@@ -598,31 +628,31 @@ bhttp2_puerto() {
 }
 
 bhttp2_estado_texto() {
-    if ! bhttp2_instalado; then echo -e "⚪ Não Instalado"
-    elif systemctl is-active --quiet "$BHTTP2_SVC" 2>/dev/null; then echo -e "🟢 ATIVO"
-    else echo -e "🔴 PARADO"; fi
+    if ! bhttp2_instalado; then echo -e "⚪ ${T[No instalado]:-No instalado}"
+    elif systemctl is-active --quiet "$BHTTP2_SVC" 2>/dev/null; then echo -e "🟢 ${T[ACTIVO]:-ACTIVO}"
+    else echo -e "🔴 ${T[DETENIDO]:-DETENIDO}"; fi
 }
 
 bhttp2_instalar() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🌐 INSTALAR BHTTP (v2.0)             ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}      🌐 ${T[INSTALAR BHTTP (v]:-INSTALAR BHTTP (v}2.0)   ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     
-    echo -e "${C_YELLOW}[+] Baixando e instalando motor BHTTP v2.0...${C_RST}"
-    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
+    echo -e "${C_YELLOW}[+] ${T[Descargando e instalando motor BHTTP v]:-Descargando e instalando motor BHTTP v}2.0...${C_RST}"
+    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.comPhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
     chmod +x /tmp/bhttpv2.sh
     
     bash /tmp/bhttpv2.sh install
     
-    echo -e "${C_YELLOW}[+] Configuração de porta...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Configuración de puerto]:-Configuración de puerto}...${C_RST}"
     local current_port=$(grep -E "^BHTTP_PORT=" /etc/superflash-bhttp.conf 2>/dev/null | cut -d'=' -f2 | tr -d '"')
     
     if [ -z "$current_port" ]; then
-        echo -ne "${C_NEON_YELLOW}DIGITE A PORTA PARA BHTTP v2.0 (1-65535): ${C_RST}"
+        echo -ne "${C_NEON_YELLOW}${T[Ingrese el puerto para BHTTP v]:-Ingrese el puerto para BHTTP v}2.0 (1-65535): ${C_RST}"
         read bhttp_port
         if [[ ! "$bhttp_port" =~ ^[0-9]+$ ]] || [ "$bhttp_port" -lt 1 ] || [ "$bhttp_port" -gt 65535 ]; then
-            echo -e "${C_RED}[!] PORTA INVÁLIDA. CONFIGURAÇÃO CANCELADA.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Puerto no válido. Se cancela la configuración de puerto]:-Puerto no válido. Se cancela la configuración de puerto}.${C_RST}"
         else
             mkdir -p /etc/superflash-bhttp
             cat > /etc/superflash-bhttp.conf << EOF
@@ -678,18 +708,18 @@ EOF
             fi
             
             echo "$bhttp_port" > /etc/vps-manager/bhttp_port
-            echo -e "${C_GREEN}[✔] BHTTP v2.0 instalado e ativo na porta $bhttp_port.${C_RST}"
+            echo -e "${C_GREEN}[✔] ${T[BHTTP v2.0 instalado y activo en el puerto]:-BHTTP v2.0 instalado y activo en el puerto} $bhttp_port.${C_RST}"
         fi
     else
-        echo -e "${C_GREEN}[✔] BHTTP v2.0 já está instalado e configurado na porta $current_port.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[BHTTP v2.0 ya está instalado y configurado en el puerto]:-BHTTP v2.0 ya está instalado y configurado en el puerto} $current_port.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 bhttp2_requiere_instalado() {
     if ! bhttp2_instalado; then
-        echo -e "${C_RED}[!] BHTTP v2.0 NÃO ESTÁ INSTALADO. USE A OPÇÃO 1 PRIMEIRO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."
+        echo -e "${C_RED}[!] ${T[BHTTP v2.0 no está instalado. Use la opción 1 primero]:-BHTTP v2.0 no está instalado. Use la opción 1 primero}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
         return 1
     fi
     return 0
@@ -698,29 +728,29 @@ bhttp2_requiere_instalado() {
 bhttp2_cambiar_puerto() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🔧 ALTERAR PORTA BHTTP v2.0          ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔧 ${T[CAMBIAR PUERTO BHTTP v]:-CAMBIAR PUERTO BHTTP v}2.0         ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     bhttp2_requiere_instalado || return
 
     local old_port new_port
     old_port=$(bhttp2_puerto)
-    echo -e "  Porta atual: ${C_NEON_YELLOW}${old_port:-N/D}${C_RST}"
-    echo -ne "${C_NEON_YELLOW}NOVA PORTA (1-65535, 0 PARA CANCELAR): ${C_RST}"
+    echo -e "  ${T[Puerto actual]:-Puerto actual}: ${C_NEON_YELLOW}${old_port:-N/D}${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[Nuevo puerto (1-65535, 0 para cancelar]:-Nuevo puerto (1-65535, 0 para cancelar}): ${C_RST}"
     read new_port
 
     [ "$new_port" = "0" ] && return
     if [[ ! "$new_port" =~ ^[0-9]+$ ]] || [ "$new_port" -lt 1 ] || [ "$new_port" -gt 65535 ]; then
-        echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     if [ "$new_port" = "$old_port" ]; then
-        echo -e "${C_YELLOW}[!] VOCÊ JÁ ESTÁ USANDO ESTA PORTA.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_YELLOW}[!] ${T[Ya está usando ese puerto]:-Ya está usando ese puerto}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     if ss -lnt 2>/dev/null | awk '{print $4}' | grep -qE "[:.]${new_port}$"; then
-        echo -e "${C_RED}[!] A PORTA $new_port JÁ ESTÁ EM USO POR OUTRO SERVIÇO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $new_port ${T[ya está en uso por otro servicio]:-ya está en uso por otro servicio}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
 
-    echo -e "${C_YELLOW}[+] Aplicando nova porta...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Aplicando nuevo puerto]:-Aplicando nuevo puerto}...${C_RST}"
     local f
     for f in "$BHTTP2_CONF1" "$BHTTP2_CONF2"; do
         if [ -f "$f" ]; then
@@ -741,51 +771,51 @@ bhttp2_cambiar_puerto() {
     systemctl restart "$BHTTP2_SVC" >/dev/null 2>&1
     sleep 1
     if systemctl is-active --quiet "$BHTTP2_SVC" 2>/dev/null; then
-        echo -e "${C_GREEN}[✔] PORTA ALTERADA: ${old_port:-?} → ${new_port}. SERVIÇO ATIVO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Puerto cambiado]:-Puerto cambiado}: ${old_port:-?} → ${new_port}. ${T[Servicio activo]:-Servicio activo}.${C_RST}"
     else
-        echo -e "${C_RED}[!] O SERVIÇO NÃO INICIOU NA NOVA PORTA. VERIFIQUE: journalctl -u ${BHTTP2_SVC} -n 20${C_RST}"
+        echo -e "${C_RED}[!] ${T[El servicio no arrancó con el nuevo puerto. Revise: journalctl -u]:-El servicio no arrancó con el nuevo puerto. Revise: journalctl -u} ${BHTTP2_SVC} -n 20${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 bhttp2_reiniciar() {
     clear
     bhttp2_requiere_instalado || return
-    echo -e "${C_YELLOW}[+] Reiniciando BHTTP v2.0...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Reiniciando BHTTP v]:-Reiniciando BHTTP v}2.0...${C_RST}"
     systemctl restart "$BHTTP2_SVC" >/dev/null 2>&1
     sleep 1
     if systemctl is-active --quiet "$BHTTP2_SVC" 2>/dev/null; then
-        echo -e "${C_GREEN}[✔] BHTTP v2.0 REINICIADO (PORTA $(bhttp2_puerto)).${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[BHTTP v2.0 reiniciado (puerto]:-BHTTP v2.0 reiniciado (puerto} $(bhttp2_puerto)).${C_RST}"
     else
-        echo -e "${C_RED}[!] NÃO FOI POSSÍVEL INICIAR. VERIFIQUE: journalctl -u ${BHTTP2_SVC} -n 20${C_RST}"
+        echo -e "${C_RED}[!] ${T[No se pudo iniciar. Revise: journalctl -u]:-No se pudo iniciar. Revise: journalctl -u} ${BHTTP2_SVC} -n 20${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 bhttp2_detener() {
     clear
     bhttp2_requiere_instalado || return
-    echo -e "${C_YELLOW}[+] Parando BHTTP v2.0...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Deteniendo BHTTP v]:-Deteniendo BHTTP v}2.0...${C_RST}"
     systemctl stop "$BHTTP2_SVC" >/dev/null 2>&1
     sleep 1
     if systemctl is-active --quiet "$BHTTP2_SVC" 2>/dev/null; then
-        echo -e "${C_RED}[!] NÃO FOI POSSÍVEL PARAR O SERVIÇO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[No se pudo detener el servicio]:-No se pudo detener el servicio}.${C_RST}"
     else
-        echo -e "${C_GREEN}[✔] BHTTP v2.0 PARADO.${C_RST}"
-        echo -e "${C_YELLOW}    (Para ativá-lo novamente use a opção Reiniciar.)${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[BHTTP v2.0 detenido]:-BHTTP v2.0 detenido}.${C_RST}"
+        echo -e "${C_YELLOW}    (${T[Para volver a activarlo use la opción Reiniciar]:-Para volver a activarlo use la opción Reiniciar}.)${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 bhttp2_desinstalar() {
     clear
     bhttp2_requiere_instalado || return
     local port; port=$(bhttp2_puerto)
-    echo -e "${C_RED}⚠️  BHTTP v2.0 SERÁ REMOVIDO (SERVIÇO, BINÁRIO E CONFIGURAÇÃO).${C_RST}"
-    read -p "DESINSTALAR BHTTP v2.0? (s/n): " conf
+    echo -e "${C_RED}⚠️  ${T[Se eliminará BHTTP v2.0 (servicio, binario y configuración]:-Se eliminará BHTTP v2.0 (servicio, binario y configuración}).${C_RST}"
+    read -p "${T[¿Desinstalar BHTTP v2.0? (s/n]:-¿Desinstalar BHTTP v2.0? (s/n}): " conf
     [[ "$conf" == "s" || "$conf" == "S" ]] || return
 
-    echo -e "${C_YELLOW}[+] Desinstalando BHTTP v2.0...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Desinstalando BHTTP v]:-Desinstalando BHTTP v}2.0...${C_RST}"
     systemctl stop "$BHTTP2_SVC" >/dev/null 2>&1
     systemctl disable "$BHTTP2_SVC" >/dev/null 2>&1
     rm -f "/etc/systemd/system/${BHTTP2_SVC}.service"
@@ -801,8 +831,8 @@ bhttp2_desinstalar() {
         fi
         [ "$(cat /etc/vps-manager/bhttp_port 2>/dev/null)" = "$port" ] && rm -f /etc/vps-manager/bhttp_port
     fi
-    echo -e "${C_GREEN}[✔] BHTTP v2.0 DESINSTALADO.${C_RST}"
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    echo -e "${C_GREEN}[✔] ${T[BHTTP v2.0 desinstalado]:-BHTTP v2.0 desinstalado}.${C_RST}"
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 menu_bhttp_v2() {
@@ -810,20 +840,20 @@ menu_bhttp_v2() {
         clear
         local port; port=$(bhttp2_puerto)
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🌐 BHTTP v2.0 - GESTÃO               ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 ${T[BHTTP v2.0 - GESTIÓN]:-BHTTP v2.0 - GESTIÓN}             ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  Estado : $(bhttp2_estado_texto)"
-        echo -e "  Porta  : ${C_NEON_YELLOW}${port:-N/D}${C_RST}"
+        echo -e "  ${T[Estado]:-Estado} : $(bhttp2_estado_texto)"
+        echo -e "  ${T[Puerto]:-Puerto} : ${C_NEON_YELLOW}${port:-N/D}${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR BHTTP v2.0"
-        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔧 ALTERAR PORTA"
-        echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔄 REINICIAR"
-        echo -e "  ${C_NEON_YELLOW}4.${C_RST} ⏹️ PARAR"
-        echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🗑️ DESINSTALAR"
+        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar BHTTP v]:-Instalar BHTTP v}2.0"
+        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔧 ${T[Cambiar puerto]:-Cambiar puerto}"
+        echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔄 ${T[Reiniciar]:-Reiniciar}"
+        echo -e "  ${C_NEON_YELLOW}4.${C_RST} ⏹️ ${T[Detener]:-Detener}"
+        echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🗑️ ${T[Desinstalar]:-Desinstalar}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+        echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-        read -p "SELECIONE UMA OPÇÃO: " b2_opt
+        read -p "${T[Seleccione una opción]:-Seleccione una opción}: " b2_opt
         case $b2_opt in
             1) bhttp2_instalar ;;
             2) bhttp2_cambiar_puerto ;;
@@ -831,88 +861,88 @@ menu_bhttp_v2() {
             4) bhttp2_detener ;;
             5) bhttp2_desinstalar ;;
             0) break ;;
-            *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+            *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
     done
 }
 
 
 # ==========================================
-# SUBMENU: BHTTP PROXY (v1.0 E v2.0)
+# SUBMENÚ: BHTTP PROXY (v1.0 Y v2.0)
 # ==========================================
 menu_bhttp() {
     while true; do
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🌐 INSTALAR BHTTP PROXY              ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 ${T[INSTALAR BHTTP PROXY]:-INSTALAR BHTTP PROXY}             ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR BHTTP  (v1.0)"
-        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 INSTALAR BHTTP  (v2.0 NOVO)"
+        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar BHTTP  (v]:-Instalar BHTTP  (v}1.0)"
+        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 ${T[Instalar BHTTP  (v2.0 Nuevo]:-Instalar BHTTP  (v2.0 Nuevo})"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+        echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-        read -p "SELECIONE UMA OPÇÃO: " bhttp_opt
+        read -p "${T[Seleccione una opción]:-Seleccione una opción}: " bhttp_opt
         case $bhttp_opt in
             1)
                 clear
-                echo -e "${C_YELLOW}[+] Baixando e instalando BHTTP Proxy (Normal)...${C_RST}"
+                echo -e "${C_YELLOW}[+] ${T[Descargando e instalando BHTTP Proxy (Normal]:-Descargando e instalando BHTTP Proxy (Normal})...${C_RST}"
                 wget -qO /tmp/bhttp.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttp.sh
                 chmod +x /tmp/bhttp.sh
                 bash /tmp/bhttp.sh
-                read -p "PRESSIONE ENTER PARA CONTINUAR..."
+                read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
                 ;;
             2) menu_bhttp_v2 ;;
             0) break ;;
-            *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+            *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
     done
 }
 
 # ==========================================
-# SUBMENU: FAIL2BAN (PROTEÇÃO CONTRA FORÇA BRUTA)
+# SUBMENÚ: FAIL2BAN (PROTECCIÓN CONTRA FUERZA BRUTA)
 # ==========================================
 F2B_CONF="/etc/fail2ban/jail.d/vps-manager.local"
 
-# Portas
+# Puertos en los que escucha un proceso (sshd, dropbear) -> "22,2222"
 puertos_servicio() {
     ss -lntp 2>/dev/null | grep "\"$1\"" | awk '{print $4}' | grep -oE '[0-9]+$' | sort -un | paste -sd,
 }
 
 fail2ban_estado_texto() {
-    if ! command -v fail2ban-client >/dev/null 2>&1; then echo -e "⚪ Não Instalado"
-    elif systemctl is-active --quiet fail2ban 2>/dev/null; then echo -e "🟢 ATIVO"
-    else echo -e "🔴 INATIVO"; fi
+    if ! command -v fail2ban-client >/dev/null 2>&1; then echo -e "⚪ ${T[No instalado]:-No instalado}"
+    elif systemctl is-active --quiet fail2ban 2>/dev/null; then echo -e "🟢 ${T[ACTIVO]:-ACTIVO}"
+    else echo -e "🔴 ${T[INACTIVO]:-INACTIVO}"; fi
 }
 
 fail2ban_instalar() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🛡️ INSTALAR / CONFIGURAR FAIL2BAN    ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ ${T[INSTALAR / CONFIGURAR FAIL2BAN]:-INSTALAR / CONFIGURAR FAIL2BAN}    ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
     if ! command -v fail2ban-client >/dev/null 2>&1; then
-        echo -e "${C_YELLOW}[+] Instalando Fail2ban...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Instalando Fail2ban]:-Instalando Fail2ban}...${C_RST}"
         apt-get update -y >/dev/null 2>&1
         DEBIAN_FRONTEND=noninteractive apt-get install -y fail2ban >/dev/null 2>&1
         if ! command -v fail2ban-client >/dev/null 2>&1; then
-            echo -e "${C_RED}[!] Não foi possível instalar o Fail2ban.${C_RST}"
-            read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+            echo -e "${C_RED}[!] ${T[No se pudo instalar Fail2ban]:-No se pudo instalar Fail2ban}.${C_RST}"
+            read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
         fi
     fi
 
     local maxretry bantime
-    echo -ne "${C_NEON_YELLOW}TENTATIVAS FALHAS ANTES DE BLOQUEAR (1-20) [5]: ${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[Intentos fallidos antes de bloquear]:-Intentos fallidos antes de bloquear} (1-20) [5]: ${C_RST}"
     read maxretry; maxretry=${maxretry:-5}
     if [[ ! "$maxretry" =~ ^[0-9]+$ ]] || [ "$maxretry" -lt 1 ] || [ "$maxretry" -gt 20 ]; then
-        echo -e "${C_RED}[!] VALOR INVÁLIDO.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[Valor no válido]:-Valor no válido}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
-    echo -ne "${C_NEON_YELLOW}MINUTOS DE BLOQUEIO (1-10080) [60]: ${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[Minutos de bloqueo]:-Minutos de bloqueo} (1-10080) [60]: ${C_RST}"
     read bantime; bantime=${bantime:-60}
     if [[ ! "$bantime" =~ ^[0-9]+$ ]] || [ "$bantime" -lt 1 ] || [ "$bantime" -gt 10080 ]; then
-        echo -e "${C_RED}[!] VALOR INVÁLIDO.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[Valor no válido]:-Valor no válido}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
 
-    # Nunca bloquear localhost nem o seu IP atual
+    # Nunca bloquear: loopback (los túneles SSHWS/HCR/SSL llegan al SSH desde 127.0.0.1) ni tu IP actual
     local ignorar="127.0.0.1/8 ::1" mi_ip="${SSH_CLIENT%% *}"
     [[ "$mi_ip" =~ ^[0-9a-fA-F:.]+$ ]] && ignorar="$ignorar $mi_ip"
 
@@ -922,7 +952,7 @@ fail2ban_instalar() {
 
     mkdir -p /etc/fail2ban/jail.d
     cat > "$F2B_CONF" << EOF
-# Gerado por VPS-Manager
+# Generado por VPS-Manager
 [DEFAULT]
 ignoreip = $ignorar
 bantime  = $((bantime * 60))
@@ -933,6 +963,7 @@ maxretry = $maxretry
 enabled = true
 port    = $p_ssh
 EOF
+    # Dropbear solo si existe el log de autenticación (si no, Fail2ban no arrancaría)
     if [ -n "$p_db" ] && [ -f /var/log/auth.log ]; then
         cat >> "$F2B_CONF" << EOF
 
@@ -942,118 +973,118 @@ port    = $p_db
 EOF
     fi
 
-    echo -e "${C_YELLOW}[+] Aplicando configuração...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Aplicando configuración]:-Aplicando configuración}...${C_RST}"
     systemctl enable fail2ban >/dev/null 2>&1
     systemctl restart fail2ban >/dev/null 2>&1
     sleep 2
     if fail2ban-client status sshd >/dev/null 2>&1; then
         echo -e "${C_NEON_BLUE}════════════════════════════════════════════════${C_RST}"
-        echo -e "  ${C_NEON_GREEN}Protege      :${C_RST} SSH (porta $p_ssh)$([ -n "$p_db" ] && [ -f /var/log/auth.log ] && echo ", Dropbear ($p_db)")"
-        echo -e "  ${C_NEON_GREEN}Tentativas   :${C_RST} $maxretry em 10 min"
-        echo -e "  ${C_NEON_GREEN}Bloqueio     :${C_RST} $bantime min"
-        echo -e "  ${C_NEON_GREEN}IPs ignorados:${C_RST} $ignorar"
+        echo -e "  ${C_NEON_GREEN}${T[Protege]:-Protege}      :${C_RST} ${T[SSH (puerto]:-SSH (puerto} $p_ssh)$([ -n "$p_db" ] && [ -f /var/log/auth.log ] && echo ", Dropbear ($p_db)")"
+        echo -e "  ${C_NEON_GREEN}${T[Intentos]:-Intentos}     :${C_RST} $maxretry en 10 min"
+        echo -e "  ${C_NEON_GREEN}${T[Bloqueo]:-Bloqueo}      :${C_RST} $bantime min"
+        echo -e "  ${C_NEON_GREEN}${T[IPs ignoradas]:-IPs ignoradas}:${C_RST} $ignorar"
         echo -e "${C_NEON_BLUE}════════════════════════════════════════════════${C_RST}"
-        echo -e "${C_GREEN}[✔] FAIL2BAN ATIVADO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Fail2ban activo]:-Fail2ban activo}.${C_RST}"
     else
-        echo -e "${C_RED}[!] FAIL2BAN NÃO INICIOU. ÚLTIMAS LINHAS DO REGISTRO:${C_RST}"
+        echo -e "${C_RED}[!] ${T[Fail2ban no pudo iniciar. Últimas líneas del registro]:-Fail2ban no pudo iniciar. Últimas líneas del registro}:${C_RST}"
         journalctl -u fail2ban -n 15 --no-pager 2>/dev/null
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 fail2ban_ver() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🛡️ ESTADO E IPS BLOQUEADOS           ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ ${T[ESTADO E IPs BLOQUEADAS]:-ESTADO E IPs BLOQUEADAS}           ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if ! systemctl is-active --quiet fail2ban 2>/dev/null; then
-        echo -e "${C_YELLOW}[!] FAIL2BAN NÃO ESTÁ ATIVO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_YELLOW}[!] ${T[Fail2ban no está activo]:-Fail2ban no está activo}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     local jails j out
     jails=$(fail2ban-client status 2>/dev/null | sed -n 's/.*Jail list:[[:space:]]*//p' | tr -d ' ' | tr ',' ' ')
     for j in $jails; do
         out=$(fail2ban-client status "$j" 2>/dev/null)
         echo -e "  ${C_NEON_YELLOW}Jail: $j${C_RST}"
-        echo -e "  ${C_NEON_GREEN}Falhas atuais     :${C_RST} $(echo "$out" | awk -F: '/Currently failed/{gsub(/[ \t]/,"",$2); print $2}')"
-        echo -e "  ${C_NEON_GREEN}Bloqueados agora  :${C_RST} $(echo "$out" | awk -F: '/Currently banned/{gsub(/[ \t]/,"",$2); print $2}')"
-        echo -e "  ${C_NEON_GREEN}Total bloqueados  :${C_RST} $(echo "$out" | awk -F: '/Total banned/{gsub(/[ \t]/,"",$2); print $2}')"
-        echo -e "  ${C_NEON_GREEN}IPs bloqueados    :${C_RST} $(echo "$out" | awk -F: '/Banned IP list/{print $2}' | sed 's/^[[:space:]]*//')"
+        echo -e "  ${C_NEON_GREEN}${T[Fallos actuales]:-Fallos actuales}   :${C_RST} $(echo "$out" | awk -F: '/Currently failed/{gsub(/[ \t]/,"",$2); print $2}')"
+        echo -e "  ${C_NEON_GREEN}${T[Bloqueadas ahora]:-Bloqueadas ahora}  :${C_RST} $(echo "$out" | awk -F: '/Currently banned/{gsub(/[ \t]/,"",$2); print $2}')"
+        echo -e "  ${C_NEON_GREEN}${T[Total bloqueadas]:-Total bloqueadas}  :${C_RST} $(echo "$out" | awk -F: '/Total banned/{gsub(/[ \t]/,"",$2); print $2}')"
+        echo -e "  ${C_NEON_GREEN}${T[IPs bloqueadas]:-IPs bloqueadas}    :${C_RST} $(echo "$out" | awk -F: '/Banned IP list/{print $2}' | sed 's/^[[:space:]]*//')"
         echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"
     done
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 fail2ban_desbloquear() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🔓 DESBLOQUEAR IP                    ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔓 ${T[DESBLOQUEAR IP]:-DESBLOQUEAR IP}                    ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if ! systemctl is-active --quiet fail2ban 2>/dev/null; then
-        echo -e "${C_YELLOW}[!] FAIL2BAN NÃO ESTÁ ATIVO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_YELLOW}[!] ${T[Fail2ban no está activo]:-Fail2ban no está activo}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     local ip res
-    echo -ne "${C_NEON_YELLOW}IP A DESBLOQUEAR (OU DIGITE 'todas'): ${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[IP a desbloquear (o escriba 'todas]:-IP a desbloquear (o escriba 'todas}'): ${C_RST}"
     read ip
     if [ "$ip" = "todas" ]; then
-        fail2ban-client unban --all >/dev/null 2>&1 && echo -e "${C_GREEN}[✔] TODOS OS IPS FORAM DESBLOQUEADOS.${C_RST}" \
-            || echo -e "${C_RED}[!] NÃO FOI POSSÍVEL COMPLETAR A OPERAÇÃO.${C_RST}"
+        fail2ban-client unban --all >/dev/null 2>&1 && echo -e "${C_GREEN}[✔] Todas las IPs fueron desbloqueadas.${C_RST}" \
+            || echo -e "${C_RED}[!] ${T[No se pudo completar la operación]:-No se pudo completar la operación}.${C_RST}"
     elif [[ "$ip" =~ ^[0-9a-fA-F:.]+$ ]]; then
         res=$(fail2ban-client unban "$ip" 2>/dev/null | tail -1)
-        if [ -n "$res" ] && [ "$res" != "0" ]; then echo -e "${C_GREEN}[✔] IP $ip DESBLOQUEADO.${C_RST}"
-        else echo -e "${C_YELLOW}[!] O IP $ip NÃO ESTAVA BLOQUEADO.${C_RST}"; fi
+        if [ -n "$res" ] && [ "$res" != "0" ]; then echo -e "${C_GREEN}[✔] IP $ip ${T[desbloqueada]:-desbloqueada}.${C_RST}"
+        else echo -e "${C_YELLOW}[!] ${T[La IP]:-La IP} $ip ${T[no estaba bloqueada]:-no estaba bloqueada}.${C_RST}"; fi
     else
-        echo -e "${C_RED}[!] IP INVÁLIDO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[IP no válida]:-IP no válida}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 fail2ban_desinstalar() {
     clear
     if ! command -v fail2ban-client >/dev/null 2>&1; then
-        echo -e "${C_YELLOW}[!] FAIL2BAN NÃO ESTÁ INSTALADO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_YELLOW}[!] ${T[Fail2ban no está instalado]:-Fail2ban no está instalado}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
-    read -p "DESINSTALAR FAIL2BAN? (s/n): " conf
+    read -p "${T[¿Desinstalar Fail2ban? (s/n]:-¿Desinstalar Fail2ban? (s/n}): " conf
     if [[ "$conf" != "s" && "$conf" != "S" ]]; then return; fi
-    echo -e "${C_YELLOW}[+] Desinstalando Fail2ban...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Desinstalando Fail2ban]:-Desinstalando Fail2ban}...${C_RST}"
     systemctl disable --now fail2ban >/dev/null 2>&1
     DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y fail2ban >/dev/null 2>&1
     rm -f "$F2B_CONF"
-    echo -e "${C_GREEN}[✔] FAIL2BAN DESINSTALADO.${C_RST}"
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    echo -e "${C_GREEN}[✔] ${T[Fail2ban desinstalado]:-Fail2ban desinstalado}.${C_RST}"
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 menu_fail2ban() {
     while true; do
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🛡️ FAIL2BAN (ANTI FORÇA BRUTA)       ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🛡️ ${T[FAIL2BAN (ANTI FUERZA BRUTA]:-FAIL2BAN (ANTI FUERZA BRUTA})       ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_GREEN}Estado:${C_RST} $(fail2ban_estado_texto)"
+        echo -e "  ${C_NEON_GREEN}${T[Estado]:-Estado}:${C_RST} $(fail2ban_estado_texto)"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🛡️ INSTALAR / CONFIGURAR FAIL2BAN"
-        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 📋 VER ESTADO E IPS BLOQUEADOS"
-        echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔓 DESBLOQUEAR UM IP"
-        echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🗑️ DESINSTALAR FAIL2BAN"
+        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🛡️ ${T[Instalar / Configurar Fail2ban]:-Instalar / Configurar Fail2ban}"
+        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 📋 ${T[Ver estado e IPs bloqueadas]:-Ver estado e IPs bloqueadas}"
+        echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔓 ${T[Desbloquear una IP]:-Desbloquear una IP}"
+        echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🗑️ ${T[Desinstalar Fail2ban]:-Desinstalar Fail2ban}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+        echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-        read -p "SELECIONE UMA OPÇÃO: " f2b_opt
+        read -p "${T[Seleccione una opción]:-Seleccione una opción}: " f2b_opt
         case $f2b_opt in
             1) fail2ban_instalar ;;
             2) fail2ban_ver ;;
             3) fail2ban_desbloquear ;;
             4) fail2ban_desinstalar ;;
             0) break ;;
-            *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+            *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
     done
 }
 
 # ==========================================
-# SUBMENU: BLOQUEIO DE TORRENTS (iptables)
+# SUBMENÚ: BLOQUEO DE TORRENTS (iptables)
 # ==========================================
 TORRENT_BIN="/usr/local/bin/vps-torrent-block"
 TORRENT_SVC="/etc/systemd/system/vps-torrent-block.service"
@@ -1063,21 +1094,22 @@ torrent_activo() { command -v iptables >/dev/null 2>&1 && iptables -C OUTPUT -j 
 torrent_activar() {
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🚫 ATIVAR BLOQUEIO DE TORRENTS       ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚫 ${T[ACTIVAR BLOQUEO DE TORRENTS]:-ACTIVAR BLOQUEO DE TORRENTS}       ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if ! command -v iptables >/dev/null 2>&1; then
-        echo -e "${C_YELLOW}[+] Instalando iptables...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Instalando iptables]:-Instalando iptables}...${C_RST}"
         apt-get update -y >/dev/null 2>&1
         DEBIAN_FRONTEND=noninteractive apt-get install -y iptables >/dev/null 2>&1
         if ! command -v iptables >/dev/null 2>&1; then
-            echo -e "${C_RED}[!] NÃO FOI POSSÍVEL INSTALAR O IPTABLES.${C_RST}"
-            read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+            echo -e "${C_RED}[!] ${T[No se pudo instalar iptables]:-No se pudo instalar iptables}.${C_RST}"
+            read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
         fi
     fi
 
+    # Script que aplica/quita las reglas (lo usa también el servicio al arrancar el VPS)
     cat > "$TORRENT_BIN" << 'EOF'
 #!/bin/bash
-# VPS-Manager: bloqueio de torrents via inspeção de string
+# VPS-Manager: bloqueo de torrents por inspección de contenido (iptables -m string)
 CHAIN=VPS_BLOCK_TORRENT
 STRINGS=("BitTorrent protocol" "peer_id=" ".torrent" "announce.php?passkey=" "info_hash" "get_peers" "announce_peer" "find_node" "BT-SEARCH")
 
@@ -1097,7 +1129,7 @@ aplicar() {
     command -v "$IPT" >/dev/null 2>&1 || return 0
     "$IPT" -N "$CHAIN" 2>/dev/null
     "$IPT" -F "$CHAIN" || return 1
-    "$IPT" -A "$CHAIN" -o lo -j RETURN || return 1          # tráfego local não é inspecionado
+    "$IPT" -A "$CHAIN" -o lo -j RETURN || return 1          # el tráfico local no se inspecciona
     for s in "${STRINGS[@]}"; do
         "$IPT" -A "$CHAIN" -m string --algo bm --string "$s" -j DROP || return 1
     done
@@ -1109,7 +1141,7 @@ aplicar() {
 case "$1" in
     on)  modprobe xt_string 2>/dev/null
          aplicar iptables || { quitar iptables; exit 1; }
-         aplicar ip6tables || quitar ip6tables ;;      
+         aplicar ip6tables || quitar ip6tables ;;      # IPv6 es opcional
     off) quitar iptables; quitar ip6tables ;;
     *)   echo "Uso: $0 {on|off}"; exit 1 ;;
 esac
@@ -1118,7 +1150,7 @@ EOF
 
     cat > "$TORRENT_SVC" << EOF
 [Unit]
-Description=VPS-Manager bloqueio de torrents
+Description=VPS-Manager bloqueo de torrents
 After=network.target
 
 [Service]
@@ -1131,68 +1163,69 @@ ExecStop=$TORRENT_BIN off
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload >/dev/null 2>&1
-    echo -e "${C_YELLOW}[+] Aplicando regras...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Aplicando reglas]:-Aplicando reglas}...${C_RST}"
     systemctl enable vps-torrent-block.service >/dev/null 2>&1
     systemctl restart vps-torrent-block.service >/dev/null 2>&1
 
     if torrent_activo; then
-        echo -e "${C_GREEN}[✔] BLOQUEIO DE TORRENTS ATIVADO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Bloqueo de torrents activado (se mantiene tras reiniciar]:-Bloqueo de torrents activado (se mantiene tras reiniciar}).${C_RST}"
     else
-        echo -e "${C_RED}[!] NÃO FOI POSSÍVEL APLICAR AS REGRAS.${C_RST}"
-        echo -e "    Esta VPS provavelmente não suporta o módulo ${C_NEON_YELLOW}string${C_RST} do iptables"
+        echo -e "${C_RED}[!] ${T[No se pudieron aplicar las reglas]:-No se pudieron aplicar las reglas}.${C_RST}"
+        echo -e "    ${T[Este VPS probablemente no soporta el módulo]:-Este VPS probablemente no soporta el módulo} ${C_NEON_YELLOW}string${C_RST} de iptables"
+        echo -e "    (${T[es común en virtualización OpenVZ/LXC]:-es común en virtualización OpenVZ/LXC})."
         systemctl disable --now vps-torrent-block.service >/dev/null 2>&1
         "$TORRENT_BIN" off 2>/dev/null
         rm -f "$TORRENT_SVC" "$TORRENT_BIN"; systemctl daemon-reload >/dev/null 2>&1
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 torrent_desactivar() {
     clear
     if ! torrent_activo && [ ! -f "$TORRENT_SVC" ]; then
-        echo -e "${C_YELLOW}[!] O BLOQUEIO DE TORRENTS NÃO ESTÁ ATIVO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_YELLOW}[!] ${T[El bloqueo de torrents no está activo]:-El bloqueo de torrents no está activo}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
-    echo -e "${C_YELLOW}[+] Desativando bloqueio de torrents...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Desactivando bloqueo de torrents]:-Desactivando bloqueo de torrents}...${C_RST}"
     systemctl disable --now vps-torrent-block.service >/dev/null 2>&1
     [ -x "$TORRENT_BIN" ] && "$TORRENT_BIN" off
     rm -f "$TORRENT_SVC" "$TORRENT_BIN"
     systemctl daemon-reload >/dev/null 2>&1
-    echo -e "${C_GREEN}[✔] BLOQUEIO DE TORRENTS DESATIVADO.${C_RST}"
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    echo -e "${C_GREEN}[✔] ${T[Bloqueo de torrents desactivado]:-Bloqueo de torrents desactivado}.${C_RST}"
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 menu_torrents() {
     while true; do
         clear
-        local estado="🔴 DESATIVADO" bloq=""
+        local estado="🔴 DESACTIVADO" bloq=""
         if torrent_activo; then
-            estado="🟢 ATIVO"
+            estado="🟢 ACTIVO"
             bloq=$(iptables -nvxL VPS_BLOCK_TORRENT 2>/dev/null | awk '$3=="DROP"{s+=$1} END{print s+0}')
         fi
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🚫 BLOQUEIO DE TORRENTS              ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚫 ${T[BLOQUEO DE TORRENTS]:-BLOQUEO DE TORRENTS}               ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_GREEN}Estado             :${C_RST} $estado"
-        [ -n "$bloq" ] && echo -e "  ${C_NEON_GREEN}Pacotes bloqueados :${C_RST} $bloq"
+        echo -e "  ${C_NEON_GREEN}${T[Estado]:-Estado}             :${C_RST} $estado"
+        [ -n "$bloq" ] && echo -e "  ${C_NEON_GREEN}${T[Paquetes bloqueados]:-Paquetes bloqueados}:${C_RST} $bloq"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚫 ATIVAR BLOQUEIO DE TORRENTS"
-        echo -e "  ${C_NEON_YELLOW}2.${C_RST} ✅ DESATIVAR BLOQUEIO DE TORRENTS"
+        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚫 ${T[Activar bloqueo de torrents]:-Activar bloqueo de torrents}"
+        echo -e "  ${C_NEON_YELLOW}2.${C_RST} ✅ ${T[Desactivar bloqueo de torrents]:-Desactivar bloqueo de torrents}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+        echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-        read -p "SELECIONE UMA OPÇÃO: " tor_opt
+        read -p "${T[Seleccione una opción]:-Seleccione una opción}: " tor_opt
         case $tor_opt in
             1) torrent_activar ;;
             2) torrent_desactivar ;;
             0) break ;;
-            *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+            *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
     done
 }
 
 # ==========================================
-# SUBMENU: HCR (v1.0 E v2.0)
+# SUBMENÚ: HCR (v1.0 Y v2.0)
 # ==========================================
 menu_hcr() {
     while true; do
@@ -1200,23 +1233,24 @@ menu_hcr() {
         local hcr2_ind=" 🔴 "
         systemctl is-active --quiet hcr-server.service 2>/dev/null && hcr2_ind=" 🟢 "
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🚀 INSTALAR HCR NATIVO               ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚀 ${T[INSTALAR HCR NATIVO]:-INSTALAR HCR NATIVO}               ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR HCR (v1.0)"
-        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 INSTALAR HCR (v2.0)  ${C_GREEN}${hcr2_ind}${C_RST}"
+        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar HCR (v]:-Instalar HCR (v}1.0)"
+        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 ${T[Instalar HCR (v]:-Instalar HCR (v}2.0)  ${C_GREEN}${hcr2_ind}${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+        echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-        read -p "SELECIONE UMA OPÇÃO: " hcr_opt
+        read -p "${T[Seleccione una opción]:-Seleccione una opción}: " hcr_opt
         case $hcr_opt in
             1) clear; wget -qO /tmp/hcr.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/hcr.sh && chmod +x /tmp/hcr.sh && bash /tmp/hcr.sh ;;
             2) menu_hcr_v2 ;;
             0) break ;;
-            *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+            *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
     done
 }
 
+# Carpeta de HCR v2 (install.sh + hcr-server). Debe ser de root y sin espacios.
 HCR2_DIR="/etc/vps-manager/hcr-v2"
 HCR2_BASE="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core"
 HCR2_INSTALLER_URL="$HCR2_BASE/hcrv2"
@@ -1230,25 +1264,25 @@ menu_hcr_v2() {
     while true; do
         clear
         local estado port
-        if ! hcr2_instalado; then estado="⚪ Não Instalado"
-        elif systemctl is-active --quiet hcr-server.service 2>/dev/null; then estado="🟢 ATIVO"
-        else estado="🔴 PARADO"; fi
+        if ! hcr2_instalado; then estado="⚪ No instalado"
+        elif systemctl is-active --quiet hcr-server.service 2>/dev/null; then estado="🟢 ACTIVO"
+        else estado="🔴 DETENIDO"; fi
         port=$(cat /etc/vps-manager/hcr_port 2>/dev/null)
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🚀 HCR v2.0 - GESTÃO                 ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚀 ${T[HCR v2.0 - GESTIÓN]:-HCR v2.0 - GESTIÓN}                ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  Estado : $estado"
-        hcr2_instalado && echo -e "  Porta  : ${C_NEON_YELLOW}${port:-N/D}${C_RST}"
+        echo -e "  ${T[Estado]:-Estado} : $estado"
+        hcr2_instalado && echo -e "  ${T[Puerto]:-Puerto} : ${C_NEON_YELLOW}${port:-N/D}${C_RST}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR HCR v2.0"
-        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔧 ALTERAR PORTA"
-        echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔄 REINICIAR"
-        echo -e "  ${C_NEON_YELLOW}4.${C_RST} ⏹️ PARAR"
-        echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🗑️ DESINSTALAR"
+        echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar HCR v]:-Instalar HCR v}2.0"
+        echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔧 ${T[Cambiar puerto]:-Cambiar puerto}"
+        echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔄 ${T[Reiniciar]:-Reiniciar}"
+        echo -e "  ${C_NEON_YELLOW}4.${C_RST} ⏹️ ${T[Detener]:-Detener}"
+        echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🗑️ ${T[Desinstalar]:-Desinstalar}"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-        echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+        echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-        read -p "SELECIONE UMA OPÇÃO: " hcr2_opt
+        read -p "${T[Seleccione una opción]:-Seleccione una opción}: " hcr2_opt
         case $hcr2_opt in
             1) hcr2_instalar ;;
             2) hcr2_cambiar_puerto ;;
@@ -1256,7 +1290,7 @@ menu_hcr_v2() {
             4) hcr2_detener ;;
             5) hcr2_desinstalar ;;
             0) break ;;
-            *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+            *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
     done
 }
@@ -1265,67 +1299,73 @@ hcr2_instalar() {
     local DIR="$HCR2_DIR"
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🚀 INSTALAR HCR (v2.0)               ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🚀 ${T[Instalar HCR (v]:-Instalar HCR (v}2.0)        ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
+    # 1) Arquitectura del servidor
     local arq
     case "$(uname -m)" in
         x86_64|amd64)        arq="amd64" ;;
         i386|i486|i586|i686) arq="386" ;;
         armv7*)              arq="arm" ;;
         aarch64|arm64)       arq="arm64" ;;
-        *) echo -e "${C_RED}[!] ARQUITETURA NÃO SUPORTADA: $(uname -m)${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return ;;
+        *) echo -e "${C_RED}[!] ${T[Arquitectura no soportada]:-Arquitectura no soportada}: $(uname -m)${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return ;;
     esac
 
-    echo -e "${C_YELLOW}[+] Baixando HCR v2.0 ($arq)...${C_RST}"
+    # 2) Descarga (a archivos temporales: no se pisa el binario si el servicio está corriendo)
+    echo -e "${C_YELLOW}[+] ${T[Descargando HCR v]:-Descargando HCR v}2.0 ($arq)...${C_RST}"
     mkdir -p "$DIR"; chown root:root "$DIR"; chmod 755 "$DIR"
     local tmp_sh tmp_bin ok=0
     tmp_sh=$(mktemp "$DIR/.install.XXXXXX"); tmp_bin=$(mktemp "$DIR/.bin.XXXXXX")
 
     if ! wget -q -O "$tmp_sh" "$HCR2_INSTALLER_URL" || [ "$(head -c2 "$tmp_sh" 2>/dev/null)" != "#!" ]; then
-        echo -e "${C_RED}[!] NÃO FOI POSSÍVEL BAIXAR O INSTALADOR:${C_RST}\n    $HCR2_INSTALLER_URL"
-        rm -f "$tmp_sh" "$tmp_bin"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[No se pudo descargar el instalador desde]:-No se pudo descargar el instalador desde}:${C_RST}\n    $HCR2_INSTALLER_URL"
+        rm -f "$tmp_sh" "$tmp_bin"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     if wget -q -O "$tmp_bin" "$HCR2_BIN_URL" && [ "$(head -c4 "$tmp_bin" 2>/dev/null | tail -c3)" = "ELF" ]; then ok=1; fi
     if [ "$ok" -ne 1 ]; then
-        echo -e "${C_RED}[!] NÃO FOI POSSÍVEL BAIXAR O BINÁRIO:${C_RST}\n    $HCR2_BIN_URL"
-        rm -f "$tmp_sh" "$tmp_bin"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[No se pudo descargar el binario desde]:-No se pudo descargar el binario desde}:${C_RST}\n    $HCR2_BIN_URL"
+        rm -f "$tmp_sh" "$tmp_bin"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     chmod 755 "$tmp_bin"
     if ! "$tmp_bin" -version >/dev/null 2>&1; then
-        echo -e "${C_RED}[!] O BINÁRIO BAIXADO NÃO FUNCIONA NESTA ARQUITETURA (${arq}).${C_RST}"
-        rm -f "$tmp_sh" "$tmp_bin"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[El binario descargado no se puede ejecutar en esta arquitectura]:-El binario descargado no se puede ejecutar en esta arquitectura} ($(uname -m)).${C_RST}"
+        rm -f "$tmp_sh" "$tmp_bin"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     mv -f "$tmp_sh" "$DIR/install.sh"; mv -f "$tmp_bin" "$DIR/hcr-server"
     chown -R root:root "$DIR"; chmod 755 "$DIR" "$DIR/install.sh" "$DIR/hcr-server"
-    echo -e "${C_GREEN}[✔] BAIXADO: $("$DIR/hcr-server" -version 2>&1 | head -1)${C_RST}"
+    echo -e "${C_GREEN}[✔] ${T[Descargado]:-Descargado}: $("$DIR/hcr-server" -version 2>&1 | head -1)${C_RST}"
     echo ""
 
+    # 3) Puerto
     local port
-    echo -ne "${C_NEON_YELLOW}DIGITE A PORTA PARA HCR v2.0 (1-65535) [8880]: ${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[Ingrese el puerto para HCR v]:-Ingrese el puerto para HCR v}2.0 (1-65535) [8880]: ${C_RST}"
     read port; port=${port:-8880}
     if [[ ! "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
-        echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
+    # Ocupado por otro servicio (si es el propio hcr-server, se permite reconfigurar)
     if ss -lntp 2>/dev/null | grep ":$port " | grep -qv "hcr-server"; then
         local svc; svc=$(ss -lntp 2>/dev/null | grep ":$port " | grep -v "hcr-server" | head -1 | grep -o '"[^"]*"' | head -1 | tr -d '"')
-        echo -e "${C_RED}[!] A PORTA $port JÁ ESTÁ EM USO POR: ${svc:-outro serviço}${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $port ${T[ya está en uso por]:-ya está en uso por}: ${svc:-otro servicio}${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
 
+    # 4) Transporte
     local transport
-    echo -e "${C_NEON_YELLOW}SELECIONE O TRANSPORTE:${C_RST}"
-    echo -e "  ${C_NEON_YELLOW}1.${C_RST} auto  (TLS e sem TLS na mesma porta) ${C_GREEN}[RECOMENDADO]${C_RST}"
-    echo -e "  ${C_NEON_YELLOW}2.${C_RST} tls   (Apenas TLS)"
-    echo -e "  ${C_NEON_YELLOW}3.${C_RST} plain (Sem TLS)"
-    read -p "OPÇÃO [1]: " t_opt
+    echo -e "${C_NEON_YELLOW}${T[Seleccione el transporte]:-Seleccione el transporte}:${C_RST}"
+    echo -e "  ${C_NEON_YELLOW}1.${C_RST} ${T[auto  (TLS y sin TLS en el mismo puerto]:-auto  (TLS y sin TLS en el mismo puerto}) ${C_GREEN}[${T[recomendado]:-recomendado}]${C_RST}"
+    echo -e "  ${C_NEON_YELLOW}2.${C_RST} ${T[tls   (solo TLS]:-tls   (solo TLS})"
+    echo -e "  ${C_NEON_YELLOW}3.${C_RST} ${T[plain (sin TLS]:-plain (sin TLS})"
+    read -p "${T[Opción]:-Opción} [1]: " t_opt
     case "${t_opt:-1}" in
         1) transport="auto" ;;
         2) transport="tls" ;;
         3) transport="plain" ;;
-        *) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return ;;
+        *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return ;;
     esac
 
+    # 5) Certificados (solo auto/tls): se enlazan al certificado Let's Encrypt del dominio configurado
     if [ "$transport" != "plain" ]; then
         local dom le
         dom=$(cat /etc/vps-manager/dominio 2>/dev/null)
@@ -1333,26 +1373,28 @@ hcr2_instalar() {
         if [ -n "$dom" ] && [ -f "$le/fullchain.pem" ] && [ -f "$le/privkey.pem" ]; then
             [ -e "$DIR/fullchain.pem" ] && [ ! -L "$DIR/fullchain.pem" ] || ln -sfn "$le/fullchain.pem" "$DIR/fullchain.pem"
             [ -e "$DIR/privkey.pem" ]   && [ ! -L "$DIR/privkey.pem" ]   || ln -sfn "$le/privkey.pem"   "$DIR/privkey.pem"
-            echo -e "${C_GREEN}[✔] CERTIFICADO TLS DE $dom VINCULADO.${C_RST}"
+            echo -e "${C_GREEN}[✔] ${T[Certificado TLS de]:-Certificado TLS de} $dom ${T[enlazado]:-enlazado}.${C_RST}"
         elif [ -f "$DIR/fullchain.pem" ] && [ -f "$DIR/privkey.pem" ]; then
-            echo -e "${C_GREEN}[✔] OS CERTIFICADOS EXISTENTES SERÃO USADOS.${C_RST}"
+            echo -e "${C_GREEN}[✔] ${T[Se usarán los certificados que ya hay en]:-Se usarán los certificados que ya hay en} $DIR.${C_RST}"
         else
-            echo -e "${C_RED}[!] NÃO HÁ CERTIFICADO TLS DISPONÍVEL.${C_RST} Configure seu domínio em"
-            echo -e "    ${C_NEON_YELLOW}FERRAMENTAS E SISTEMA > GESTOR DE DOMÍNIO E CERTIFICADOS SSL${C_RST}."
-            read -p "INSTALAR EM MODO PLAIN (SEM TLS)? (s/n): " r_plain
+            echo -e "${C_RED}[!] ${T[No hay certificado TLS disponible]:-No hay certificado TLS disponible}.${C_RST} ${T[Configura tu dominio en]:-Configura tu dominio en}"
+            echo -e "    ${C_NEON_YELLOW}${T[Herramientas y Sistema > Gestor de Dominio y Certificados SSL]:-Herramientas y Sistema > Gestor de Dominio y Certificados SSL}${C_RST}."
+            read -p "${T[¿Instalar en modo plain (sin TLS)? (s/n]:-¿Instalar en modo plain (sin TLS)? (s/n}): " r_plain
             if [[ "$r_plain" == "s" || "$r_plain" == "S" ]]; then transport="plain"; else return; fi
         fi
     fi
 
+    # 6) Destino SSH
     local target
-    echo -ne "${C_NEON_YELLOW}DESTINO SSH (HOST:PORTA) [127.0.0.1:22]: ${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[Destino SSH (HOST:PUERTO]:-Destino SSH (HOST:PUERTO}) [127.0.0.1:22]: ${C_RST}"
     read target; target=${target:-127.0.0.1:22}
     if [[ ! "$target" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]] || [ "${target##*:}" -lt 1 ] || [ "${target##*:}" -gt 65535 ]; then
-        echo -e "${C_RED}[!] DESTINO INVÁLIDO. Formato: HOST:PORTA${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[Destino no válido. Formato: HOST:PUERTO]:-Destino no válido. Formato: HOST:PUERTO}${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
 
+    # 7) Instalar el servicio con el install.sh oficial
     echo ""
-    echo -e "${C_YELLOW}[+] Instalando serviço HCR v2.0 na porta $port ($transport)...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Instalando servicio HCR v2.0 en el puerto]:-Instalando servicio HCR v2.0 en el puerto} $port ($transport)...${C_RST}"
     if bash "$DIR/install.sh" --port "$port" --transport "$transport" --target "$target"; then
         echo "$port" > /etc/vps-manager/hcr_port
         echo "$transport" > /etc/vps-manager/hcr_transport
@@ -1361,22 +1403,22 @@ hcr2_instalar() {
             ufw allow "$port/tcp" >/dev/null 2>&1
         fi
         echo -e "${C_NEON_BLUE}════════════════════════════════════════════════${C_RST}"
-        echo -e "  ${C_NEON_GREEN}Porta      :${C_RST} $port"
-        echo -e "  ${C_NEON_GREEN}Transporte :${C_RST} $transport"
-        echo -e "  ${C_NEON_GREEN}Destino    :${C_RST} $target"
+        echo -e "  ${C_NEON_GREEN}${T[Puerto]:-Puerto}     :${C_RST} $port"
+        echo -e "  ${C_NEON_GREEN}${T[Transporte]:-Transporte} :${C_RST} $transport"
+        echo -e "  ${C_NEON_GREEN}${T[Destino]:-Destino}    :${C_RST} $target"
         echo -e "${C_NEON_BLUE}════════════════════════════════════════════════${C_RST}"
-        echo -e "${C_GREEN}[✔] HCR v2.0 INSTALADO E ATIVO NA PORTA $port.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[HCR v2.0 instalado y activo en el puerto]:-HCR v2.0 instalado y activo en el puerto} $port.${C_RST}"
     else
-        echo -e "${C_RED}[!] A INSTALAÇÃO FALHOU. ÚLTIMAS LINHAS:${C_RST}"
+        echo -e "${C_RED}[!] ${T[La instalación falló. Últimas líneas del registro]:-La instalación falló. Últimas líneas del registro}:${C_RST}"
         journalctl -u hcr-server -n 15 --no-pager 2>/dev/null
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 hcr2_requiere_instalado() {
     if ! hcr2_instalado; then
-        echo -e "${C_YELLOW}[!] HCR v2.0 NÃO ESTÁ INSTALADO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."
+        echo -e "${C_YELLOW}[!] ${T[HCR v2.0 no está instalado. Use la opción 1 primero]:-HCR v2.0 no está instalado. Use la opción 1 primero}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
         return 1
     fi
     return 0
@@ -1386,49 +1428,50 @@ hcr2_cambiar_puerto() {
     local DIR="$HCR2_DIR"
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🔧 ALTERAR PORTA HCR v2.0            ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔧 ${T[CAMBIAR PUERTO HCR v]:-CAMBIAR PUERTO HCR v}2.0           ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     hcr2_requiere_instalado || return
     if [ ! -x "$DIR/install.sh" ]; then
-        echo -e "${C_RED}[!] Arquivo $DIR/install.sh ausente. Reinstale o HCR v2.0.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[Falta]:-Falta} $DIR/${T[install.sh. Reinstale HCR v2.0 con la opción]:-install.sh. Reinstale HCR v2.0 con la opción} 1.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
 
     local old_port new_port transport target unit
     old_port=$(cat /etc/vps-manager/hcr_port 2>/dev/null)
-    echo -e "  Porta atual: ${C_NEON_YELLOW}${old_port:-N/D}${C_RST}"
-    echo -ne "${C_NEON_YELLOW}NOVA PORTA (1-65535, 0 PARA CANCELAR): ${C_RST}"
+    echo -e "  ${T[Puerto actual]:-Puerto actual}: ${C_NEON_YELLOW}${old_port:-N/D}${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[Nuevo puerto (1-65535, 0 para cancelar]:-Nuevo puerto (1-65535, 0 para cancelar}): ${C_RST}"
     read new_port
     [ "$new_port" = "0" ] && return
     if [[ ! "$new_port" =~ ^[0-9]+$ ]] || [ "$new_port" -lt 1 ] || [ "$new_port" -gt 65535 ]; then
-        echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     if [ "$new_port" = "$old_port" ]; then
-        echo -e "${C_YELLOW}[!] VOCÊ JÁ ESTÁ USANDO ESTA PORTA.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_YELLOW}[!] ${T[Ya está usando ese puerto]:-Ya está usando ese puerto}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     if ss -lntp 2>/dev/null | grep ":$new_port " | grep -qv "hcr-server"; then
         local svc; svc=$(ss -lntp 2>/dev/null | grep ":$new_port " | grep -v "hcr-server" | head -1 | grep -o '"[^"]*"' | head -1 | tr -d '"')
-        echo -e "${C_RED}[!] A PORTA $new_port JÁ ESTÁ EM USO POR: ${svc:-outro serviço}${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $new_port ${T[ya está en uso por]:-ya está en uso por}: ${svc:-otro servicio}${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
 
+    # Conservar transporte y destino actuales: archivos guardados -> unidad systemd -> preguntar
     transport=$(cat /etc/vps-manager/hcr_transport 2>/dev/null)
     target=$(cat /etc/vps-manager/hcr_target 2>/dev/null)
     unit=$(systemctl cat hcr-server.service 2>/dev/null | grep -E '^ExecStart=')
     [ -z "$transport" ] && transport=$(echo "$unit" | sed -nE 's/.*--transport[ =]+([a-z]+).*/\1/p' | head -1)
     [ -z "$target" ]    && target=$(echo "$unit" | sed -nE 's/.*--target[ =]+([A-Za-z0-9._-]+:[0-9]+).*/\1/p' | head -1)
     if [[ ! "$transport" =~ ^(auto|tls|plain)$ ]]; then
-        read -p "NÃO FOI POSSÍVEL DETECTAR O TRANSPORTE [auto]: " transport
+        read -p "${T[No se detectó el transporte actual (auto/tls/plain]:-No se detectó el transporte actual (auto/tls/plain}) [auto]: " transport
         transport=${transport:-auto}
-        [[ "$transport" =~ ^(auto|tls|plain)$ ]] || { echo -e "${C_RED}[!] Transporte inválido.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return; }
+        [[ "$transport" =~ ^(auto|tls|plain)$ ]] || { echo -e "${C_RED}[!] ${T[Transporte no válido]:-Transporte no válido}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return; }
     fi
     if [[ ! "$target" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]]; then
-        read -p "NÃO FOI POSSÍVEL DETECTAR O DESTINO [127.0.0.1:22]: " target
+        read -p "${T[No se detectó el destino SSH actual (HOST:PUERTO]:-No se detectó el destino SSH actual (HOST:PUERTO}) [127.0.0.1:22]: " target
         target=${target:-127.0.0.1:22}
-        [[ "$target" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]] || { echo -e "${C_RED}[!] Destino inválido.${C_RST}"; read -p "PRESSIONE ENTER PARA CONTINUAR..."; return; }
+        [[ "$target" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]] || { echo -e "${C_RED}[!] ${T[Destino no válido]:-Destino no válido}.${C_RST}"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return; }
     fi
 
-    echo -e "${C_YELLOW}[+] Aplicando porta $new_port ($transport → $target)...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Aplicando puerto]:-Aplicando puerto} $new_port ($transport → $target)...${C_RST}"
     if bash "$DIR/install.sh" --port "$new_port" --transport "$transport" --target "$target"; then
         echo "$new_port" > /etc/vps-manager/hcr_port
         echo "$transport" > /etc/vps-manager/hcr_transport
@@ -1437,68 +1480,71 @@ hcr2_cambiar_puerto() {
             [ -n "$old_port" ] && ufw delete allow "${old_port}/tcp" >/dev/null 2>&1
             ufw allow "${new_port}/tcp" >/dev/null 2>&1
         fi
-        echo -e "${C_GREEN}[✔] PORTA ALTERADA: ${old_port:-?} → ${new_port}.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Puerto cambiado]:-Puerto cambiado}: ${old_port:-?} → ${new_port}.${C_RST}"
     else
-        echo -e "${C_RED}[!] ERRO AO ALTERAR A PORTA. VERIFIQUE:${C_RST}"
+        echo -e "${C_RED}[!] ${T[No se pudo cambiar el puerto. Últimas líneas del registro]:-No se pudo cambiar el puerto. Últimas líneas del registro}:${C_RST}"
         journalctl -u hcr-server -n 15 --no-pager 2>/dev/null
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 hcr2_reiniciar() {
     clear
     hcr2_requiere_instalado || return
-    echo -e "${C_YELLOW}[+] Reiniciando HCR v2.0...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Reiniciando HCR v]:-Reiniciando HCR v}2.0...${C_RST}"
     systemctl restart hcr-server.service >/dev/null 2>&1
     sleep 1
     if systemctl is-active --quiet hcr-server.service 2>/dev/null; then
-        echo -e "${C_GREEN}[✔] HCR v2.0 REINICIADO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[HCR v2.0 reiniciado]:-HCR v2.0 reiniciado}.${C_RST}"
     else
-        echo -e "${C_RED}[!] NÃO FOI POSSÍVEL INICIAR. VERIFIQUE:${C_RST}"
+        echo -e "${C_RED}[!] ${T[No se pudo iniciar. Últimas líneas del registro]:-No se pudo iniciar. Últimas líneas del registro}:${C_RST}"
         journalctl -u hcr-server -n 15 --no-pager 2>/dev/null
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 hcr2_detener() {
     clear
     hcr2_requiere_instalado || return
-    echo -e "${C_YELLOW}[+] Parando HCR v2.0...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Deteniendo HCR v]:-Deteniendo HCR v}2.0...${C_RST}"
     systemctl stop hcr-server.service >/dev/null 2>&1
     sleep 1
     if systemctl is-active --quiet hcr-server.service 2>/dev/null; then
-        echo -e "${C_RED}[!] NÃO FOI POSSÍVEL PARAR O SERVIÇO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[No se pudo detener el servicio]:-No se pudo detener el servicio}.${C_RST}"
     else
-        echo -e "${C_GREEN}[✔] HCR v2.0 PARADO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[HCR v2.0 detenido]:-HCR v2.0 detenido}.${C_RST}"
+        echo -e "${C_YELLOW}    (${T[Para volver a activarlo use la opción Reiniciar]:-Para volver a activarlo use la opción Reiniciar}.)${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 hcr2_desinstalar() {
     local DIR="$HCR2_DIR"
     clear
     echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🗑️ DESINSTALAR HCR (v2.0)            ${C_NEON_BLUE} ${C_RST}"
+    echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🗑️ ${T[DESInstalar HCR (v]:-DESInstalar HCR (v}2.0)      ${C_NEON_BLUE} ${C_RST}"
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     if [ ! -f "$DIR/hcr-server" ] && [ ! -e /etc/systemd/system/hcr-server.service ]; then
-        echo -e "${C_YELLOW}[!] HCR v2.0 NÃO ESTÁ INSTALADO.${C_RST}"
-        read -p "PRESSIONE ENTER PARA CONTINUAR..."; return
+        echo -e "${C_YELLOW}[!] ${T[HCR v2.0 no está instalado]:-HCR v2.0 no está instalado}.${C_RST}"
+        read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
-    read -p "DESINSTALAR O HCR E APAGAR SEUS ARQUIVOS? (s/n): " conf
+    read -p "${T[¿Desinstalar HCR v2.0 y borrar sus archivos? (s/n]:-¿Desinstalar HCR v2.0 y borrar sus archivos? (s/n}): " conf
     if [[ "$conf" != "s" && "$conf" != "S" ]]; then return; fi
-    echo -e "${C_YELLOW}[+] Desinstalando HCR v2.0...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Desinstalando HCR v]:-Desinstalando HCR v}2.0...${C_RST}"
     if [ -x "$DIR/install.sh" ]; then
         bash "$DIR/install.sh" --uninstall >/dev/null 2>&1
     fi
+    # Respaldo por si install.sh no estaba: quitar el servicio a mano
     systemctl disable --now hcr-server.service >/dev/null 2>&1
     rm -f /etc/systemd/system/hcr-server.service
     systemctl daemon-reload >/dev/null 2>&1
+    # Borrar solo lo que instaló el menú (los certificados enlazados son solo enlaces, no se toca Let's Encrypt)
     rm -f "$DIR/install.sh" "$DIR/hcr-server" "$DIR/hcr-server.service"
     find "$DIR" -maxdepth 1 -type l -delete 2>/dev/null
     rmdir "$DIR" 2>/dev/null
     rm -f /etc/vps-manager/hcr_port /etc/vps-manager/hcr_transport /etc/vps-manager/hcr_target
-    echo -e "${C_GREEN}[✔] HCR v2.0 DESINSTALADO.${C_RST}"
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    echo -e "${C_GREEN}[✔] ${T[HCR v2.0 desinstalado]:-HCR v2.0 desinstalado}.${C_RST}"
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 }
 
 menu_wsproxy() {
@@ -1512,7 +1558,7 @@ systemctl is-active --quiet wsproxy.service 2>/dev/null && is_running=1
 local WS_PORT=""
 [ -f /etc/vps-manager/wsproxy_port ] && WS_PORT=$(cat /etc/vps-manager/wsproxy_port)
 [ -z "$WS_PORT" ] && WS_PORT=$(grep -oE "wsproxy\.py [0-9]+" /etc/autostart 2>/dev/null | awk '{print $2}' | head -1)
-[ -z "$WS_PORT" ] && WS_PORT="Não configurado"
+[ -z "$WS_PORT" ] && WS_PORT="No configurado"
 
 local WS_MSG=""
 [ -f /etc/vps-manager/wsproxy_msg ] && WS_MSG=$(cat /etc/vps-manager/wsproxy_msg)
@@ -1522,34 +1568,35 @@ local WS_MSG=""
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🌐 GESTÃO DE WSPROXY (WebSocket)     ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 ${T[GESTIÓN DE WSPROXY (WebSocket]:-GESTIÓN DE WSPROXY (WebSocket})      ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 
 if [ "$is_running" -gt 0 ]; then
-    echo -e "  Estado: ${C_GREEN}✅ ATIVO${C_RST}"
-    echo -e "  Porta: ${C_NEON_YELLOW}$WS_PORT${C_RST}"
-    echo -e "  Mensagem: ${C_NEON_YELLOW}$WS_MSG${C_RST}"
+    echo -e "  ${T[Estado]:-Estado}: ${C_GREEN}✅ ${T[ACTIVO]:-ACTIVO}${C_RST}"
+    echo -e "  ${T[Puerto]:-Puerto}: ${C_NEON_YELLOW}$WS_PORT${C_RST}"
+    echo -e "  ${T[Mensaje]:-Mensaje}: ${C_NEON_YELLOW}$WS_MSG${C_RST}"
+#    echo -e "  URL: ${C_NEON_YELLOW}ws://$IP:$WS_PORT${C_RST}"
     echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-    echo -e "  ${C_NEON_YELLOW}1.${C_RST} ⏹️ PARAR E DESATIVAR WEBSOCKET"
-    echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔄 REINICIAR SERVIÇO"
-    echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔌 ALTERAR PORTA DE ESCUTA"
-    echo -e "  ${C_NEON_YELLOW}4.${C_RST} 💬 ALTERAR MENSAGEM HTTP"
+    echo -e "  ${C_NEON_YELLOW}1.${C_RST} ⏹️ ${T[Detener y Desactivar WebSocket]:-Detener y Desactivar WebSocket}"
+    echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔄 ${T[Reiniciar Servicio]:-Reiniciar Servicio}"
+    echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔌 ${T[Cambiar Puerto de Escucha]:-Cambiar Puerto de Escucha}"
+    echo -e "  ${C_NEON_YELLOW}4.${C_RST} 💬 ${T[Cambiar Mensaje HTTP]:-Cambiar Mensaje HTTP}"
 else
-    echo -e "  Estado: ${C_RED}❌ INATIVO${C_RST}"
-    echo -e "  Porta: ${C_NEON_YELLOW}$WS_PORT${C_RST}"
-    echo -e "  Mensagem: ${C_NEON_YELLOW}$WS_MSG${C_RST}"
+    echo -e "  ${T[Estado]:-Estado}: ${C_RED}❌ ${T[INACTIVO]:-INACTIVO}${C_RST}"
+    echo -e "  ${T[Puerto]:-Puerto}: ${C_NEON_YELLOW}$WS_PORT${C_RST}"
+    echo -e "  ${T[Mensaje]:-Mensaje}: ${C_NEON_YELLOW}$WS_MSG${C_RST}"
     echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-    echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR E INICIAR WEBSOCKET"
+    echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar e Iniciar WebSocket]:-Instalar e Iniciar WebSocket}"
 fi
 
-echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " ws_opt
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " ws_opt
 
 case $ws_opt in
 1)
     if [ "$is_running" -gt 0 ]; then
-        echo -e "${C_YELLOW}[+] Desativando WebSocket...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Desactivando WebSocket]:-Desactivando WebSocket}...${C_RST}"
         systemctl stop wsproxy.service 2>/dev/null
         systemctl disable wsproxy.service 2>/dev/null
         rm -f /etc/systemd/system/wsproxy.service
@@ -1559,39 +1606,39 @@ case $ws_opt in
         done
         screen -wipe >/dev/null 2>&1
         sed -i '/wsproxy.py/d' /etc/autostart 2>/dev/null
-        echo -e "${C_GREEN}[✔] WEBSOCKET DESATIVADO COM SUCESSO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[WebSocket desactivado correctamente]:-WebSocket desactivado correctamente}.${C_RST}"
     else
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          INICIANDO WEBSOCKET PROXY            ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ${T[INICIANDO WEBSOCKET PROXY]:-INICIANDO WEBSOCKET PROXY}             ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
         
-        echo -ne "${C_YELLOW}QUAL PORTA DESEJA USAR? (1-65535): ${C_RST}"
+        echo -ne "${C_YELLOW}${T[¿Qué puerto quieres usar]:-¿Qué puerto quieres usar}? (1-65535): ${C_RST}"
         read porta
         
         if [[ ! "$porta" =~ ^[0-9]+$ ]] || [ "$porta" -lt 1 ] || [ "$porta" -gt 65535 ]; then
-            echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"
             sleep 2
             continue
         fi
         
         if ss -lntp 2>/dev/null | grep -q ":$porta "; then
             local svc=$(ss -lntp 2>/dev/null | grep ":$porta " | awk '{print $NF}' | cut -d'"' -f2)
-            echo -e "${C_RED}[!] A PORTA $porta JÁ ESTÁ EM USO POR: $svc${C_RST}"
+            echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $porta ${T[ya está en uso por]:-ya está en uso por}: $svc${C_RST}"
             sleep 3
             continue
         fi
         
-        echo -e "${C_YELLOW}[+] Instalando dependências (Python3)...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Instalando dependencias (Python]:-Instalando dependencias (Python}3)...${C_RST}"
         apt-get update -y >/dev/null 2>&1
         apt-get install python3 screen -y >/dev/null 2>&1
         
-        echo -e "${C_YELLOW}[+] Baixando wsproxy.py...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Descargando wsproxy.py]:-Descargando wsproxy.py}...${C_RST}"
         mkdir -p /etc/vps-manager
         wget -qO /etc/vps-manager/wsproxy.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/wsproxy.py
         
         if [ ! -f /etc/vps-manager/wsproxy.py ]; then
-            echo -e "${C_RED}[!] ERRO AO BAIXAR WSPROXY.PY.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Error al descargar wsproxy.py]:-Error al descargar wsproxy.py}.${C_RST}"
             sleep 3
             continue
         fi
@@ -1625,29 +1672,29 @@ EOF
             ufw allow "$porta/tcp" >/dev/null 2>&1
         fi
         
-        echo -e "${C_GREEN}[✔] WEBSOCKET ATIVADO (REINICIA AO LIGAR A VPS).${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[WebSocket activado con systemd (se reinicia al arrancar el VPS]:-WebSocket activado con systemd (se reinicia al arrancar el VPS}).${C_RST}"
         echo -e "${C_CYAN}URL: ws://$IP:$porta${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 2)
     if [ "$is_running" -gt 0 ]; then
-        echo -e "${C_YELLOW}[+] Reiniciando WebSocket...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Reiniciando WebSocket]:-Reiniciando WebSocket}...${C_RST}"
         systemctl restart wsproxy.service
-        echo -e "${C_GREEN}[✔] SERVIÇO REINICIADO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Servicio reiniciado]:-Servicio reiniciado}.${C_RST}"
     else
-        echo -e "${C_RED}[!] O WEBSOCKET NÃO ESTÁ ATIVO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[WebSocket no está activo]:-WebSocket no está activo}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 3)
     if [ "$is_running" -gt 0 ]; then
-        echo -ne "${C_YELLOW}NOVA PORTA (1024-65535): ${C_RST}"
+        echo -ne "${C_YELLOW}${T[Nuevo puerto]:-Nuevo puerto} (1024-65535): ${C_RST}"
         read new_port
         
         if [[ "$new_port" =~ ^[0-9]+$ ]] && [ "$new_port" -ge 1 ] && [ "$new_port" -le 65535 ]; then
             if ss -lntp 2>/dev/null | grep -q ":$new_port "; then
-                echo -e "${C_RED}[!] A PORTA $new_port JÁ ESTÁ EM USO.${C_RST}"
+                echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $new_port ${T[ya está en uso]:-ya está en uso}.${C_RST}"
             else
                 sed -i "s|ExecStart=.*|ExecStart=/usr/bin/python3 /etc/vps-manager/wsproxy.py -b 0.0.0.0 -p $new_port|" /etc/systemd/system/wsproxy.service
                 echo "$new_port" > /etc/vps-manager/wsproxy_port
@@ -1660,47 +1707,48 @@ EOF
                 systemctl daemon-reload
                 systemctl restart wsproxy.service
                 
-                echo -e "${C_GREEN}[✔] PORTA ALTERADA PARA $new_port.${C_RST}"
+                echo -e "${C_GREEN}[✔] ${T[Puerto cambiado a]:-Puerto cambiado a} $new_port.${C_RST}"
             fi
         else
-            echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Puerto inválido]:-Puerto inválido}.${C_RST}"
         fi
     else
-        echo -e "${C_RED}[!] O WEBSOCKET NÃO ESTÁ ATIVO. ATIVE-O PRIMEIRO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[WebSocket no está activo. Actívalo primero]:-WebSocket no está activo. Actívalo primero}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 4)
     if [ "$is_running" -gt 0 ]; then
         local current_msg=$(grep -oP "HTTP/1.1 101 \K[^\r]+" /etc/vps-manager/wsproxy.py 2>/dev/null | head -1)
         [ -z "$current_msg" ] && current_msg="Servidor Premium"
         
-        echo -e "${C_CYAN}MENSAGEM ATUAL: ${C_YELLOW}$current_msg${C_RST}"
-        echo -ne "${C_YELLOW}NOVA MENSAGEM HTTP (SEM ESPAÇOS ESPECIAIS): ${C_RST}"
+        echo -e "${C_CYAN}${T[Mensaje actual]:-Mensaje actual}: ${C_YELLOW}$current_msg${C_RST}"
+        echo -ne "${C_YELLOW}${T[Nuevo mensaje HTTP (sin espacios especiales]:-Nuevo mensaje HTTP (sin espacios especiales}): ${C_RST}"
         read new_msg
         
         if [ -z "$new_msg" ]; then
-            echo -e "${C_RED}[!] MENSAGEM VAZIA. CANCELADO.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Mensaje vacío. Cancelado]:-Mensaje vacío. Cancelado}.${C_RST}"
         else
             sed -i "s|HTTP/1.1 101 [^\r]*\\\\r|HTTP/1.1 101 $new_msg\\\\r|" /etc/vps-manager/wsproxy.py
             echo "$new_msg" > /etc/vps-manager/wsproxy_msg
             systemctl restart wsproxy.service
             
-            echo -e "${C_GREEN}[✔] MENSAGEM HTTP ALTERADA PARA: $new_msg${C_RST}"
+            echo -e "${C_GREEN}[✔] ${T[Mensaje HTTP cambiado a]:-Mensaje HTTP cambiado a}: $new_msg${C_RST}"
+            echo -e "${C_CYAN}${T[Nota: Algunas apps pueden requerir mensajes específicos como 'internet premium' o 'SSHPLUS]:-Nota: Algunas apps pueden requerir mensajes específicos como 'internet premium' o 'SSHPLUS}'.${C_RST}"
         fi
     else
-        echo -e "${C_RED}[!] O WEBSOCKET NÃO ESTÁ ATIVO. ATIVE-O PRIMEIRO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[WebSocket no está activo. Actívalo primero]:-WebSocket no está activo. Actívalo primero}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 0) break ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+*) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac
 done
 }
 
 # ==========================================
-# SUBMENU: GESTÃO DO DROPBEAR (Corrigido para Ubuntu 22.04)
+# SUBMENÚ: GESTIÓN DE DROPBEAR (Corregido para Ubuntu 22.04)
 # ==========================================
 menu_dropbear() {
 while true; do
@@ -1709,14 +1757,14 @@ local is_running=0
 systemctl is-active --quiet dropbear 2>/dev/null && is_running=1
 [ "$is_running" -eq 0 ] && [ "$(netstat -tlpn 2>/dev/null | grep -c 'dropbear')" -gt 0 ] && is_running=1
 
-local DROPBEAR_PORT_MAIN="Não Configurado"
-local DROPBEAR_PORT_EXTRA="Nenhuma"
+local DROPBEAR_PORT_MAIN="No configurado"
+local DROPBEAR_PORT_EXTRA="Ninguno"
 if [ -f /etc/default/dropbear ]; then
     DROPBEAR_PORT_MAIN=$(grep "^DROPBEAR_PORT=" /etc/default/dropbear 2>/dev/null | cut -d'=' -f2 | tr -d ' ')
     DROPBEAR_PORT_EXTRA=$(grep "^DROPBEAR_EXTRA_ARGS=" /etc/default/dropbear 2>/dev/null | grep -oE '\-p [0-9]+' | awk '{print $2}' | tr '\n' ' ')
 fi
-[ -z "$DROPBEAR_PORT_MAIN" ] && DROPBEAR_PORT_MAIN="Não Configurado"
-[ -z "$DROPBEAR_PORT_EXTRA" ] && DROPBEAR_PORT_EXTRA="Nenhuma"
+[ -z "$DROPBEAR_PORT_MAIN" ] && DROPBEAR_PORT_MAIN="No configurado"
+[ -z "$DROPBEAR_PORT_EXTRA" ] && DROPBEAR_PORT_EXTRA="Ninguno"
 
 local limiter_running=0
 ps x 2>/dev/null | grep -w "droplimiter" | grep -v grep >/dev/null 2>&1 && limiter_running=1
@@ -1728,35 +1776,36 @@ local limiter_color="$C_RED"
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🐻 GESTÃO DO DROPBEAR SSH            ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🐻 ${T[GESTIÓN DE DROPBEAR SSH]:-GESTIÓN DE DROPBEAR SSH}           ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 
 if [ "$is_running" -gt 0 ]; then
-    echo -e "  Estado: ${C_GREEN}✅ ATIVO${C_RST}"
-    echo -e "  Porta Principal: ${C_NEON_YELLOW}${DROPBEAR_PORT_MAIN}${C_RST}"
-    echo -e "  Porta Extra: ${C_NEON_YELLOW}${DROPBEAR_PORT_EXTRA}${C_RST}"
+    echo -e "  ${T[Estado]:-Estado}: ${C_GREEN}✅ ${T[ACTIVO]:-ACTIVO}${C_RST}"
+    echo -e "  ${T[Puerto Principal]:-Puerto Principal}: ${C_NEON_YELLOW}${DROPBEAR_PORT_MAIN}${C_RST}"
+    echo -e "  ${T[Puerto Extra]:-Puerto Extra}: ${C_NEON_YELLOW}${DROPBEAR_PORT_EXTRA}${C_RST}"
     echo -e "  Droplimiter: ${limiter_color}${limiter_status}${C_RST}"
+#    echo -e "  URL: ${C_NEON_YELLOW}ssh://$IP:${DROPBEAR_PORT_MAIN}${C_RST}"
     echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-    echo -e "  ${C_NEON_YELLOW}1.${C_RST} ⏹️ PARAR E DESINSTALAR DROPBEAR"
-    echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔌 MODIFICAR PORTA PRINCIPAL"
-    echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔌 MODIFICAR PORTA EXTRA"
-    echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🛡️ ATIVAR/DESATIVAR DROPLIMITER"
-    echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🔄 REINICIAR SERVIÇO"
+    echo -e "  ${C_NEON_YELLOW}1.${C_RST} ⏹️ ${T[Detener y Desinstalar Dropbear]:-Detener y Desinstalar Dropbear}"
+    echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔌 ${T[Modificar Puerto Principal]:-Modificar Puerto Principal}"
+    echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🔌 ${T[Modificar Puerto Extra]:-Modificar Puerto Extra}"
+    echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🛡️ ${T[Activar/Desactivar Droplimiter]:-Activar/Desactivar Droplimiter}"
+    echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🔄 ${T[Reiniciar Servicio]:-Reiniciar Servicio}"
 else
-    echo -e "  Estado: ${C_RED}❌ INATIVO${C_RST}"
-    echo -e "  Porta Principal: ${C_NEON_YELLOW}${DROPBEAR_PORT_MAIN}${C_RST}"
+    echo -e "  ${T[Estado]:-Estado}: ${C_RED}❌ ${T[INACTIVO]:-INACTIVO}${C_RST}"
+    echo -e "  ${T[Puerto Principal]:-Puerto Principal}: ${C_NEON_YELLOW}${DROPBEAR_PORT_MAIN}${C_RST}"
     echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-    echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR DROPBEAR"
+    echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar Dropbear]:-Instalar Dropbear}"
 fi
 
-echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " db_opt
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " db_opt
 
 case $db_opt in
 1)
     if [ "$is_running" -gt 0 ]; then
-        echo -e "${C_YELLOW}[+] Parando e desinstalando Dropbear...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Deteniendo y desinstalando Dropbear]:-Deteniendo y desinstalando Dropbear}...${C_RST}"
         systemctl stop dropbear 2>/dev/null
         systemctl disable dropbear 2>/dev/null
         
@@ -1774,30 +1823,30 @@ case $db_opt in
         rm -rf /etc/default/dropbear
         rm -rf /etc/dropbear
         
-        echo -e "${C_GREEN}[✔] DROPBEAR DESINSTALADO COM SUCESSO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Dropbear desinstalado correctamente]:-Dropbear desinstalado correctamente}.${C_RST}"
     else
         clear
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          INSTALADOR DROPBEAR SSH              ${C_NEON_BLUE} ${C_RST}"
+        echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          ${T[INSTALADOR DROPBEAR SSH]:-INSTALADOR DROPBEAR SSH}              ${C_NEON_BLUE} ${C_RST}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
         
-        echo -ne "${C_YELLOW}QUAL PORTA PRINCIPAL VOCÊ QUER USAR? (1-65535): ${C_RST}"
+        echo -ne "${C_YELLOW}${T[¿Qué puerto principal quieres usar]:-¿Qué puerto principal quieres usar}? (1-65535): ${C_RST}"
         read porta
         
         if [[ ! "$porta" =~ ^[0-9]+$ ]] || [ "$porta" -lt 1 ] || [ "$porta" -gt 65535 ]; then
-            echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Puerto no válido]:-Puerto no válido}.${C_RST}"
             sleep 2
             continue
         fi
         
         if ss -lntp 2>/dev/null | grep -q ":$porta "; then
             local svc=$(ss -lntp 2>/dev/null | grep ":$porta " | awk '{print $NF}' | cut -d'"' -f2)
-            echo -e "${C_RED}[!] A PORTA $porta JÁ ESTÁ EM USO POR: $svc${C_RST}"
+            echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $porta ${T[ya está en uso por]:-ya está en uso por}: $svc${C_RST}"
             sleep 3
             continue
         fi
         
-        echo -e "${C_YELLOW}[+] Instalando Dropbear...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Instalando Dropbear]:-Instalando Dropbear}...${C_RST}"
         apt-get update -y >/dev/null 2>&1
         apt-get install dropbear -y >/dev/null 2>&1
         
@@ -1813,6 +1862,7 @@ case $db_opt in
         mkdir -p /etc/dropbear
         touch /etc/dropbear/banner
         
+        # 🚨 SOLUCIÓN: Eliminar líneas viejas y agregar nuevas al final
         sed -i '/^DROPBEAR_PORT=/d' /etc/default/dropbear
         sed -i '/^DROPBEAR_EXTRA_ARGS=/d' /etc/default/dropbear
         sed -i '/^NO_START=/d' /etc/default/dropbear
@@ -1840,23 +1890,23 @@ case $db_opt in
         
         sleep 2
         if systemctl is-active --quiet dropbear 2>/dev/null; then
-            echo -e "${C_GREEN}[✔] DROPBEAR INSTALADO E ATIVO.${C_RST}"
-            echo -e "${C_CYAN}Portas: ${C_YELLOW}$porta${C_RST} (principal) e ${C_YELLOW}110${C_RST} (extra)${C_RST}"
+            echo -e "${C_GREEN}[✔] ${T[Dropbear instalado y activo]:-Dropbear instalado y activo}.${C_RST}"
+            echo -e "${C_CYAN}${T[Puertos]:-Puertos}: ${C_YELLOW}$porta${C_RST} (${T[principal) y]:-principal) y} ${C_YELLOW}110${C_RST} (extra)${C_RST}"
         else
-            echo -e "${C_RED}[!] DROPBEAR NÃO INICIOU.${C_RST}"
-            echo -e "${C_YELLOW}Verifique com: systemctl status dropbear${C_RST}"
+            echo -e "${C_RED}[!] ${T[Dropbear NO pudo iniciar]:-Dropbear NO pudo iniciar}.${C_RST}"
+            echo -e "${C_YELLOW}${T[Verifica con: systemctl status dropbear]:-Verifica con: systemctl status dropbear}${C_RST}"
         fi
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 2)
     if [ "$is_running" -gt 0 ]; then
-        echo -ne "${C_YELLOW}NOVA PORTA PRINCIPAL (1-65535): ${C_RST}"
+        echo -ne "${C_YELLOW}${T[Nuevo puerto principal]:-Nuevo puerto principal} (1-65535): ${C_RST}"
         read new_port
         
         if [[ "$new_port" =~ ^[0-9]+$ ]] && [ "$new_port" -ge 1 ] && [ "$new_port" -le 65535 ]; then
             if ss -lntp 2>/dev/null | grep -q ":$new_port "; then
-                echo -e "${C_RED}[!] A PORTA $new_port JÁ ESTÁ EM USO.${C_RST}"
+                echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $new_port ${T[ya está en uso]:-ya está en uso}.${C_RST}"
             else
                 sed -i '/^DROPBEAR_PORT=/d' /etc/default/dropbear
                 echo "DROPBEAR_PORT=$new_port" >> /etc/default/dropbear
@@ -1867,24 +1917,24 @@ case $db_opt in
                 fi
                 
                 systemctl restart dropbear
-                echo -e "${C_GREEN}[✔] PORTA PRINCIPAL ALTERADA PARA $new_port.${C_RST}"
+                echo -e "${C_GREEN}[✔] ${T[Puerto principal cambiado a]:-Puerto principal cambiado a} $new_port.${C_RST}"
             fi
         else
-            echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Puerto inválido]:-Puerto inválido}.${C_RST}"
         fi
     else
-        echo -e "${C_RED}[!] O DROPBEAR NÃO ESTÁ ATIVO. INSTALE PRIMEIRO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[Dropbear no está activo. Instálalo primero]:-Dropbear no está activo. Instálalo primero}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 3)
     if [ "$is_running" -gt 0 ]; then
-        echo -ne "${C_YELLOW}NOVA PORTA EXTRA (1-65535): ${C_RST}"
+        echo -ne "${C_YELLOW}${T[Nuevo puerto extra]:-Nuevo puerto extra} (1-65535): ${C_RST}"
         read new_extra
         
         if [[ "$new_extra" =~ ^[0-9]+$ ]] && [ "$new_extra" -ge 1 ] && [ "$new_extra" -le 65535 ]; then
             if ss -lntp 2>/dev/null | grep -q ":$new_extra "; then
-                echo -e "${C_RED}[!] A PORTA $new_extra JÁ ESTÁ EM USO.${C_RST}"
+                echo -e "${C_RED}[!] ${T[El puerto]:-El puerto} $new_extra ${T[ya está en uso]:-ya está en uso}.${C_RST}"
             else
                 sed -i '/^DROPBEAR_EXTRA_ARGS=/d' /etc/default/dropbear
                 echo "DROPBEAR_EXTRA_ARGS=\"-p $new_extra\"" >> /etc/default/dropbear
@@ -1895,59 +1945,59 @@ case $db_opt in
                 fi
                 
                 systemctl restart dropbear
-                echo -e "${C_GREEN}[✔] PORTA EXTRA ALTERADA PARA $new_extra.${C_RST}"
+                echo -e "${C_GREEN}[✔] ${T[Puerto extra cambiado a]:-Puerto extra cambiado a} $new_extra.${C_RST}"
             fi
         else
-            echo -e "${C_RED}[!] PORTA INVÁLIDA.${C_RST}"
+            echo -e "${C_RED}[!] ${T[Puerto inválido]:-Puerto inválido}.${C_RST}"
         fi
     else
-        echo -e "${C_RED}[!] O DROPBEAR NÃO ESTÁ ATIVO. INSTALE PRIMEIRO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[Dropbear no está activo. Instálalo primero]:-Dropbear no está activo. Instálalo primero}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 4)
     if [ "$is_running" -gt 0 ]; then
         if [ "$limiter_running" -gt 0 ]; then
-            echo -e "${C_YELLOW}[+] Parando Droplimiter...${C_RST}"
+            echo -e "${C_YELLOW}[+] ${T[Deteniendo Droplimiter]:-Deteniendo Droplimiter}...${C_RST}"
             for pidlim in $(screen -ls 2>/dev/null | grep "\.limiter" | awk '{print $1}'); do
                 screen -r -S "$pidlim" -X quit 2>/dev/null
             done
             screen -wipe >/dev/null 2>&1
             pkill -f droplimiter 2>/dev/null
-            echo -e "${C_GREEN}[✔] DROPLIMITER DESATIVADO.${C_RST}"
+            echo -e "${C_GREEN}[✔] ${T[Droplimiter desactivado]:-Droplimiter desactivado}.${C_RST}"
         else
             if ! command -v droplimiter >/dev/null 2>&1; then
-                echo -e "${C_YELLOW}[+] Baixando Droplimiter...${C_RST}"
+                echo -e "${C_YELLOW}[+] ${T[Descargando Droplimiter desde GitHub]:-Descargando Droplimiter desde GitHub}...${C_RST}"
                 wget -qO /usr/local/bin/droplimiter https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/droplimiter
                 chmod +x /usr/local/bin/droplimiter 2>/dev/null
             fi
             
             if command -v droplimiter >/dev/null 2>&1; then
-                echo -e "${C_YELLOW}[+] Ativando Droplimiter em segundo plano...${C_RST}"
+                echo -e "${C_YELLOW}[+] ${T[Activando Droplimiter en background]:-Activando Droplimiter en background}...${C_RST}"
                 screen -dmS limiter droplimiter
                 sleep 1
-                echo -e "${C_GREEN}[✔] DROPLIMITER ATIVADO.${C_RST}"
+                echo -e "${C_GREEN}[✔] ${T[Droplimiter activado]:-Droplimiter activado}.${C_RST}"
             else
-                echo -e "${C_RED}[!] Erro ao baixar droplimiter.${C_RST}"
+                echo -e "${C_RED}[!] ${T[No se pudo descargar droplimiter]:-No se pudo descargar droplimiter}.${C_RST}"
             fi
         fi
     else
-        echo -e "${C_RED}[!] O DROPBEAR NÃO ESTÁ ATIVO. INSTALE PRIMEIRO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[Dropbear no está activo. Instálalo primero]:-Dropbear no está activo. Instálalo primero}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 5)
     if [ "$is_running" -gt 0 ]; then
-        echo -e "${C_YELLOW}[+] Reiniciando Dropbear...${C_RST}"
+        echo -e "${C_YELLOW}[+] ${T[Reiniciando Dropbear]:-Reiniciando Dropbear}...${C_RST}"
         systemctl restart dropbear
-        echo -e "${C_GREEN}[✔] SERVIÇO REINICIADO.${C_RST}"
+        echo -e "${C_GREEN}[✔] ${T[Servicio reiniciado]:-Servicio reiniciado}.${C_RST}"
     else
-        echo -e "${C_RED}[!] O DROPBEAR NÃO ESTÁ ATIVO.${C_RST}"
+        echo -e "${C_RED}[!] ${T[Dropbear no está activo]:-Dropbear no está activo}.${C_RST}"
     fi
-    read -p "PRESSIONE ENTER PARA CONTINUAR..."
+    read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
     ;;
 0) break ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+*) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac
 done
 }
@@ -1956,29 +2006,29 @@ menu_instaladores() {
 while true; do
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}    🛠️ GESTOR DE INSTALAÇÕES E PROTOCOLOS      ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}    🛠️ ${T[GESTOR DE INSTALACIONES Y PROTOCOLOS]:-GESTOR DE INSTALACIONES Y PROTOCOLOS}   ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🛡️ MENU XRAY (VMESS)"
-echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🛡️ MENU XRAY (VLESS)"
-echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🛡️ MENU XRAY (TROJAN)"
-echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🌐 INSTALAR OPENVPN (WEB PERFIS)"
-echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🚀 INSTALAR HCR (v1.0 / v2.0)"
-echo -e "  ${C_NEON_YELLOW}6.${C_RST} 🎮 INSTALAR UDP CUSTOM (PORTA 25000)"
-echo -e "  ${C_NEON_YELLOW}7.${C_RST} 🛸 INSTALAR SLOWDNS (DNSTT)"
-echo -e "  ${C_NEON_YELLOW}8.${C_RST} 🌐 INSTALAR BHTTP (v1.0 / v2.0)"
-echo -e "  ${C_NEON_YELLOW}9.${C_RST} 🔗 INSTALAR SSHWS / WEBSOCKET"
-echo -e "  ${C_NEON_YELLOW}10.${C_RST}🎮 INSTALAR BADVPN (7100, 7200, 7300)"
-echo -e "  ${C_NEON_YELLOW}11.${C_RST}🐘 INSTALADOR PHP 8.5.12"
-echo -e "  ${C_NEON_YELLOW}12.${C_RST}🚀 INSTALAR ACELERADOR BBR"
-echo -e "  ${C_NEON_YELLOW}13.${C_RST}🛡️ INSTALAR ZIVPN UDP (APP ZIVPN)"
-echo -e "  ${C_NEON_YELLOW}14.${C_RST}⚡ INSTALAR HYSTERIA V1 (QUIC PROXY)"
-echo -e "  ${C_NEON_YELLOW}15.${C_RST}🔒 INSTALAR SSL / TLS (PORTA DINÂMICA)"
-echo -e "  ${C_NEON_YELLOW}16.${C_RST}🐻 INSTALAR DROPBEAR (UBUNTU 20)"
-echo -e "  ${C_NEON_YELLOW}17.${C_RST}🌐 INSTALAR WSPROXY (WEBSOCKET PROXY)"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🛡️ ${T[Menú Xray (VMess]:-Menú Xray (VMess})"
+echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🛡️ ${T[Menú Xray (VLESS]:-Menú Xray (VLESS})"
+echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🛡️ ${T[Menú Xray (Trojan]:-Menú Xray (Trojan})"
+echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🌐 ${T[Instalar OpenVPN (Web Perfiles]:-Instalar OpenVPN (Web Perfiles})"
+echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🚀 ${T[Instalar HCR (v1.0 / v]:-Instalar HCR (v1.0 / v}2.0)"
+echo -e "  ${C_NEON_YELLOW}6.${C_RST} 🎮 ${T[Instalar UDP Custom (Puerto]:-Instalar UDP Custom (Puerto} 25000)"
+echo -e "  ${C_NEON_YELLOW}7.${C_RST} 🛸 ${T[Instalar SlowDNS (DNSTT]:-Instalar SlowDNS (DNSTT})"
+echo -e "  ${C_NEON_YELLOW}8.${C_RST} 🌐 ${T[Instalar BHTTP (v1.0 / v]:-Instalar BHTTP (v1.0 / v}2.0)"
+echo -e "  ${C_NEON_YELLOW}9.${C_RST} 🔗 ${T[Instalar SSHWS / Websocket]:-Instalar SSHWS / Websocket}"
+echo -e "  ${C_NEON_YELLOW}10.${C_RST}🎮 ${T[Instalar BadVPN]:-Instalar BadVPN} (7100, 7200, 7300)"
+echo -e "  ${C_NEON_YELLOW}11.${C_RST}🐘 ${T[Instalador PHP]:-Instalador PHP} 8.5.12"
+echo -e "  ${C_NEON_YELLOW}12.${C_RST}🚀 ${T[Instalar Acelerador BBR]:-Instalar Acelerador BBR}"
+echo -e "  ${C_NEON_YELLOW}13.${C_RST}🛡️ ${T[Instalar Zivpn UDP (App Zivpn]:-Instalar Zivpn UDP (App Zivpn})"
+echo -e "  ${C_NEON_YELLOW}14.${C_RST}⚡ ${T[Instalar Hysteria v1 (QUIC Proxy]:-Instalar Hysteria v1 (QUIC Proxy})"
+echo -e "  ${C_NEON_YELLOW}15.${C_RST}🔒 ${T[Instalar SSL / TLS (Puerto Dinámico]:-Instalar SSL / TLS (Puerto Dinámico})"
+echo -e "  ${C_NEON_YELLOW}16.${C_RST}🐻 ${T[Instalar Dropbear (Ubuntu]:-Instalar Dropbear (Ubuntu} 20)"
+echo -e "  ${C_NEON_YELLOW}17.${C_RST}🌐 ${T[Instalar WSProxy (WebSocket Proxy]:-Instalar WSProxy (WebSocket Proxy})"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU PRINCIPAL"
+echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Principal]:-Volver al Menú Principal}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " hopt
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " hopt
 case $hopt in
 1) clear; wget -qO /tmp/vmess.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/vmess.sh && chmod +x /tmp/vmess.sh && bash /tmp/vmess.sh ;;
 2) clear; wget -qO /tmp/vless.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/vless.sh && chmod +x /tmp/vless.sh && bash /tmp/vless.sh ;;
@@ -1988,6 +2038,7 @@ case $hopt in
 6) clear; wget -qO /tmp/udp_custom.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/udp_custom.sh && chmod +x /tmp/udp_custom.sh && bash /tmp/udp_custom.sh ;;
 7) clear; wget -qO /tmp/Slowdns.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/Slowdns.sh && chmod +x /tmp/Slowdns.sh && bash /tmp/Slowdns.sh ;;
 8) menu_bhttp ;;
+#9) clear; wget -qO /tmp/sshws.sh https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/core/sshws.sh && chmod +x /tmp/sshws.sh && bash /tmp/sshws.sh ;;
 9) clear; wget -qO /tmp/sshws.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/sshws.sh && chmod +x /tmp/sshws.sh && bash /tmp/sshws.sh; read -p "Enter..." ;;
 10) instalar_badvpn ;;
 11) clear; curl -sSL "https://raw.githubusercontent.com/gol/php-8.5.12-vps/main/install.sh?t=$(date +%s)" | sed '59s/[()]//g' | bash; read -p "Enter..." ;;
@@ -1996,9 +2047,10 @@ case $hopt in
 14) clear; wget -qO /tmp/hysteria.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/hysteria.sh && chmod +x /tmp/hysteria.sh && bash /tmp/hysteria.sh ;;
 15) clear; wget -qO /tmp/ssl.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/ssl.sh && chmod +x /tmp/ssl.sh && bash /tmp/ssl.sh ;;
 16) menu_dropbear ;;
+#16) clear; echo -e "${C_YELLOW}[+] Descargando e instalando Dropbear...${C_RST}"; wget -qO /tmp/dropbear.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/dropbear.sh && chmod +x /tmp/dropbear.sh && bash /tmp/dropbear.sh ;;
 17) menu_wsproxy ;;
 0) break ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+*) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac
 done
 }
@@ -2007,65 +2059,65 @@ menu_webpanel_gestion() {
 while true; do
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🌐 GESTÃO DO PAINEL WEB              ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🌐 ${T[GESTIÓN DEL PANEL WEB (Dashboard]:-GESTIÓN DEL PANEL WEB (Dashboard})   ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR PAINEL WEB (NOVO)"
-echo -e "  ${C_NEON_YELLOW}2.${C_RST} ⚙️ ALTERAR PORTA DO PAINEL"
-echo -e "  ${C_NEON_YELLOW}3.${C_RST} ⏹️ PARAR PAINEL WEB"
-echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🔁 REINICIAR PAINEL WEB"
-echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🔄 ATUALIZAR PAINEL WEB (APP.PY)"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar Panel Web (Nuevo]:-Instalar Panel Web (Nuevo})"
+echo -e "  ${C_NEON_YELLOW}2.${C_RST} ⚙️ ${T[Cambiar Puerto del Panel]:-Cambiar Puerto del Panel}"
+echo -e "  ${C_NEON_YELLOW}3.${C_RST} ⏹️ ${T[Detener Panel Web]:-Detener Panel Web}"
+echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🔁 ${T[Reiniciar Panel Web]:-Reiniciar Panel Web}"
+echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🔄 ${T[Actualizar Panel Web (app.py]:-Actualizar Panel Web (app.py})"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU PRINCIPAL"
+echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Principal]:-Volver al Menú Principal}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " wopt
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " wopt
 case $wopt in
 5)
-echo -e "${C_YELLOW}[+] Baixando atualização do Painel Web...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Descargando actualización del Panel Web]:-Descargando actualización del Panel Web}...${C_RST}"
 mkdir -p /etc/vps-manager/webpanel
 wget -qO /tmp/app.py https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/update/panel.py
 if [ -f /tmp/app.py ]; then
 mv /tmp/app.py /etc/vps-manager/webpanel/app.py
 chmod +x /etc/vps-manager/webpanel/app.py
-echo -e "${C_GREEN}[✔] Arquivo app.py atualizado com sucesso.${C_RST}"
-echo -e "${C_YELLOW}[+] Reiniciando serviço vps-webpanel para aplicar as mudanças...${C_RST}"
-systemctl restart vps-webpanel.service 2>/dev/null || echo -e "${C_RED}[!] Não foi possível reiniciar o serviço.${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[Archivo app.py actualizado correctamente]:-Archivo app.py actualizado correctamente}.${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Reiniciando servicio vps-webpanel para aplicar cambios]:-Reiniciando servicio vps-webpanel para aplicar cambios}...${C_RST}"
+systemctl restart vps-webpanel.service 2>/dev/null || echo -e "${C_RED}[!] ${T[No se pudo reiniciar el servicio automáticamente]:-No se pudo reiniciar el servicio automáticamente}.${C_RST}"
 else
-echo -e "${C_RED}[!] Erro ao baixar atualização.${C_RST}"
+echo -e "${C_RED}[!] ${T[Error al descargar el archivo de actualización]:-Error al descargar el archivo de actualización}.${C_RST}"
 fi
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 ;;
 2)
-read -p "INFORME A NOVA PORTA PARA O PAINEL WEB (1024-65535): " new_port
+read -p "${T[Ingrese el nuevo puerto para el Panel Web]:-Ingrese el nuevo puerto para el Panel Web} (1024-65535): " new_port
 if [[ "$new_port" =~ ^[0-9]+$ ]] && [ "$new_port" -ge 1024 ] && [ "$new_port" -le 65535 ]; then
 echo "$new_port" > /etc/vps-manager/webpanel_port
-echo -e "${C_GREEN}[✔] Porta alterada para $new_port. (Reinicie o painel).${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[Puerto cambiado a]:-Puerto cambiado a} $new_port. (${T[Reinicie el panel para aplicar cambios]:-Reinicie el panel para aplicar cambios}).${C_RST}"
 else
-echo -e "${C_RED}[!] Porta inválida.${C_RST}"
+echo -e "${C_RED}[!] ${T[Puerto inválido. Debe ser un número entre 1024 y]:-Puerto inválido. Debe ser un número entre 1024 y} 65535.${C_RST}"
 fi
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 ;;
 3)
-echo -e "${C_YELLOW}[+] Parando Painel Web...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Deteniendo Panel Web]:-Deteniendo Panel Web}...${C_RST}"
 systemctl stop vps-webpanel.service 2>/dev/null || pkill -f "app.py" 2>/dev/null
-echo -e "${C_GREEN}[✔] Painel Web parado.${C_RST}"
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+echo -e "${C_GREEN}[✔] ${T[Panel Web detenido]:-Panel Web detenido}.${C_RST}"
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 ;;
 4)
-echo -e "${C_YELLOW}[+] Reiniciando Painel Web...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Reiniciando Panel Web]:-Reiniciando Panel Web}...${C_RST}"
 systemctl restart vps-webpanel.service 2>/dev/null || (pkill -f "app.py" 2>/dev/null; sleep 1; nohup python3 /etc/vps-manager/webpanel/app.py >/dev/null 2>&1 &)
-echo -e "${C_GREEN}[✔] Painel Web reiniciado.${C_RST}"
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+echo -e "${C_GREEN}[✔] ${T[Panel Web reiniciado]:-Panel Web reiniciado}.${C_RST}"
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 ;;
 1)
-echo -e "${C_YELLOW}[+] Preparando Instalação do Painel Web...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Preparando Instalación del Panel Web]:-Preparando Instalación del Panel Web}...${C_RST}"
 wget -qO /tmp/webpanel.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/webpanel.sh && chmod +x /tmp/webpanel.sh && bash /tmp/webpanel.sh
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 ;;
 0)
 break
 ;;
 *)
-echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"
+echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"
 sleep 1
 ;;
 esac
@@ -2076,30 +2128,31 @@ menu_onlineapp() {
 clear
 local is_running=0
 systemctl is-active --quiet onlineapp.service 2>/dev/null && is_running=1
+# Fallback a screen antiguo
 [ "$is_running" -eq 0 ] && [ "$(screen -ls 2>/dev/null | grep -c 'onlineapp')" -gt 0 ] && is_running=1
 
 local IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          📱 GESTÃO DO ONLINE APP              ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          📱 ${T[GESTIÓN DE ONLINE APP]:-GESTIÓN DE ONLINE APP}             ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 if [ "$is_running" -gt 0 ]; then
-echo -e "  Estado: ${C_GREEN}✅ ATIVO (systemd)${C_RST}"
+echo -e "  ${T[Estado]:-Estado}: ${C_GREEN}✅ ${T[ACTIVO (systemd]:-ACTIVO (systemd})${C_RST}"
 echo -e "  URL: ${C_NEON_YELLOW}http://$IP:8888/server/online${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} ⏹️ PARAR E DESINSTALAR ONLINE APP"
-echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔄 REINICIAR SERVIÇO"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} ⏹️ ${T[Detener y Desinstalar Online App]:-Detener y Desinstalar Online App}"
+echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🔄 ${T[Reiniciar Servicio]:-Reiniciar Servicio}"
 else
-echo -e "  Estado: ${C_RED}❌ INATIVO${C_RST}"
+echo -e "  ${T[Estado]:-Estado}: ${C_RED}❌ ${T[INACTIVO]:-INACTIVO}${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 INSTALAR E INICIAR ONLINE APP"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar e Iniciar Online App]:-Instalar e Iniciar Online App}"
 fi
-echo -e "  ${C_RED}0.${C_RST} 🔙 VOLTAR AO MENU ANTERIOR"
+echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-read -p "SELECIONE UMA OPÇÃO: " opt_app
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " opt_app
 case $opt_app in
 1)
 if [ "$is_running" -gt 0 ]; then
-echo -e "${C_YELLOW}[+] Parando Online App...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Deteniendo Online App]:-Deteniendo Online App}...${C_RST}"
 systemctl stop onlineapp.service 2>/dev/null
 systemctl disable onlineapp.service 2>/dev/null
 rm -f /etc/systemd/system/onlineapp.service
@@ -2108,9 +2161,9 @@ screen -S onlineapp -X quit 2>/dev/null
 screen -wipe >/dev/null 2>&1
 sed -i '/onlineapp/d' /etc/autostart 2>/dev/null
 rm -rf /var/www/html/server
-echo -e "${C_GREEN}[✔] ONLINE APP PARADO E ARQUIVOS APAGADOS.${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[Online App detenido y archivos eliminados]:-Online App detenido y archivos eliminados}.${C_RST}"
 else
-echo -e "${C_YELLOW}[+] Instalando e Iniciando Online App (systemd)...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Instalando e Iniciando Online App (systemd]:-Instalando e Iniciando Online App (systemd})...${C_RST}"
 apt update -y >/dev/null 2>&1
 apt install apache2 -y >/dev/null 2>&1
 if ! grep -q "Listen 8888" /etc/apache2/ports.conf; then
@@ -2146,6 +2199,7 @@ done
 EOF
 chmod +x /etc/vps-manager/onlineapp.sh
 
+# Servicio systemd
 cat > /etc/systemd/system/onlineapp.service << EOF
 [Unit]
 Description=VPS-Manager Online App (usuarios online)
@@ -2167,27 +2221,28 @@ systemctl daemon-reload
 systemctl enable onlineapp.service >/dev/null 2>&1
 systemctl restart onlineapp.service
 
+# Limpiar restos antiguos
 sed -i '/onlineapp/d' /etc/autostart 2>/dev/null
 screen -S onlineapp -X quit 2>/dev/null
 
-echo -e "${C_GREEN}[✔] ONLINE APP ATIVADO.${C_RST}"
-echo -e "${C_NEON_YELLOW}URL DE USUÁRIOS ONLINE PARA O APP:${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[Online App activado con systemd (se reinicia al arrancar el VPS]:-Online App activado con systemd (se reinicia al arrancar el VPS}).${C_RST}"
+echo -e "${C_NEON_YELLOW}${T[URL de usuarios online para la App]:-URL de usuarios online para la App}:${C_RST}"
 echo -e "${C_CYAN}http://$IP:8888/server/online${C_RST}"
 fi
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 ;;
 2)
 if [ "$is_running" -gt 0 ]; then
-echo -e "${C_YELLOW}[+] Reiniciando Online App...${C_RST}"
+echo -e "${C_YELLOW}[+] ${T[Reiniciando Online App]:-Reiniciando Online App}...${C_RST}"
 systemctl restart onlineapp.service
-echo -e "${C_GREEN}[✔] SERVIÇO REINICIADO.${C_RST}"
+echo -e "${C_GREEN}[✔] ${T[Servicio reiniciado]:-Servicio reiniciado}.${C_RST}"
 else
-echo -e "${C_RED}[!] O ONLINE APP NÃO ESTÁ ATIVO.${C_RST}"
+echo -e "${C_RED}[!] ${T[Online App no está activo]:-Online App no está activo}.${C_RST}"
 fi
-read -p "PRESSIONE ENTER PARA CONTINUAR..."
+read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
 ;;
 0) return ;;
-*) echo -e "${C_RED}[!] OPÇÃO INVÁLIDA.${C_RST}"; sleep 1 ;;
+*) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac
 }
 
@@ -2195,7 +2250,7 @@ esac
 menu_puertos() {
 clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}${C_BOLD}          🔍 ESTADO DE PORTAS E SERVIÇOS       ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}          🔍 ${T[ESTADO DE PUERTOS Y SERVICIOS]:-ESTADO DE PUERTOS Y SERVICIOS}     ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 
 PORT_BHTTP=$(cat /etc/vps-manager/bhttp_port 2>/dev/null || echo "8080")
@@ -2205,22 +2260,25 @@ PORT_SSL=$(cat /etc/vps-manager/ssl_port 2>/dev/null || echo "444")
 puertos=(22 80 443 53 1194 2081 2083 $PORT_BHTTP $PORT_HCR $PORT_SSL 8181 7100 7200 7300 25000 5432 8888)
 nombres=("SSH (OpenSSH)" "HTTP / SSHWS" "Xray SSL/VLESS" "DNS (SlowDNS)" "OpenVPN TCP" "OpenVPN Web" "Trojan TLS" "BHTTP Custom" "HCR Proxy PRO" "SSL / TLS Proxy" "Web Panel UI" "BadVPN (Game 7100)" "BadVPN (Game 7200)" "BadVPN (Game 7300)" "UDP Custom" "CheckUser API" "Online App")
 
+# --- CheckUser avanzado: se detecta por el proceso que realmente escucha (no depende de archivos) ---
 declare -A _vistos
 for _p in "${puertos[@]}"; do _vistos[$_p]=1; done
 chk_add_puerto() { [ -z "$1" ] && return; [ -n "${_vistos[$1]}" ] && return; _vistos[$1]=1; puertos+=("$1"); nombres+=("$2"); }
 
+# 1) Puertos de procesos check.py / 4gcheck.py en escucha
 while read -r _lport _pid; do
     _cmd=$(tr '\0' ' ' < "/proc/$_pid/cmdline" 2>/dev/null)
     case "$_cmd" in
         *4gcheck.py*) chk_add_puerto "$_lport" "CheckUser Conecta4G" ;;
-        *check.py*)   chk_add_puerto "$_lport" "CheckUser Padrão" ;;
+        *check.py*)   chk_add_puerto "$_lport" "CheckUser ${TP[Estándar]:-Estándar}" ;;
     esac
 done < <(ss -lntp 2>/dev/null | sed -nE 's/^[^ ]+ +[^ ]+ +[^ ]+ +[^ ]*:([0-9]+) +[^ ]+ +.*pid=([0-9]+).*/\1 \2/p')
 
-[ -f /etc/vps-manager/checkuser_port ]   && chk_add_puerto "$(cat /etc/vps-manager/checkuser_port)"   "CheckUser Padrão"
+# 2) Respaldo: puertos guardados (se muestran como INACTIVO si el servicio está detenido)
+[ -f /etc/vps-manager/checkuser_port ]   && chk_add_puerto "$(cat /etc/vps-manager/checkuser_port)"   "CheckUser ${TP[Estándar]:-Estándar}"
 [ -f /etc/vps-manager/checkuser4g_port ] && chk_add_puerto "$(cat /etc/vps-manager/checkuser4g_port)" "CheckUser Conecta4G"
 if [ -f /etc/autostart ]; then
-    chk_add_puerto "$(grep -oE "check\.py [0-9]+" /etc/autostart 2>/dev/null | awk '{print $2}' | head -1)"   "CheckUser Padrão"
+    chk_add_puerto "$(grep -oE "check\.py [0-9]+" /etc/autostart 2>/dev/null | awk '{print $2}' | head -1)"   "CheckUser ${TP[Estándar]:-Estándar}"
     chk_add_puerto "$(grep -oE "4gcheck\.py [0-9]+" /etc/autostart 2>/dev/null | awk '{print $2}' | head -1)" "CheckUser Conecta4G"
 fi
 
@@ -2228,53 +2286,53 @@ echo ""
 for i in "${!puertos[@]}"; do
 p=${puertos[$i]}; n=${nombres[$i]}
 if ss -lntp 2>/dev/null | grep -q ":$p " || ss -lnup 2>/dev/null | grep -q ":$p " || netstat -tuln 2>/dev/null | grep -q ":$p "; then
-echo -e "  🔹 [${C_NEON_GREEN}ATIVO   ${C_RST}] Porta ${C_NEON_YELLOW}$p${C_RST} ➔ $n"
+echo -e "  🔹 [${C_NEON_GREEN}${T[ACTIVO]:-ACTIVO}   ${C_RST}] ${T[Puerto]:-Puerto} ${C_NEON_YELLOW}$p${C_RST} ➔ $n"
 else
-echo -e "  🔸 [${C_RED}INATIVO ${C_RST}] Porta ${C_NEON_YELLOW}$p${C_RST} ➔ $n"
+echo -e "  🔸 [${C_RED}${T[INACTIVO]:-INACTIVO} ${C_RST}] ${T[Puerto]:-Puerto} ${C_NEON_YELLOW}$p${C_RST} ➔ $n"
 fi
 done
 
 echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"
 
 if ss -lnup 2>/dev/null | grep -q ":5667 " || systemctl is-active --quiet zivpn.service; then
-echo -e "  🔹 [${C_NEON_GREEN}ATIVO   ${C_RST}] Porta ${C_NEON_YELLOW}6000-19999${C_RST} ➔ Zivpn UDP"
+echo -e "  🔹 [${C_NEON_GREEN}${T[ACTIVO]:-ACTIVO}   ${C_RST}] ${T[Puerto]:-Puerto} ${C_NEON_YELLOW}6000-19999${C_RST} ➔ Zivpn UDP"
 else
-echo -e "  🔸 [${C_RED}INATIVO ${C_RST}] Porta ${C_NEON_YELLOW}6000-19999${C_RST} ➔ Zivpn UDP"
+echo -e "  🔸 [${C_RED}${T[INACTIVO]:-INACTIVO} ${C_RST}] ${T[Puerto]:-Puerto} ${C_NEON_YELLOW}6000-19999${C_RST} ➔ Zivpn UDP"
 fi
 if systemctl is-active --quiet hysteria.service || ss -lnup 2>/dev/null | grep -q "hysteria"; then
-echo -e "  🔹 [${C_NEON_GREEN}ATIVO   ${C_RST}] Hysteria v1   ➔ Hysteria QUIC"
+echo -e "  🔹 [${C_NEON_GREEN}${T[ACTIVO]:-ACTIVO}   ${C_RST}] Hysteria v1   ➔ Hysteria QUIC"
 else
-echo -e "  🔸 [${C_RED}INATIVO ${C_RST}] Hysteria v1   ➔ Hysteria QUIC"
+echo -e "  🔸 [${C_RED}${T[INACTIVO]:-INACTIVO} ${C_RST}] Hysteria v1   ➔ Hysteria QUIC"
 fi
 
 echo -e "${C_NEON_BLUE}────────────────────────────────────────────────${C_RST}"
-read -p "PRESSIONE ENTER PARA VOLTAR..."
+read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."
 }
 
-menu_bot() { clear; echo -e "${C_YELLOW}[+] Configurando Bot...${C_RST}"; wget -qO /tmp/bot.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bot.sh && chmod +x /tmp/bot.sh && bash /tmp/bot.sh; read -p "Enter..." ;}
-menu_dominio() { clear; echo -e "${C_YELLOW}[+] Iniciando Gestor SSL...${C_RST}"; wget -qO /tmp/domain.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/domain.sh && chmod +x /tmp/domain.sh && bash /tmp/domain.sh; }
-menu_update() { clear; echo -e "${C_YELLOW}[+] Atualizando Painel...${C_RST}"; wget -qO /tmp/update.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/update.sh && chmod +x /tmp/update.sh && bash /tmp/update.sh; }
-menu_firewall() { clear; echo -e "${C_YELLOW}[+] Iniciando Firewall...${C_RST}"; wget -qO /tmp/firewall.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/firewall.sh && chmod +x /tmp/firewall.sh && bash /tmp/firewall.sh; }
-menu_swap() { clear; echo -e "${C_YELLOW}[+] Baixando Gestor de Memória Virtual...${C_RST}"; if wget -qO /tmp/swapmemory.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/swapmemory.sh && [ -s /tmp/swapmemory.sh ]; then bash /tmp/swapmemory.sh; else echo -e "${C_RED}[!] Não foi possível baixar swapmemory.sh.${C_RST}"; sleep 3; fi; rm -f /tmp/swapmemory.sh; }
-menu_autostart() { clear; grep -q "menu" /root/.bashrc && echo -e "${C_GREEN}[✔] Já está ativo.${C_RST}" || (echo -e "
-menu" >> /root/.bashrc; echo -e "${C_GREEN}[✔] Ativado.${C_RST}"); read -p "Enter..." ;}
+menu_bot() { clear; echo -e "${C_YELLOW}[+] ${T[Configurando Bot]:-Configurando Bot}...${C_RST}"; wget -qO /tmp/bot.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bot.sh && chmod +x /tmp/bot.sh && bash /tmp/bot.sh; read -p "Enter..." ;}
+menu_dominio() { clear; echo -e "${C_YELLOW}[+] ${T[Iniciando Gestor SSL]:-Iniciando Gestor SSL}...${C_RST}"; wget -qO /tmp/domain.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/domain.sh && chmod +x /tmp/domain.sh && bash /tmp/domain.sh; }
+menu_update() { clear; echo -e "${C_YELLOW}[+] ${T[Actualizando Panel]:-Actualizando Panel}...${C_RST}"; wget -qO /tmp/update.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/update.sh && chmod +x /tmp/update.sh && bash /tmp/update.sh; }
+menu_firewall() { clear; echo -e "${C_YELLOW}[+] ${T[Iniciando Firewall]:-Iniciando Firewall}...${C_RST}"; wget -qO /tmp/firewall.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/firewall.sh && chmod +x /tmp/firewall.sh && bash /tmp/firewall.sh; }
+menu_swap() { clear; echo -e "${C_YELLOW}[+] ${T[Descargando Gestor de Memoria Virtual]:-Descargando Gestor de Memoria Virtual}...${C_RST}"; if wget -qO /tmp/swapmemory.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/swapmemory.sh && [ -s /tmp/swapmemory.sh ]; then bash /tmp/swapmemory.sh; else echo -e "${C_RED}[!] ${T[No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub]:-No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub}.${C_RST}"; sleep 3; fi; rm -f /tmp/swapmemory.sh; }
+menu_autostart() { clear; grep -q "menu" /root/.bashrc && echo -e "${C_GREEN}[✔] Ya activo.${C_RST}" || (echo -e "
+menu" >> /root/.bashrc; echo -e "${C_GREEN}[✔] ${T[Activado]:-Activado}.${C_RST}"); read -p "Enter..." ;}
 menu_banner() { clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
- ${C_NEON_GREEN}${C_BOLD}          GESTOR DE BANNER BASE HTML           ${C_NEON_BLUE} 
+ ${C_NEON_GREEN}          GESTOR DE BANNER BASE HTML           ${C_NEON_BLUE} 
 ╚══════════════════════════════════════════════╝${C_RST}
-${C_NEON_YELLOW}1.${C_RST} BANNER POR PADRÃO
-${C_NEON_YELLOW}2.${C_RST} PERSONALIZADO HTML
-"; read -p "OPÇÃO: " opt_ban; case $opt_ban in 1) TEXTO="<br><font color='cyan'><b>🌟 BEM-VINDO A VPS  MANAGER🌟</b></font><br>" ;; 2) echo -e "COLE SEU HTML: "; read -r TEXTO ;; *) TEXTO="Bem-vindo" ;; esac; echo "$TEXTO" > /etc/issue.net; echo -e "${C_GREEN}[✔] Banner Global salvo.${C_RST}"; read -p "PRESSIONE ENTER..." ; }
+${C_NEON_YELLOW}1.${C_RST} Banner por Defecto
+${C_NEON_YELLOW}2.${C_RST} Personalizado HTML
+"; read -p "${T[Opción]:-Opción}: " opt_ban; case $opt_ban in 1) TEXTO="<br><font color='cyan'><b>🌟 BIENVENIDO A VPS  MANAGER🌟</b></font><br>" ;; 2) echo -e "${T[Pega HTML]:-Pega HTML}: "; read -r TEXTO ;; *) TEXTO="Bienvenido" ;; esac; echo "$TEXTO" > /etc/issue.net; echo -e "${C_GREEN}[✔] ${T[Banner Global guardado]:-Banner Global guardado}.${C_RST}"; read -p "${T[Presione Enter]:-Presione Enter}..." ; }
 menu_info() {
 clear
-echo -e "${C_CYAN}[+] Reunindo informações do sistema, por favor aguarde...${C_RST}"
+echo -e "${C_CYAN}[+] ${T[Recopilando información del sistema, por favor espere]:-Recopilando información del sistema, por favor espere}...${C_RST}"
 DEV="@CloudGT (https://t.me/)"
 VER="v5.0 LTS"
 CPU_MODEL=$(grep -m1 'model name' /proc/cpuinfo | awk -F: '{print $2}' | sed 's/^[ \t]*//')
 CPU_CORES=$(nproc)
 CPU_FREQ=$(grep -m1 'cpu MHz' /proc/cpuinfo | awk -F: '{print $2}' | sed 's/^[ \t]*//')
 CPU_CACHE=$(grep -m1 'cache size' /proc/cpuinfo | awk -F: '{print $2}' | sed 's/^[ \t]*//')
-grep -q -m1 -i 'aes' /proc/cpuinfo && AES="✔ Ativado" || AES="x Desativado"
-grep -q -m1 -i -E '(vmx|svm)' /proc/cpuinfo && VIRT_HW="✔ Ativado" || VIRT_HW="x Desativado"
+grep -q -m1 -i 'aes' /proc/cpuinfo && AES="✔ Enabled" || AES="x Disabled"
+grep -q -m1 -i -E '(vmx|svm)' /proc/cpuinfo && VIRT_HW="✔ Enabled" || VIRT_HW="x Disabled"
 DISK_T=$(df -h / | awk 'NR==2 {print $2}')
 DISK_U=$(df -h / | awk 'NR==2 {print $3}')
 RAM_T=$(free -m | awk 'NR==2 {print $2}')
@@ -2290,13 +2348,13 @@ ARCH=$(uname -m)
 KERNEL=$(uname -r)
 TCP_C=$(sysctl net.ipv4.tcp_congestion_control 2>/dev/null | awk '{print $3}')
 [ -z "$TCP_C" ] && TCP_C="cubic"
-VIRT=$(systemd-detect-virt 2>/dev/null || echo "Desconhecido")
+VIRT=$(systemd-detect-virt 2>/dev/null || echo "${T[Desconocido]:-Desconocido}")
 curl -s4 -m 3 ipinfo.io/ip >/dev/null && IPV4="✔ Online" || IPV4="x Offline"
 curl -s6 -m 3 ipinfo.io/ip >/dev/null && IPV6="✔ Online" || IPV6="x Offline"
-ORG=$(curl -s -m 3 ipinfo.io/org || echo "Desconhecido")
-CITY=$(curl -s -m 3 ipinfo.io/city || echo "Desconhecido")
-COUNTRY=$(curl -s -m 3 ipinfo.io/country || echo "Desconhecido")
-REGION=$(curl -s -m 3 ipinfo.io/region || echo "Desconhecido")
+ORG=$(curl -s -m 3 ipinfo.io/org || echo "${T[Desconocido]:-Desconocido}")
+CITY=$(curl -s -m 3 ipinfo.io/city || echo "${T[Desconocido]:-Desconocido}")
+COUNTRY=$(curl -s -m 3 ipinfo.io/country || echo "${T[Desconocido]:-Desconocido}")
+REGION=$(curl -s -m 3 ipinfo.io/region || echo "${T[Desconocido]:-Desconocido}")
 clear
 C_T='\033[38;5;111m'
 C_V='\033[38;5;114m'
@@ -2305,45 +2363,46 @@ print_line() {
 printf "${C_T}%-22s${C_RST} : ${C_V}%s${C_RST}
 " "$1" "$2"
 }
-print_line "Desenvolvedor" "$DEV"
-print_line "Versão" "$VER"
+print_line "${TP[Developer]:-Developer}" "$DEV"
+print_line "${TP[Version]:-Version}" "$VER"
 echo -e "${C_NEON_BLUE}---------------------------------------------------------${C_RST}"
-print_line "Modelo CPU" "$CPU_MODEL"
-print_line "Núcleos CPU" "$CPU_CORES @ $CPU_FREQ MHz"
-print_line "Cache CPU" "$CPU_CACHE"
+print_line "${TP[CPU Model]:-CPU Model}" "$CPU_MODEL"
+print_line "${TP[CPU Cores]:-CPU Cores}" "$CPU_CORES @ $CPU_FREQ MHz"
+print_line "${TP[CPU Cache]:-CPU Cache}" "$CPU_CACHE"
 print_line "AES-NI" "$AES"
 print_line "VM-x/AMD-V" "$VIRT_HW"
-print_line "Disco Total" "$DISK_T ($DISK_U Usado)"
-print_line "RAM Total" "${RAM_T} MB (${RAM_U} MB Usada)"
-print_line "Swap Total" "${SWAP_T} MB (${SWAP_U} MB Usada)"
-print_line "Tempo Ligado" "$UPTIME"
-print_line "Carga (Load)" "$LOAD"
-print_line "SO" "$OS"
-print_line "Arquit." "$ARCH"
+print_line "${TP[Total Disk]:-Total Disk}" "$DISK_T ($DISK_U ${TP[Used]:-Used})"
+print_line "${TP[Total RAM]:-Total RAM}" "${RAM_T} MB (${RAM_U} MB ${TP[Used]:-Used})"
+print_line "${TP[Total Swap]:-Total Swap}" "${SWAP_T} MB (${SWAP_U} MB ${TP[Used]:-Used})"
+print_line "${TP[System Uptime]:-System Uptime}" "$UPTIME"
+print_line "${TP[Load Average]:-Load Average}" "$LOAD"
+print_line "${TP[OS]:-OS}" "$OS"
+print_line "${TP[Arch]:-Arch}" "$ARCH"
 print_line "Kernel" "$KERNEL"
-print_line "Contr. TCP" "$TCP_C"
-print_line "Virtualização" "${VIRT^^}"
+print_line "${TP[TCP Congestion Ctrl]:-TCP Congestion Ctrl}" "$TCP_C"
+print_line "${TP[Virtualization]:-Virtualization}" "${VIRT^^}"
 print_line "IPv4/IPv6" "$IPV4 / $IPV6"
-print_line "Organização" "$ORG"
-print_line "Localização" "$CITY / $COUNTRY"
-print_line "Região" "$REGION"
+print_line "${TP[Organization]:-Organization}" "$ORG"
+print_line "${TP[Location]:-Location}" "$CITY / $COUNTRY"
+print_line "${TP[Region]:-Region}" "$REGION"
 echo -e "${C_NEON_BLUE}---------------------------------------------------------${C_RST}"
-echo -e "${C_T}Calculando Vel. de I/O...${C_RST}"
+echo -e "${C_T}${T[Calculando I/O Speed]:-Calculando I/O Speed}...${C_RST}"
 IO_RES=$(dd if=/dev/zero of=test_$$ bs=64k count=16k conv=fdatasync 2>&1 | awk -F, '{print $3}' | tr -d ' ')
 rm -f test_$$
 echo -e "\033[1A\033[K\c"
-print_line "Vel. de I/O (Média)" "$IO_RES"
+print_line "${TP[I/O Speed (average)]:-I/O Speed (average)}" "$IO_RES"
 echo -e "${C_NEON_BLUE}---------------------------------------------------------${C_RST}"
 echo -e ""
-read -p "PRESSIONE ENTER PARA VOLTAR..."
+read -p "${T[Press any key to back]:-Press any key to back}..."
 }
-uninstall_script() { clear; read -p "⚠️ DESINSTALAR TUDO? (s/n): " conf; if [[ "$conf" == "s" || "$conf" == "S" ]]; then rm -rf /etc/vps-manager; rm -f /usr/local/bin/menu; echo -e "${C_GREEN}Removido.${C_RST}"; exit 0; fi; }
+uninstall_script() { clear; read -p "⚠️ ${T[¿Desinstalar todo? (s/n]:-¿Desinstalar todo? (s/n}): " conf; if [[ "$conf" == "s" || "$conf" == "S" ]]; then rm -rf /etc/vps-manager; rm -f /usr/local/bin/menu; echo -e "${C_GREEN}${T[Eliminado]:-Eliminado}.${C_RST}"; exit 0; fi; }
 draw_bar() {
 local perc=$1; local filled=$((perc / 10)); local empty=$((10 - filled)); local bar=""
 for ((i=0; i<filled; i++)); do bar="${bar}█"; done
 for ((i=0; i<empty; i++)); do bar="${bar}░"; done
 echo -e "[$bar] ${perc}%"
 }
+# Helper visual para servicios (acepta uno o varios nombres de servicio)
 chk_svc() {
     local s
     for s in "$@"; do
@@ -2356,9 +2415,9 @@ chk_svc() {
 }
 while true; do
 clear
-SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+load_lang
 if [ "$SYS_LANG" == "en" ]; then
-M_TITLE="              🔥 VPS MANAGER - V2.1  🔥"
+M_TITLE="             🔥 VPS MANAGER - V2.1  🔥"
 M_OS="💻 OS        "
 M_IP="🌐 IP        "
 M_DOM="🎯 Domain    "
@@ -2383,8 +2442,34 @@ M_OPT88="❌ Uninstall Script"
 M_OPT0="🚪 Exit"
 M_SEL="Select an option: "
 M_ERR="Invalid option."
-elif [ "$SYS_LANG" == "es" ]; then
-M_TITLE="             🔥 VPS MANAGER - V2.1 🔥"
+elif [ "$SYS_LANG" == "pt" ]; then
+M_TITLE="            🔥 VPS MANAGER - V2.1 🔥"
+M_OS="💻 ${PT_B}SO${PT_N}       "
+M_IP="🌐 IP       "
+M_DOM="🎯 ${PT_B}DOMÍNIO${PT_N}  "
+M_CPU="🧠 ${PT_B}USO CPU${PT_N}  "
+M_RAM="⚡ ${PT_B}USO RAM${PT_N}  "
+M_CON="👥 ${PT_B}CONECTADOS${PT_N}"
+M_ACT="${PT_B}USUÁRIOS ONLINE${PT_N}"
+M_USR="👥 ${PT_B}USUÁRIOS${PT_N} "
+M_CREATED="${PT_B}CRIADOS${PT_N}"
+M_ONLINE="${PT_B}ONLINE${PT_N}"
+M_CAT1="[ ${PT_B}GESTÃO DE CONTAS${PT_N} ]"
+M_OPT1="👤 ${PT_B}GESTÃO DE USUÁRIOS (SSH - TOKENID)${PT_N}"
+M_CAT2="[ ${PT_B}FERRAMENTAS E SISTEMA${PT_N} ]"
+M_OPT2="🛠️ ${PT_B}GERENCIADOR DE INSTALAÇÕES E PROTOCOLOS${PT_N}"
+M_OPT3="🎨 ${PT_B}CONFIGURAR BANNER HTML${PT_N}"
+M_OPT4="🔍 ${PT_B}MONITOR DE PORTAS (ATIVAS / INATIVAS)${PT_N}"
+M_OPT5="🌐 ${PT_B}GERENCIAR PAINEL WEB (DASHBOARD UI)${PT_N}"
+M_OPT6="🔄 ${PT_B}ATUALIZAR SCRIPT${PT_N}"
+M_OPT7="👥 ${PT_B}INSTALAR CHECKUSER (MULTI-APP)${PT_N}"
+M_OPT8="🔧 ${PT_B}FERRAMENTAS E SISTEMA (AVANÇADO)${PT_N}"
+M_OPT88="❌ ${PT_B}DESINSTALAR SCRIPT${PT_N}"
+M_OPT0="🚪 ${PT_B}SAIR${PT_N}"
+M_SEL="${PT_B}SELECIONE UMA OPÇÃO: ${PT_N}"
+M_ERR="${PT_B}OPÇÃO INVÁLIDA.${PT_N}"
+else
+M_TITLE="            🔥 VPS MANAGER - V2.1 🔥"
 M_OS="💻 SO       "
 M_IP="🌐 IP       "
 M_DOM="🎯 Dominio  "
@@ -2409,32 +2494,6 @@ M_OPT88="❌ Desinstalar Script"
 M_OPT0="🚪 Salir"
 M_SEL="Seleccione una opción: "
 M_ERR="Opción inválida."
-else
-M_TITLE="             🔥 VPS MANAGER - V2.1 🔥"
-M_OS="💻 SO       "
-M_IP="🌐 IP       "
-M_DOM="🎯 DOMÍNIO  "
-M_CPU="🧠 USO CPU  "
-M_RAM="⚡ USO RAM  "
-M_CON="👥 CONECTADOS"
-M_ACT="USUÁRIOS ONLINE"
-M_USR="👥 USUÁRIOS "
-M_CREATED="CRIADOS"
-M_ONLINE="ONLINE"
-M_CAT1="[ GESTÃO DE CONTAS ]"
-M_OPT1="👤 GESTÃO DE USUÁRIOS (SSH - TOKENID)"
-M_CAT2="[ FERRAMENTAS E SISTEMA ]"
-M_OPT2="🛠️ GESTOR DE INSTALAÇÕES E PROTOCOLOS"
-M_OPT3="🎨 CONFIGURAR BANNER HTML"
-M_OPT4="🔍 MONITOR DE PORTAS (ATIVAS / INATIVAS)"
-M_OPT5="🌐 GESTÃO DO PAINEL WEB (DASHBOARD UI)"
-M_OPT6="🔄 ATUALIZAR SCRIPT"
-M_OPT7="👥 INSTALAR CHECKUSER (MULTI-APP)"
-M_OPT8="🔧 FERRAMENTAS E SISTEMA (AVANÇADO)"
-M_OPT88="❌ DESINSTALAR SCRIPT"
-M_OPT0="🚪 SAIR"
-M_SEL="SELECIONE UMA OPÇÃO: "
-M_ERR="OPÇÃO INVÁLIDA."
 fi
 OS=$(cat /etc/os-release | grep -w PRETTY_NAME | head -n 1 | cut -d "=" -f 2 | sed 's/"//g')
 IP=$(curl -s --max-time 3 ipv4.icanhazip.com || hostname -I | awk '{print $1}')
@@ -2454,9 +2513,9 @@ ST_WS=$(chk_svc wsproxy)
 ST_HCR=$(chk_svc hcr-server)
 ST_UDPGW=$(chk_svc badvpn-7300)
 ST_DROPBEAR=$(chk_svc dropbear)
-SUBDOMINIO=$( [ -f /etc/vps-manager/dominio ] && cat /etc/vps-manager/dominio || echo "Não Configurado" )
+SUBDOMINIO=$( [ -f /etc/vps-manager/dominio ] && cat /etc/vps-manager/dominio || echo "${T[No Configurado]:-No Configurado}" )
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
-echo -e "${C_NEON_BLUE}  ${C_NEON_YELLOW}${C_BOLD}${M_TITLE}   ${C_NEON_BLUE} ${C_RST}"
+echo -e "${C_NEON_BLUE}  ${C_NEON_YELLOW}${M_TITLE}   ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "${C_NEON_BLUE}  ${C_NEON_GREEN}${M_OS}: ${C_RST} $OS"
 echo -e "${C_NEON_BLUE}  ${C_NEON_GREEN}${M_IP}: ${C_RST} $IP"
@@ -2468,10 +2527,10 @@ echo -e "${C_NEON_BLUE}╠══════════════════
 echo -e "  ${C_NEON_BLUE}SSH: ${ST_SSH} ${C_NEON_BLUE}BADVPN: ${ST_UDPGW} ${C_NEON_BLUE}XRAY: ${ST_XRAY} ${C_NEON_BLUE}BHTTP: ${ST_BHTTP}"
 echo -e "  ${C_NEON_BLUE}SSL: ${ST_STUNNEL}${C_NEON_BLUE}WS: ${ST_WS} ${C_NEON_BLUE}DROPBEAR: ${ST_DROPBEAR} ${C_NEON_BLUE}HCR: ${ST_HCR}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "${C_NEON_PURPLE}${C_BOLD}  ${M_CAT1}${C_RST}"
+echo -e "${C_NEON_PURPLE}  ${M_CAT1}${C_RST}"
 echo -e "  ${C_NEON_YELLOW}1.${C_RST} ${M_OPT1}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "${C_NEON_PURPLE}${C_BOLD}  ${M_CAT2}${C_RST}"
+echo -e "${C_NEON_PURPLE}  ${M_CAT2}${C_RST}"
 echo -e "  ${C_NEON_YELLOW}2.${C_RST} ${M_OPT2}"
 echo -e "  ${C_NEON_YELLOW}3.${C_RST} ${M_OPT3}"
 echo -e "  ${C_NEON_YELLOW}4.${C_RST} ${M_OPT4}"
@@ -2483,7 +2542,7 @@ echo -e "  ${C_NEON_YELLOW}8.${C_RST} ${M_OPT8}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_RED}88.${C_RST} ${M_OPT88}   |   ${C_RED}0.${C_RST} ${M_OPT0}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
-echo -n -e "${C_YELLOW}${C_BOLD}${M_SEL}${C_RST} "
+echo -n -e "${C_YELLOW}${M_SEL}${C_RST} "
 read opcion
 case $opcion in
 1) menu_ssh ;;

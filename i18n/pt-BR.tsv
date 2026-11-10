@@ -1,0 +1,825 @@
+ACTIVAR BLOQUEO DE TORRENTS	ATIVAR BLOQUEIO DE TORRENTS
+ACTIVAR CHECKUSER (CONECTA4G	ATIVAR CHECKUSER (CONECTA4G
+ACTIVAR CHECKUSER (ESTÁNDAR	ATIVAR CHECKUSER (PADRÃO
+ACTIVO	ATIVO
+ACTIVO (systemd	ATIVO (SYSTEMD
+ACTUALIZADOR DE PANEL VPS MANAGER	ATUALIZADOR DO PAINEL VPS MANAGER
+ADMINISTRAR MEMORIA VIRTUAL (SWAP	ADMINISTRAR MEMÓRIA VIRTUAL (SWAP
+ADVERTENCIA: El puerto 22 está en uso por OpenSSH	ATENÇÃO: A PORTA 22 ESTÁ EM USO PELO OPENSSH
+AUTO-INICIO DEL MENÚ	AUTO-INÍCIO DO MENU
+AUTOCONFIGURACIÓN COMPLETADA	AUTOCONFIGURAÇÃO CONCLUÍDA
+AUTOPRUEBA BHTTP NEW GOLDEN	AUTOTESTE BHTTP NEW GOLDEN
+Abre los puertos que quieras con la opción	ABRA AS PORTAS QUE QUISER COM A OPÇÃO
+Abre solamente los que quieras con la opción	ABRA SOMENTE AS QUE QUISER COM A OPÇÃO
+Abriendo puerto	ABRINDO PORTA
+Abriendo puertos TCP y UDP	ABRINDO PORTAS TCP E UDP
+Abrir Todos los Puertos del Panel (Recomendado	ABRIR TODAS AS PORTAS DO PAINEL (RECOMENDADO
+Abrir puerto en firewall local	ABRIR PORTA NO FIREWALL LOCAL
+Abrir/agregar puerto BHTTP	ABRIR/ADICIONAR PORTA BHTTP
+Activado	ATIVADO
+Activando Droplimiter en background	ATIVANDO DROPLIMITER EM SEGUNDO PLANO
+Activando servicio Systemd	ATIVANDO SERVIÇO SYSTEMD
+Activar AUTOCONFIG (Python + SSL	ATIVAR AUTOCONFIG (PYTHON + SSL
+Activar Auto-Inicio	ATIVAR AUTO-INÍCIO
+Activar Swap / Modificar valor de Swap	ATIVAR SWAP / MODIFICAR VALOR DO SWAP
+Activar bloqueo de torrents	ATIVAR BLOQUEIO DE TORRENTS
+Activar/Desactivar Droplimiter	ATIVAR/DESATIVAR DROPLIMITER
+Activo	ATIVO
+Actualizado	ATUALIZADO
+Actualizando Panel	ATUALIZANDO PAINEL
+Actualizando sistema e instalando dependencias	ATUALIZANDO SISTEMA E INSTALANDO DEPENDÊNCIAS
+Actualizando índices del sistema	ATUALIZANDO ÍNDICES DO SISTEMA
+Actualizar Panel Web (app.py	ATUALIZAR PAINEL WEB (app.py
+Además se instalarán	ALÉM DISSO, SERÃO INSTALADOS
+Admin ID inválido	ID DE ADMIN INVÁLIDO
+Agregar Revendedor / Recargar Créditos	ADICIONAR REVENDEDOR / RECARREGAR CRÉDITOS
+Ajustar máximo de sesiones	AJUSTAR MÁXIMO DE SESSÕES
+Aplicando configuración	APLICANDO CONFIGURAÇÃO
+Aplicando nuevo puerto	APLICANDO NOVA PORTA
+Aplicando permisos root y estructura TLS	APLICANDO PERMISSÕES ROOT E ESTRUTURA TLS
+Aplicando puerto	APLICANDO PORTA
+Aplicando reglas	APLICANDO REGRAS
+Aplicando reglas Anti-Torrent y P2P	APLICANDO REGRAS ANTI-TORRENT E P2P
+Apt disponible	APT DISPONÍVEL
+Arch	ARQUITETURA
+Archivo	ARQUIVO
+Archivo app.py actualizado correctamente	ARQUIVO app.py ATUALIZADO COM SUCESSO
+Archivos instalados correctamente	ARQUIVOS INSTALADOS COM SUCESSO
+Arquitectura	ARQUITETURA
+Arquitectura no soportada	ARQUITETURA NÃO SUPORTADA
+Autenticación	AUTENTICAÇÃO
+Auto-Inicio activado	AUTO-INÍCIO ATIVADO
+Auto-Inicio desactivado	AUTO-INÍCIO DESATIVADO
+AutoKill (Buscando Multilogins	AUTOKILL (PROCURANDO MULTILOGINS
+AutoKill (Desconectar multi-logins	AUTOKILL (DESCONECTAR MULTI-LOGINS
+Autoprueba completa	AUTOTESTE COMPLETO
+BHTTP desinstalado correctamente	BHTTP DESINSTALADO COM SUCESSO
+BHTTP eliminado. SSH y los demás protocolos permanecen intactos	BHTTP ELIMINADO. SSH E OS DEMAIS PROTOCOLOS PERMANECEM INTACTOS
+BHTTP no quedó activo; revisa logs con: sudo bhttp	O BHTTP NÃO FICOU ATIVO; VERIFIQUE OS LOGS COM: sudo bhttp
+BHTTP operando en el puerto	BHTTP OPERANDO NA PORTA
+BHTTP v2.0 - GESTIÓN	BHTTP V2.0 - GESTÃO
+BHTTP v2.0 desinstalado	BHTTP V2.0 DESINSTALADO
+BHTTP v2.0 detenido	BHTTP V2.0 PARADO
+BHTTP v2.0 instalado y activo en el puerto	BHTTP V2.0 INSTALADO E ATIVO NA PORTA
+BHTTP v2.0 no está instalado. Use la opción 1 primero	BHTTP V2.0 NÃO ESTÁ INSTALADO. USE A OPÇÃO 1 PRIMEIRO
+BHTTP v2.0 reiniciado (puerto	BHTTP V2.0 REINICIADO (PORTA
+BHTTP v2.0 ya está instalado y configurado en el puerto	BHTTP V2.0 JÁ ESTÁ INSTALADO E CONFIGURADO NA PORTA
+BLOQUEADO	BLOQUEADO
+BLOQUEAR / DESBLOQUEAR USUARIO	BLOQUEAR / DESBLOQUEAR USUÁRIO
+BLOQUEO DE TORRENTS	BLOQUEIO DE TORRENTS
+BOT TELEGRAM (VENDEDORES + SSH + V2RAY	BOT TELEGRAM (VENDEDORES + SSH + V2RAY
+BTUN/SuperFlash: usa cualquiera de los puertos mostrados arriba | DNS 1.1.1.1 | Upload 16 | Download	BTUN/SuperFlash: USE QUALQUER UMA DAS PORTAS MOSTRADAS ACIMA | DNS 1.1.1.1 | Upload 16 | Download
+BadVPN desinstalado correctamente	BADVPN DESINSTALADO COM SUCESSO
+Banner Global guardado	BANNER GLOBAL SALVO
+Banner por Defecto	BANNER PADRÃO
+Bienvenido a VPS Manager	BEM-VINDO AO VPS MANAGER
+Bloqueadas ahora	BLOQUEADAS AGORA
+Bloquear / Desbloquear Cuenta	BLOQUEAR / DESBLOQUEAR CONTA
+Bloquear Tráfico Torrent / P2P (Evitar Baneos	BLOQUEAR TRÁFEGO TORRENT / P2P (EVITAR BANIMENTOS
+Bloquear Usuario SSH	BLOQUEAR USUÁRIO SSH
+Bloqueo	BLOQUEIO
+Bloqueo de torrents activado (se mantiene tras reiniciar	BLOQUEIO DE TORRENTS ATIVADO (SE MANTÉM APÓS REINICIAR
+Bloqueo de torrents desactivado	BLOQUEIO DE TORRENTS DESATIVADO
+Bot instalado con SSH + VLESS + VMess y arrancado	BOT INSTALADO COM SSH + VLESS + VMESS E INICIADO
+Bot ya configurado	BOT JÁ CONFIGURADO
+Buscando actualizaciones en GitHub	PROCURANDO ATUALIZAÇÕES NO GITHUB
+CAMBIAR PUERTO BHTTP v	ALTERAR PORTA BHTTP V
+CAMBIAR PUERTO HCR v	ALTERAR PORTA HCR V
+CAPACIDAD SSH BACKEND (solo diagnóstico	CAPACIDADE SSH BACKEND (SOMENTE DIAGNÓSTICO
+CONFIGURACIÓN DE CONTRASEÑA (ZIVPN	CONFIGURAÇÃO DE SENHA (ZIVPN
+CONFIGURACIÓN DE CREDENCIALES Hysteria v	CONFIGURAÇÃO DE CREDENCIAIS HYSTERIA V
+CPU Cache	CACHE DA CPU
+CPU Cores	NÚCLEOS DA CPU
+CPU Model	MODELO DA CPU
+CREAR USUARIO XRAY TROJAN	CRIAR USUÁRIO XRAY TROJAN
+CREAR USUARIO XRAY VLESS	CRIAR USUÁRIO XRAY VLESS
+CREAR USUARIO XRAY VMESS	CRIAR USUÁRIO XRAY VMESS
+CUENTA TROJAN CREADA EXITOSAMENTE	CONTA TROJAN CRIADA COM SUCESSO
+Calculando I/O Speed	CALCULANDO VELOCIDADE DE E/S
+Cambiar Límite de IPs (Cuenta SSH	ALTERAR LIMITE DE IPS (CONTA SSH
+Cambiar Mensaje HTTP	ALTERAR MENSAGEM HTTP
+Cambiar Puerto	ALTERAR PORTA
+Cambiar Puerto de Escucha	ALTERAR PORTA DE ESCUTA
+Cambiar Puerto del Panel	ALTERAR PORTA DO PAINEL
+Cambiar puerto	ALTERAR PORTA
+Cambiar puerto BHTTP principal (si existe	ALTERAR PORTA BHTTP PRINCIPAL (SE EXISTIR
+Cambiar puerto SSH backend	ALTERAR PORTA SSH BACKEND
+Cancelado	CANCELADO
+Cantidad de Créditos	QUANTIDADE DE CRÉDITOS
+Cerrar/eliminar puerto BHTTP	FECHAR/ELIMINAR PORTA BHTTP
+Certificado TLS de	CERTIFICADO TLS DE
+Certificado generado. Distribuyendo a Xray y Stunnel	CERTIFICADO GERADO. DISTRIBUINDO PARA XRAY E STUNNEL
+CheckUser (Conecta4G) activado con systemd (se reinicia al arrancar el VPS	CHECKUSER (CONECTA4G) ATIVADO COM SYSTEMD (REINICIA AO INICIAR A VPS
+CheckUser (Conecta4G) desactivado	CHECKUSER (CONECTA4G) DESATIVADO
+CheckUser (Estándar	CHECKUSER (PADRÃO
+CheckUser (Estándar) activado con systemd (se reinicia al arrancar el VPS	CHECKUSER (PADRÃO) ATIVADO COM SYSTEMD (REINICIA AO INICIAR A VPS
+CheckUser (Estándar) desactivado	CHECKUSER (PADRÃO) DESATIVADO
+CheckUser Multi-App desinstalado correctamente	CHECKUSER MULTI-APP DESINSTALADO COM SUCESSO
+CheckUser Multi-App detenido	CHECKUSER MULTI-APP PARADO
+Cierra procesos o reinicia el VPS e inténtalo de nuevo	ENCERRE PROCESSOS OU REINICIE A VPS E TENTE NOVAMENTE
+Clave	SENHA
+Configura tu dominio en	CONFIGURE SEU DOMÍNIO EM
+Configuración compatible con TLS Túnel y HTTP Injector	CONFIGURAÇÃO COMPATÍVEL COM TLS TÚNEL E HTTP INJECTOR
+Configuración de puerto	CONFIGURAÇÃO DE PORTA
+Configurando Bot	CONFIGURANDO BOT
+Configurando Certificado SSL para puerto	CONFIGURANDO CERTIFICADO SSL PARA A PORTA
+Configurando Certificado y Stunnel4 en puerto	CONFIGURANDO CERTIFICADO E STUNNEL4 NA PORTA
+Configurando Reglas de Enrutamiento (Stunnel	CONFIGURANDO REGRAS DE ROTEAMENTO (STUNNEL
+Configurando puerto	CONFIGURANDO PORTA
+Configurando servicio Systemd	CONFIGURANDO SERVIÇO SYSTEMD
+Configurando servicio systemd CheckUser (Conecta4G) en puerto	CONFIGURANDO SERVIÇO SYSTEMD CHECKUSER (CONECTA4G) NA PORTA
+Configurando servicio systemd CheckUser (Estándar) en puerto	CONFIGURANDO SERVIÇO SYSTEMD CHECKUSER (PADRÃO) NA PORTA
+Configurando servicios para los 3 puertos	CONFIGURANDO SERVIÇOS PARA AS 3 PORTAS
+Configurar Límite de Dispositivos	CONFIGURAR LIMITE DE DISPOSITIVOS
+Configurar Nuevo Subdominio y Certificar	CONFIGURAR NOVO SUBDOMÍNIO E CERTIFICAR
+Congestión	CONGESTIONAMENTO
+Congestión TCP	CONGESTIONAMENTO TCP
+Contraseña	SENHA
+Contraseña (la misma que pusiste en Autenticación 'grey:grey' o similar	SENHA (A MESMA QUE VOCÊ COLOCOU EM AUTENTICAÇÃO 'grey:grey' OU SIMILAR
+Contraseña HWID (Global	SENHA HWID (GLOBAL
+Copia los datos y presiona Enter	COPIE OS DADOS E PRESSIONE ENTER
+Crea un Usuario Admin para el Web	CRIE UM USUÁRIO ADMIN PARA O WEB
+Crea una Contraseña Admin para el Web	CRIE UMA SENHA ADMIN PARA O WEB
+Creando API de CheckUser en Python	CRIANDO API DO CHECKUSER EM PYTHON
+Creando con dd (puede tardar unos minutos	CRIANDO COM dd (PODE DEMORAR ALGUNS MINUTOS
+Crear Cuenta Trojan	CRIAR CONTA TROJAN
+Crear Cuenta Vless	CRIAR CONTA VLESS
+Crear Cuenta Vmess	CRIAR CONTA VMESS
+Crear Usuario (Normal / HWID	CRIAR USUÁRIO (NORMAL / HWID
+Créditos	CRÉDITOS
+Cuentas actuales	CONTAS ATUAIS
+DD/MM/YYYY	DD/MM/AAAA
+DESBLOQUEADO	DESBLOQUEADO
+DESBLOQUEAR IP	DESBLOQUEAR IP
+DESINSTALAR BHTTP	DESINSTALAR BHTTP
+DESInstalar HCR (v	DESINSTALAR HCR (V
+DETENIDO	PARADO
+Datos inválidos	DADOS INVÁLIDOS
+Deja siempre espacio libre en disco para evitar problemas	DEIXE SEMPRE ESPAÇO LIVRE NO DISCO PARA EVITAR PROBLEMAS
+Dependencias críticas instaladas	DEPENDÊNCIAS CRÍTICAS INSTALADAS
+Desactivando CheckUser (Conecta4G	DESATIVANDO CHECKUSER (CONECTA4G
+Desactivando CheckUser (Estándar	DESATIVANDO CHECKUSER (PADRÃO
+Desactivando WebSocket	DESATIVANDO WEBSOCKET
+Desactivando bloqueo de torrents	DESATIVANDO BLOQUEIO DE TORRENTS
+Desactivando servicios SSL y Proxy	DESATIVANDO SERVIÇOS SSL E PROXY
+Desactivar (Payload+SSL	DESATIVAR (PAYLOAD+SSL
+Desactivar Auto-Inicio	DESATIVAR AUTO-INÍCIO
+Desactivar Swap	DESATIVAR SWAP
+Desactivar bloqueo de torrents	DESATIVAR BLOQUEIO DE TORRENTS
+Desbloquear Usuario SSH	DESBLOQUEAR USUÁRIO SSH
+Desbloquear una IP	DESBLOQUEAR UM IP
+Descarga Exitosa. Aplicando actualización	DOWNLOAD CONCLUÍDO. APLICANDO ATUALIZAÇÃO
+Descargado	BAIXADO
+Descargando CheckUser (Multi-App	BAIXANDO CHECKUSER (MULTI-APP
+Descargando Droplimiter desde GitHub	BAIXANDO DROPLIMITER DO GITHUB
+Descargando Gestor de Memoria Virtual	BAIXANDO GERENCIADOR DE MEMÓRIA VIRTUAL
+Descargando HCR v	BAIXANDO HCR V
+Descargando actualización del Panel Web	BAIXANDO ATUALIZAÇÃO DO PAINEL WEB
+Descargando archivos de CheckUser	BAIXANDO ARQUIVOS DO CHECKUSER
+Descargando binario oficial (hexpn/udp-custom	BAIXANDO BINÁRIO OFICIAL (hexpn/udp-custom
+Descargando binarios y configuración de Zivpn	BAIXANDO BINÁRIOS E CONFIGURAÇÃO DO ZIVPN
+Descargando componentes y módulos core	BAIXANDO COMPONENTES E MÓDULOS CORE
+Descargando e instalando BHTTP Proxy (Normal	BAIXANDO E INSTALANDO BHTTP PROXY (NORMAL
+Descargando e instalando motor BHTTP v	BAIXANDO E INSTALANDO MOTOR BHTTP V
+Descargando motor BHTTP exacto para	BAIXANDO MOTOR BHTTP EXATO PARA
+Descargando wsproxy.py	BAIXANDO wsproxy.py
+Desconocido	DESCONHECIDO
+Desinstalando BHTTP v	DESINSTALANDO BHTTP V
+Desinstalando BHTTP y liberando puerto	DESINSTALANDO BHTTP E LIBERANDO PORTA
+Desinstalando CheckUser Multi-App	DESINSTALANDO CHECKUSER MULTI-APP
+Desinstalando Dropbear actual	DESINSTALANDO DROPBEAR ATUAL
+Desinstalando Fail2ban	DESINSTALANDO FAIL2BAN
+Desinstalando HCR v	DESINSTALANDO HCR V
+Desinstalando HCR y liberando puerto	DESINSTALANDO HCR E LIBERANDO PORTA
+Desinstalando SSL / TLS	DESINSTALANDO SSL / TLS
+Desinstalar	DESINSTALAR
+Desinstalar CheckUser Multi-App	DESINSTALAR CHECKUSER MULTI-APP
+Desinstalar Fail2ban	DESINSTALAR FAIL2BAN
+Desinstalar SSL / TLS	DESINSTALAR SSL / TLS
+Desinstalar y Liberar Puerto	DESINSTALAR E LIBERAR PORTA
+Después entra a 'sudo bhttp' y usa la opción 16 para abrir los puertos que tú quieras	DEPOIS ENTRE EM 'sudo bhttp' E USE A OPÇÃO 16 PARA ABRIR AS PORTAS QUE QUISER
+Destino	DESTINO
+Destino Proxy	DESTINO PROXY
+Destino SSH (HOST:PUERTO	DESTINO SSH (HOST:PORTA
+Destino no válido	DESTINO INVÁLIDO
+Destino no válido. Formato: HOST:PUERTO	DESTINO INVÁLIDO. FORMATO: HOST:PORTA
+Detener	PARAR
+Detener BHTTP	PARAR BHTTP
+Detener Panel Web	PARAR PAINEL WEB
+Detener Servicio	PARAR SERVIÇO
+Detener y Desactivar WebSocket	PARAR E DESATIVAR WEBSOCKET
+Detener y Desinstalar BadVPN	PARAR E DESINSTALAR BADVPN
+Detener y Desinstalar Dropbear	PARAR E DESINSTALAR DROPBEAR
+Detener y Desinstalar Online App	PARAR E DESINSTALAR ONLINE APP
+Deteniendo BHTTP v	PARANDO BHTTP V
+Deteniendo Droplimiter	PARANDO DROPLIMITER
+Deteniendo HCR v	PARANDO HCR V
+Deteniendo Online App	PARANDO ONLINE APP
+Deteniendo Panel Web	PARANDO PAINEL WEB
+Deteniendo servicios para liberar el puerto	PARANDO SERVIÇOS PARA LIBERAR A PORTA
+Deteniendo y desinstalando BadVPN	PARANDO E DESINSTALANDO BADVPN
+Deteniendo y desinstalando Dropbear	PARANDO E DESINSTALANDO DROPBEAR
+Developer	DESENVOLVEDOR
+Diagnóstico de capacidad SSH	DIAGNÓSTICO DE CAPACIDADE SSH
+Digite su opción	DIGITE SUA OPÇÃO
+Disco	DISCO
+Dominio	DOMÍNIO
+Dominio inválido	DOMÍNIO INVÁLIDO
+Dropbear NO pudo iniciar	DROPBEAR NÃO CONSEGUIU INICIAR
+Dropbear desinstalado correctamente	DROPBEAR DESINSTALADO COM SUCESSO
+Dropbear instalado y activo	DROPBEAR INSTALADO E ATIVO
+Dropbear no está activo	DROPBEAR NÃO ESTÁ ATIVO
+Dropbear no está activo. Instálalo primero	DROPBEAR NÃO ESTÁ ATIVO. INSTALE-O PRIMEIRO
+Dropbear ya está instalado	DROPBEAR JÁ ESTÁ INSTALADO
+Droplimiter activado	DROPLIMITER ATIVADO
+Droplimiter desactivado	DROPLIMITER DESATIVADO
+Duración (días	DURAÇÃO (DIAS
+DÍAS RESTANTES	DIAS RESTANTES
+Días	DIAS
+Días a sumar	DIAS A SOMAR
+ELIMINAR USUARIO XRAY VLESS	ELIMINAR USUÁRIO XRAY VLESS
+ELIMINAR USUARIO XRAY VMESS	ELIMINAR USUÁRIO XRAY VMESS
+ERROR CRÍTICO: El archivo 'hcr-server' no fue encontrado en GitHub	ERRO CRÍTICO: O ARQUIVO 'hcr-server' NÃO FOI ENCONTRADO NO GITHUB
+ERROR CRÍTICO: El puerto	ERRO CRÍTICO: A PORTA
+ESTADO DE PUERTOS Y SERVICIOS	ESTADO DAS PORTAS E SERVIÇOS
+ESTADO E IPs BLOQUEADAS	ESTADO E IPS BLOQUEADOS
+Ejecuta este gestor como root	EXECUTE ESTE GERENCIADOR COMO ROOT
+El SHA-256 del motor no coincide con	O SHA-256 DO MOTOR NÃO COINCIDE COM
+El binario descargado no se puede ejecutar en esta arquitectura	O BINÁRIO BAIXADO NÃO PODE SER EXECUTADO NESTA ARQUITETURA
+El bloqueo de torrents no está activo	O BLOQUEIO DE TORRENTS NÃO ESTÁ ATIVO
+El listener	O LISTENER
+El menú no se instaló correctamente. Revisa tu conexión	O MENU NÃO FOI INSTALADO CORRETAMENTE. VERIFIQUE SUA CONEXÃO
+El máximo recomendado ahora es	O MÁXIMO RECOMENDADO AGORA É
+El puerto	A PORTA
+El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let's Encrypt	A PORTA 80 ESTÁ OCUPADA POR OUTRO SERVIÇO: NÃO É POSSÍVEL EMITIR O CERTIFICADO Let's Encrypt
+El servicio no arrancó con el nuevo puerto. Revise: journalctl -u	O SERVIÇO NÃO INICIOU COM A NOVA PORTA. VERIFIQUE: journalctl -u
+El sistema aún tiene otra swap propia que este gestor no modifica	O SISTEMA AINDA TEM OUTRO SWAP PRÓPRIO QUE ESTE GERENCIADOR NÃO MODIFICA
+Eliminado	ELIMINADO
+Eliminar Cuenta Trojan	ELIMINAR CONTA TROJAN
+Eliminar Cuenta Vless	ELIMINAR CONTA VLESS
+Eliminar Cuenta Vmess	ELIMINAR CONTA VMESS
+Eliminar Revendedor	ELIMINAR REVENDEDOR
+Eliminar Usuario	ELIMINAR USUÁRIO
+Enter para 'grey	ENTER PARA 'grey
+Enter para usar 'zi	ENTER PARA USAR 'zi
+Error SSL. Revisa que tu IP apunte al dominio en Cloudflare	ERRO SSL. VERIFIQUE SE SEU IP APONTA PARA O DOMÍNIO NA CLOUDFLARE
+Error al descargar el archivo de actualización	ERRO AO BAIXAR O ARQUIVO DE ATUALIZAÇÃO
+Error al descargar la actualización	ERRO AO BAIXAR A ATUALIZAÇÃO
+Error al descargar wsproxy.py	ERRO AO BAIXAR wsproxy.py
+Error crítico: El servicio BHTTP colapsó al iniciar	ERRO CRÍTICO: O SERVIÇO BHTTP FALHOU AO INICIAR
+Error: Debes ingresar un subdominio NS válido	ERRO: VOCÊ DEVE INFORMAR UM SUBDOMÍNIO NS VÁLIDO
+Error: El servicio HCR colapsó	ERRO: O SERVIÇO HCR FALHOU
+Error: Este script debe ejecutarse como root	ERRO: ESTE SCRIPT DEVE SER EXECUTADO COMO ROOT
+Error: No se pudo generar el SSL	ERRO: NÃO FOI POSSÍVEL GERAR O SSL
+Error: no se pudo descargar BHTTP.py	ERRO: NÃO FOI POSSÍVEL BAIXAR BHTTP.py
+Escribe BHTTP para confirmar	DIGITE BHTTP PARA CONFIRMAR
+Escribe CERRAR para confirmar el puerto	DIGITE CERRAR PARA CONFIRMAR A PORTA
+Espacio insuficiente en disco	ESPAÇO INSUFICIENTE EM DISCO
+Esperando lock de apt	AGUARDANDO LOCK DO APT
+Esta acción necesita una terminal interactiva (/dev/tty	ESTA AÇÃO PRECISA DE UM TERMINAL INTERATIVO (/dev/tty
+Estado	ESTADO
+Estado completo	ESTADO COMPLETO
+Estado: systemctl status vps-bot	ESTADO: systemctl status vps-bot
+Este VPS probablemente no soporta el módulo	ESTA VPS PROVAVELMENTE NÃO SUPORTA O MÓDULO
+Este diagnóstico NO cambia sshd para evitar afectar tu acceso administrativo	ESTE DIAGNÓSTICO NÃO ALTERA O SSHD PARA NÃO AFETAR SEU ACESSO ADMINISTRATIVO
+Este script debe ejecutarse como root	ESTE SCRIPT DEVE SER EXECUTADO COMO ROOT
+Esto elimina SOLO SuperFlash BHTTP. SSH, H2/XHTTP y otros servicios no se tocan	ISTO ELIMINA SOMENTE O SuperFlash BHTTP. SSH, H2/XHTTP E OUTROS SERVIÇOS NÃO SÃO TOCADOS
+Estándar	PADRÃO
+Expira	EXPIRA
+FAIL2BAN (ANTI FUERZA BRUTA	FAIL2BAN (ANTI FORÇA BRUTA
+Fail2ban activo	FAIL2BAN ATIVO
+Fail2ban desinstalado	FAIL2BAN DESINSTALADO
+Fail2ban no está activo	FAIL2BAN NÃO ESTÁ ATIVO
+Fail2ban no está instalado	FAIL2BAN NÃO ESTÁ INSTALADO
+Fail2ban no pudo iniciar. Últimas líneas del registro	FAIL2BAN NÃO CONSEGUIU INICIAR. ÚLTIMAS LINHAS DO REGISTRO
+Fallos actuales	FALHAS ATUAIS
+Falló 'apt-get update'. Revisa tu conexión	FALHOU 'apt-get update'. VERIFIQUE SUA CONEXÃO
+Falló la instalación de dependencias críticas	FALHOU A INSTALAÇÃO DE DEPENDÊNCIAS CRÍTICAS
+Falló la instalación de paquetes base. Abortando	FALHOU A INSTALAÇÃO DOS PACOTES BASE. ABORTANDO
+Falta	FALTA
+Firewall local no activo/detectado. Si tu proveedor usa firewall externo, permite TCP	FIREWALL LOCAL NÃO ATIVO/DETECTADO. SE SEU PROVEDOR USA FIREWALL EXTERNO, PERMITA TCP
+GB activada con éxito	GB ATIVADA COM SUCESSO
+GESTION DE TROJAN (XRAY	GESTÃO DE TROJAN (XRAY
+GESTION DE USUARIOS (SSH	GESTÃO DE USUÁRIOS (SSH
+GESTION DE VLESS (443 TLS	GESTÃO DE VLESS (443 TLS
+GESTION DE VMESS (443 TLS	GESTÃO DE VMESS (443 TLS
+GESTIÓN CHECKUSER MULTI-APP	GESTÃO CHECKUSER MULTI-APP
+GESTIÓN DE CHECKUSER AVANZADO	GESTÃO DE CHECKUSER AVANÇADO
+GESTIÓN DE DROPBEAR SSH	GESTÃO DE DROPBEAR SSH
+GESTIÓN DE ONLINE APP	GESTÃO DE ONLINE APP
+GESTIÓN DE REVENDEDORES (BOT	GESTÃO DE REVENDEDORES (BOT
+GESTIÓN DE WSPROXY (WebSocket	GESTÃO DE WSPROXY (WEBSOCKET
+GESTIÓN DEL PANEL WEB (Dashboard	GESTÃO DO PAINEL WEB (DASHBOARD
+GESTIÓN SSL / TLS (STUNNEL	GESTÃO SSL / TLS (STUNNEL
+GESTOR DE BANNER BASE HTML	GERENCIADOR DE BANNER BASE HTML
+GESTOR DE BHTTP PROXY	GERENCIADOR DE BHTTP PROXY
+GESTOR DE DOMINIO Y CERTIFICADO SSL	GERENCIADOR DE DOMÍNIO E CERTIFICADO SSL
+GESTOR DE FIREWALL (IPTABLES / UFW	GERENCIADOR DE FIREWALL (IPTABLES / UFW
+GESTOR DE HCR PLAIN	GERENCIADOR DE HCR PLAIN
+GESTOR DE INSTALACIONES Y PROTOCOLOS	GERENCIADOR DE INSTALAÇÕES E PROTOCOLOS
+Generando Certificado SSL	GERANDO CERTIFICADO SSL
+Generando Certificado SSL Local Provisional	GERANDO CERTIFICADO SSL LOCAL PROVISÓRIO
+Generando Proxy Python Dual en puerto	GERANDO PROXY PYTHON DUAL NA PORTA
+Generando certificado SSL autofirmado de respaldo	GERANDO CERTIFICADO SSL AUTOASSINADO DE RESERVA
+Generando certificados SSL	GERANDO CERTIFICADOS SSL
+Generando claves criptográficas RSA y ECDSA	GERANDO CHAVES CRIPTOGRÁFICAS RSA E ECDSA
+Generando contraseña global (Token) para HWID	GERANDO SENHA GLOBAL (TOKEN) PARA HWID
+HCR desinstalado correctamente	HCR DESINSTALADO COM SUCESSO
+HCR operando en el puerto	HCR OPERANDO NA PORTA
+HCR v2.0 - GESTIÓN	HCR V2.0 - GESTÃO
+HCR v2.0 desinstalado	HCR V2.0 DESINSTALADO
+HCR v2.0 detenido	HCR V2.0 PARADO
+HCR v2.0 instalado y activo en el puerto	HCR V2.0 INSTALADO E ATIVO NA PORTA
+HCR v2.0 no está instalado	HCR V2.0 NÃO ESTÁ INSTALADO
+HCR v2.0 no está instalado. Use la opción 1 primero	HCR V2.0 NÃO ESTÁ INSTALADO. USE A OPÇÃO 1 PRIMEIRO
+HCR v2.0 reiniciado	HCR V2.0 REINICIADO
+HTTP Custom, HTTP Injector, Paneles Web	HTTP CUSTOM, HTTP INJECTOR, PAINÉIS WEB
+Herramientas y Sistema > Gestor de Dominio y Certificados SSL	FERRAMENTAS E SISTEMA > GERENCIADOR DE DOMÍNIO E CERTIFICADOS SSL
+Host / Dominio	HOST / DOMÍNIO
+Host / Servidor	HOST / SERVIDOR
+I/O Speed (average)	VELOCIDADE E/S (MÉDIA)
+ID de Telegram a eliminar	ID DO TELEGRAM A ELIMINAR
+ID de Telegram del Revendedor	ID DO TELEGRAM DO REVENDEDOR
+INACTIVO	INATIVO
+INICIANDO WEBSOCKET PROXY	INICIANDO WEBSOCKET PROXY
+INSTALACIÓN DE XRAY (TROJAN) Y CERTIFICADO	INSTALAÇÃO DO XRAY (TROJAN) E CERTIFICADO
+INSTALACIÓN XRAY (SOLO TLS	INSTALAÇÃO XRAY (SOMENTE TLS
+INSTALADOR BADVPN (3 PUERTOS	INSTALADOR BADVPN (3 PORTAS
+INSTALADOR DROPBEAR (Compatible VPN	INSTALADOR DROPBEAR (COMPATÍVEL COM VPN
+INSTALADOR DROPBEAR SSH	INSTALADOR DROPBEAR SSH
+INSTALADOR HYSTERIA v1 (PUERTO	INSTALADOR HYSTERIA V1 (PORTA
+INSTALADOR OFICIAL SLOWDNS (PUERTO	INSTALADOR OFICIAL SLOWDNS (PORTA
+INSTALADOR SSL / TLS (STUNNEL4 - SSH	INSTALADOR SSL / TLS (STUNNEL4 - SSH
+INSTALADOR UDP CUSTOM (OFICIAL ePROXY	INSTALADOR UDP CUSTOM (OFICIAL ePROXY
+INSTALADOR WEB PANEL PRO (DARK UI	INSTALADOR WEB PANEL PRO (DARK UI
+INSTALADOR ZIVPN UDP (APP ZIVPN	INSTALADOR ZIVPN UDP (APP ZIVPN
+INSTALANDO CHECKUSER MULTI-APP (API	INSTALANDO CHECKUSER MULTI-APP (API
+INSTALAR / ACTUALIZAR + OPTIMIZAR (recomendado	INSTALAR / ATUALIZAR + OTIMIZAR (RECOMENDADO
+INSTALAR / CONFIGURAR FAIL2BAN	INSTALAR / CONFIGURAR FAIL2BAN
+INSTALAR BHTTP (v	INSTALAR BHTTP (V
+INSTALAR BHTTP PROXY	INSTALAR BHTTP PROXY
+INSTALAR CHECKUSER AVANZADO	INSTALAR CHECKUSER AVANÇADO
+INSTALAR HCR NATIVO	INSTALAR HCR NATIVO
+IP a desbloquear (o escriba 'todas	IP A DESBLOQUEAR (OU DIGITE 'todas
+IP no válida	IP INVÁLIDO
+IPs bloqueadas	IPS BLOQUEADOS
+IPs ignoradas	IPS IGNORADOS
+Ingresa el Token del Bot	INFORME O TOKEN DO BOT
+Ingresa el puerto para SSL/TLS	INFORME A PORTA PARA SSL/TLS
+Ingresa las contraseñas separadas por comas (Ej: pass1,pass	INFORME AS SENHAS SEPARADAS POR VÍRGULA (EX: pass1,pass
+Ingresa tu Admin ID de Telegram (solo números	INFORME SEU ADMIN ID DO TELEGRAM (SOMENTE NÚMEROS
+Ingresa tu dominio (Ej: centrix.golbertvps.online	INFORME SEU DOMÍNIO (EX: centrix.golbertvps.online
+Ingresa tu nuevo Subdominio	INFORME SEU NOVO SUBDOMÍNIO
+Ingresa tu subdominio NS (Ej: ns-centrix.golbertvps.online	INFORME SEU SUBDOMÍNIO NS (EX: ns-centrix.golbertvps.online
+Ingrese el nuevo puerto para el Panel Web	INFORME A NOVA PORTA PARA O PAINEL WEB
+Ingrese el puerto para BHTTP v	INFORME A PORTA PARA O BHTTP V
+Ingrese el puerto para CheckUser	INFORME A PORTA PARA O CHECKUSER
+Ingrese el puerto para CheckUser 4G	INFORME A PORTA PARA O CHECKUSER 4G
+Ingrese el puerto para HCR v	INFORME A PORTA PARA O HCR V
+Iniciando Firewall	INICIANDO FIREWALL
+Iniciando Gestor SSL	INICIANDO GERENCIADOR SSL
+Iniciando Servicio SSL/TLS	INICIANDO SERVIÇO SSL/TLS
+Iniciando instalación	INICIANDO INSTALAÇÃO
+Iniciando memoria virtual de	INICIANDO MEMÓRIA VIRTUAL DE
+Iniciando servicio y configurando Firewall	INICIANDO SERVIÇO E CONFIGURANDO FIREWALL
+Iniciar BHTTP	INICIAR BHTTP
+Iniciar Servicio	INICIAR SERVIÇO
+Inicio al boot	INÍCIO NO BOOT
+Instalación cancelada	INSTALAÇÃO CANCELADA
+Instalación/actualización segura: motor BHP1 NO cambia; solo capacidad, boot, menú y tuning	INSTALAÇÃO/ATUALIZAÇÃO SEGURA: O MOTOR BHP1 NÃO MUDA; SOMENTE CAPACIDADE, BOOT, MENU E TUNING
+Instalado	INSTALADO
+Instalador PHP	INSTALADOR PHP
+Instalando Dropbear	INSTALANDO DROPBEAR
+Instalando Fail2ban	INSTALANDO FAIL2BAN
+Instalando Stunnel4 y utilidades	INSTALANDO STUNNEL4 E UTILITÁRIOS
+Instalando dependencias	INSTALANDO DEPENDÊNCIAS
+Instalando dependencias (Python	INSTALANDO DEPENDÊNCIAS (PYTHON
+Instalando dependencias (python3-pip, flask	INSTALANDO DEPENDÊNCIAS (python3-pip, flask
+Instalando dependencias críticas	INSTALANDO DEPENDÊNCIAS CRÍTICAS
+Instalando dependencias mínimas faltantes	INSTALANDO DEPENDÊNCIAS MÍNIMAS FALTANTES
+Instalando dependencias y núcleo Xray	INSTALANDO DEPENDÊNCIAS E NÚCLEO XRAY
+Instalando e Iniciando Online App (systemd	INSTALANDO E INICIANDO ONLINE APP (SYSTEMD
+Instalando el Panel Principal	INSTALANDO O PAINEL PRINCIPAL
+Instalando iptables	INSTALANDO IPTABLES
+Instalando núcleo Xray	INSTALANDO NÚCLEO XRAY
+Instalando paquetes necesarios	INSTALANDO PACOTES NECESSÁRIOS
+Instalando servicio HCR v2.0 en el puerto	INSTALANDO SERVIÇO HCR V2.0 NA PORTA
+Instalando y configurando OpenVPN	INSTALANDO E CONFIGURANDO OPENVPN
+Instalar / Cambiar Puerto BHTTP	INSTALAR / ALTERAR PORTA BHTTP
+Instalar / Cambiar Puerto HCR	INSTALAR / ALTERAR PORTA HCR
+Instalar / Configurar Fail2ban	INSTALAR / CONFIGURAR FAIL2BAN
+Instalar / Reinstalar BadVPN	INSTALAR / REINSTALAR BADVPN
+Instalar Acelerador BBR	INSTALAR ACELERADOR BBR
+Instalar BHTTP  (v	INSTALAR BHTTP  (V
+Instalar BHTTP  (v2.0 Nuevo	INSTALAR BHTTP  (V2.0 NOVO
+Instalar BHTTP (v1.0 / v	INSTALAR BHTTP (V1.0 / V
+Instalar BHTTP v	INSTALAR BHTTP V
+Instalar BadVPN	INSTALAR BADVPN
+Instalar CheckUser Multi-App	INSTALAR CHECKUSER MULTI-APP
+Instalar Dropbear	INSTALAR DROPBEAR
+Instalar Dropbear (Ubuntu	INSTALAR DROPBEAR (UBUNTU
+Instalar HCR (v	INSTALAR HCR (V
+Instalar HCR (v1.0 / v	INSTALAR HCR (V1.0 / V
+Instalar HCR v	INSTALAR HCR V
+Instalar Hysteria v1 (QUIC Proxy	INSTALAR HYSTERIA V1 (QUIC PROXY
+Instalar OpenVPN (Web Perfiles	INSTALAR OPENVPN (PERFIS WEB
+Instalar Panel Web (Nuevo	INSTALAR PAINEL WEB (NOVO
+Instalar SSHWS / Websocket	INSTALAR SSHWS / WEBSOCKET
+Instalar SSL / TLS	INSTALAR SSL / TLS
+Instalar SSL / TLS (Puerto Dinámico	INSTALAR SSL / TLS (PORTA DINÂMICA
+Instalar SlowDNS (DNSTT	INSTALAR SLOWDNS (DNSTT
+Instalar UDP Custom (Puerto	INSTALAR UDP CUSTOM (PORTA
+Instalar WSProxy (WebSocket Proxy	INSTALAR WSPROXY (WEBSOCKET PROXY
+Instalar Zivpn UDP (App Zivpn	INSTALAR ZIVPN UDP (APP ZIVPN
+Instalar archivos de CheckUser	INSTALAR ARQUIVOS DO CHECKUSER
+Instalar e Iniciar Online App	INSTALAR E INICIAR ONLINE APP
+Instalar e Iniciar WebSocket	INSTALAR E INICIAR WEBSOCKET
+Intentos	TENTATIVAS
+Intentos fallidos antes de bloquear	TENTATIVAS FALHAS ANTES DE BLOQUEAR
+LISTA DE REVENDEDORES	LISTA DE REVENDEDORES
+La IP	O IP
+La contraseña debe tener al menos 8 caracteres	A SENHA DEVE TER PELO MENOS 8 CARACTERES
+La instalación falló. Últimas líneas del registro	A INSTALAÇÃO FALHOU. ÚLTIMAS LINHAS DO REGISTRO
+Las contraseñas no coinciden	AS SENHAS NÃO COINCIDEM
+Liberando puerto	LIBERANDO PORTA
+Liberando puertos 80 y	LIBERANDO PORTAS 80 E
+Limpiando Firewall	LIMPANDO FIREWALL
+Limpiar todas las reglas (Reset Firewall	LIMPAR TODAS AS REGRAS (RESET DO FIREWALL
+Lista de Revendedores Activos	LISTA DE REVENDEDORES ATIVOS
+Lista de Usuario y Vencimiento	LISTA DE USUÁRIOS E VENCIMENTO
+Listeners BHTTP gestionados	LISTENERS BHTTP GERENCIADOS
+Listeners BHTTP gestionados: ninguno (abre los que quieras desde el menú	LISTENERS BHTTP GERENCIADOS: NENHUM (ABRA OS QUE QUISER PELO MENU
+Listo	PRONTO
+Load Average	CARGA MÉDIA
+Location	LOCALIZAÇÃO
+LÍMITE DE DISPOSITIVOS (IPs	LIMITE DE DISPOSITIVOS (IPS
+Límite Conexiones	LIMITE DE CONEXÕES
+Límite IPs	LIMITE DE IPS
+Límite de	LIMITE DE
+MB | RAM disponible	MB | RAM DISPONÍVEL
+MEMORIA VIRTUAL - ACTIVAR / MODIFICAR	MEMÓRIA VIRTUAL - ATIVAR / MODIFICAR
+Manteniendo configuración actual	MANTENDO CONFIGURAÇÃO ATUAL
+Max sesiones	MÁX SESSÕES
+Max sesiones simultáneas	MÁX SESSÕES SIMULTÂNEAS
+Memoria virtual de	MEMÓRIA VIRTUAL DE
+Memoria virtual desactivada con éxito	MEMÓRIA VIRTUAL DESATIVADA COM SUCESSO
+Mensaje	MENSAGEM
+Mensaje HTTP cambiado a	MENSAGEM HTTP ALTERADA PARA
+Mensaje actual	MENSAGEM ATUAL
+Mensaje vacío. Cancelado	MENSAGEM VAZIA. CANCELADO
+Menú Xray (Trojan	MENU XRAY (TROJAN
+Menú Xray (VLESS	MENU XRAY (VLESS
+Menú Xray (VMess	MENU XRAY (VMESS
+Menú instalado: sudo bhttp	MENU INSTALADO: sudo bhttp
+Migrando servicio antiguo checkuser	MIGRANDO SERVIÇO ANTIGO checkuser
+Minutos de bloqueo	MINUTOS DE BLOQUEIO
+Modificar Puerto Extra	MODIFICAR PORTA EXTRA
+Modificar Puerto Principal	MODIFICAR PORTA PRINCIPAL
+Motor BHTTP instalado/actualizado	MOTOR BHTTP INSTALADO/ATUALIZADO
+Motor exacto	MOTOR EXATO
+Motor no instalado	MOTOR NÃO INSTALADO
+Máximo de dispositivos permitidos	MÁXIMO DE DISPOSITIVOS PERMITIDOS
+Módulos core descargados correctamente	MÓDULOS CORE BAIXADOS COM SUCESSO
+NO	NÃO
+NO INSTALADO	NÃO INSTALADO
+NO/SIN PUERTOS	NÃO/SEM PORTAS
+Ninguno. Usa la opción 16 para abrir los puertos que quieras	NENHUM. USE A OPÇÃO 16 PARA ABRIR AS PORTAS QUE QUISER
+Ningún puerto BHTTP fue abierto automáticamente	NENHUMA PORTA BHTTP FOI ABERTA AUTOMATICAMENTE
+No Configurado	NÃO CONFIGURADO
+No arrancó con el nuevo puerto. Se restauró el puerto	NÃO INICIOU COM A NOVA PORTA. A PORTA FOI RESTAURADA
+No configurado	NÃO CONFIGURADO
+No detecto un listener SSH en	NÃO DETECTO UM LISTENER SSH EM
+No escucha en	NÃO ESCUTA EM
+No había listeners BHTTP configurados	NÃO HAVIA LISTENERS BHTTP CONFIGURADOS
+No hay RAM libre suficiente para desactivar el swap sin riesgo	NÃO HÁ RAM LIVRE SUFICIENTE PARA DESATIVAR O SWAP SEM RISCO
+No hay certificado TLS disponible	NÃO HÁ CERTIFICADO TLS DISPONÍVEL
+No hay dominio guardado en el VPS. Usa la opción	NÃO HÁ DOMÍNIO SALVO NA VPS. USE A OPÇÃO
+No hay espacio libre suficiente para crear swap	NÃO HÁ ESPAÇO LIVRE SUFICIENTE PARA CRIAR SWAP
+No hay listeners BHTTP configurados; todavía no hay logs de puertos	NÃO HÁ LISTENERS BHTTP CONFIGURADOS; AINDA NÃO HÁ LOGS DE PORTAS
+No hay motor previo guardado	NÃO HÁ MOTOR ANTERIOR SALVO
+No hay puerto BHTTP principal configurado. Usa la opción 16 para abrir el puerto que quieras	NÃO HÁ PORTA BHTTP PRINCIPAL CONFIGURADA. USE A OPÇÃO 16 PARA ABRIR A PORTA QUE QUISER
+No hay puerto principal configurado todavía. Usa la opción 16 para abrir el primer puerto BHTTP	AINDA NÃO HÁ PORTA PRINCIPAL CONFIGURADA. USE A OPÇÃO 16 PARA ABRIR A PRIMEIRA PORTA BHTTP
+No hay puertos BHTTP abiertos por el manager	NÃO HÁ PORTAS BHTTP ABERTAS PELO GERENCIADOR
+No hay puertos BHTTP abiertos por el manager. Esto es correcto en una VPS nueva	NÃO HÁ PORTAS BHTTP ABERTAS PELO GERENCIADOR. ISTO É NORMAL EM UMA VPS NOVA
+No hay puertos BHTTP configurados para reiniciar	NÃO HÁ PORTAS BHTTP CONFIGURADAS PARA REINICIAR
+No hay puertos BHTTP configurados. Usa la opción 16 para abrir uno	NÃO HÁ PORTAS BHTTP CONFIGURADAS. USE A OPÇÃO 16 PARA ABRIR UMA
+No hay revendedores	NÃO HÁ REVENDEDORES
+No hay swap creada por este gestor	NÃO HÁ SWAP CRIADO POR ESTE GERENCIADOR
+No instalada	NÃO INSTALADA
+No instalado	NÃO INSTALADO
+No pude leer sshd -T	NÃO FOI POSSÍVEL LER sshd -T
+No se detectó apt, dnf ni yum	NÃO FOI DETECTADO apt, dnf NEM yum
+No se detectó el destino SSH actual (HOST:PUERTO	NÃO FOI DETECTADO O DESTINO SSH ATUAL (HOST:PORTA
+No se detectó el transporte actual (auto/tls/plain	NÃO FOI DETECTADO O TRANSPORTE ATUAL (auto/tls/plain
+No se pudieron aplicar las reglas	NÃO FOI POSSÍVEL APLICAR AS REGRAS
+No se pudo aplicar BBR automáticamente en este kernel	NÃO FOI POSSÍVEL APLICAR O BBR AUTOMATICAMENTE NESTE KERNEL
+No se pudo cambiar el puerto. Últimas líneas del registro	NÃO FOI POSSÍVEL ALTERAR A PORTA. ÚLTIMAS LINHAS DO REGISTRO
+No se pudo completar la operación	NÃO FOI POSSÍVEL CONCLUIR A OPERAÇÃO
+No se pudo crear o activar el swap en este sistema	NÃO FOI POSSÍVEL CRIAR OU ATIVAR O SWAP NESTE SISTEMA
+No se pudo desactivar el swap actual	NÃO FOI POSSÍVEL DESATIVAR O SWAP ATUAL
+No se pudo descargar	NÃO FOI POSSÍVEL BAIXAR
+No se pudo descargar checkuser.sh. Revisa tu conexión o la ruta en GitHub	NÃO FOI POSSÍVEL BAIXAR checkuser.sh. VERIFIQUE SUA CONEXÃO OU O CAMINHO NO GITHUB
+No se pudo descargar droplimiter	NÃO FOI POSSÍVEL BAIXAR O DROPLIMITER
+No se pudo descargar el binario desde	NÃO FOI POSSÍVEL BAIXAR O BINÁRIO DE
+No se pudo descargar el instalador desde	NÃO FOI POSSÍVEL BAIXAR O INSTALADOR DE
+No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub	NÃO FOI POSSÍVEL BAIXAR swapmemory.sh. VERIFIQUE SUA CONEXÃO OU O CAMINHO NO GITHUB
+No se pudo detener el servicio	NÃO FOI POSSÍVEL PARAR O SERVIÇO
+No se pudo iniciar. Revisa: journalctl -u checkuser-multi	NÃO FOI POSSÍVEL INICIAR. VERIFIQUE: journalctl -u checkuser-multi
+No se pudo iniciar. Revisa: journalctl -u stunnel	NÃO FOI POSSÍVEL INICIAR. VERIFIQUE: journalctl -u stunnel
+No se pudo iniciar. Revise: journalctl -u	NÃO FOI POSSÍVEL INICIAR. VERIFIQUE: journalctl -u
+No se pudo iniciar. Últimas líneas del registro	NÃO FOI POSSÍVEL INICIAR. ÚLTIMAS LINHAS DO REGISTRO
+No se pudo instalar Fail2ban	NÃO FOI POSSÍVEL INSTALAR O FAIL2BAN
+No se pudo instalar iptables	NÃO FOI POSSÍVEL INSTALAR O IPTABLES
+No se pudo reiniciar el servicio automáticamente	NÃO FOI POSSÍVEL REINICIAR O SERVIÇO AUTOMATICAMENTE
+No se pudo reiniciar. Revisa: journalctl -u checkuser-multi	NÃO FOI POSSÍVEL REINICIAR. VERIFIQUE: journalctl -u checkuser-multi
+No se pudo reiniciar. Revisa: journalctl -u stunnel	NÃO FOI POSSÍVEL REINICIAR. VERIFIQUE: journalctl -u stunnel
+Nombre de usuario	NOME DE USUÁRIO
+Nombre del usuario	NOME DO USUÁRIO
+Nombre del usuario a renovar	NOME DO USUÁRIO A RENOVAR
+Nota: Algunas apps pueden requerir mensajes específicos como 'internet premium' o 'SSHPLUS	NOTA: ALGUNS APPS PODEM EXIGIR MENSAGENS ESPECÍFICAS COMO 'internet premium' OU 'SSHPLUS
+Nota: BHTTP abre una conexión SSH backend por sesión. MaxStartups puede limitar ráfagas de autenticaciones simultáneas	NOTA: O BHTTP ABRE UMA CONEXÃO SSH BACKEND POR SESSÃO. O MaxStartups PODE LIMITAR RAJADAS DE AUTENTICAÇÕES SIMULTÂNEAS
+Nota: cuando actualices con panel.py, podrás entrar con este mismo usuario/contraseña	NOTA: QUANDO ATUALIZAR COM panel.py, VOCÊ PODERÁ ENTRAR COM ESTE MESMO USUÁRIO/SENHA
+Nuevo Límite de IPs	NOVO LIMITE DE IPS
+Nuevo mensaje HTTP (sin espacios especiales	NOVA MENSAGEM HTTP (SEM ESPAÇOS ESPECIAIS
+Nuevo puerto	NOVA PORTA
+Nuevo puerto (1-65535, 0 para cancelar	NOVA PORTA (1-65535, 0 PARA CANCELAR
+Nuevo puerto BHTTP que quieres ABRIR	NOVA PORTA BHTTP QUE VOCÊ QUER ABRIR
+Nuevo puerto SSL	NOVA PORTA SSL
+Nuevo puerto externo BHTTP	NOVA PORTA EXTERNA BHTTP
+Nuevo puerto extra	NOVA PORTA EXTRA
+Nuevo puerto principal	NOVA PORTA PRINCIPAL
+Nuevos días	NOVOS DIAS
+Número inválido	NÚMERO INVÁLIDO
+O revisa los logs: journalctl -u dropbear -n	OU VERIFIQUE OS LOGS: journalctl -u dropbear -n
+OS	SO
+Obfuscación	OFUSCAÇÃO
+Online App activado con systemd (se reinicia al arrancar el VPS	ONLINE APP ATIVADO COM SYSTEMD (REINICIA AO INICIAR A VPS
+Online App detenido y archivos eliminados	ONLINE APP PARADO E ARQUIVOS ELIMINADOS
+Online App no está activo	ONLINE APP NÃO ESTÁ ATIVO
+Opción	OPÇÃO
+Opción inválida	OPÇÃO INVÁLIDA
+Organization	ORGANIZAÇÃO
+PUERTOS BHTTP GESTIONADOS	PORTAS BHTTP GERENCIADAS
+Panel Principal instalado correctamente	PAINEL PRINCIPAL INSTALADO COM SUCESSO
+Panel Web detenido	PAINEL WEB PARADO
+Panel Web reiniciado	PAINEL WEB REINICIADO
+Paquetes base instalados correctamente	PACOTES BASE INSTALADOS COM SUCESSO
+Paquetes bloqueados	PACOTES BLOQUEADOS
+Para volver a activarlo use la opción Reiniciar	PARA ATIVÁ-LO NOVAMENTE USE A OPÇÃO REINICIAR
+Passwords	SENHAS
+Pega HTML	COLE O HTML
+Pega HTML (o escribe 0 para cancelar	COLE O HTML (OU DIGITE 0 PARA CANCELAR
+Perfil HIGH PERFORMANCE + STABILITY activo	PERFIL HIGH PERFORMANCE + STABILITY ATIVO
+Perfil de red aplicado. BHP1 permanece byte/protocolo compatible con BTUN	PERFIL DE REDE APLICADO. O BHP1 PERMANECE COMPATÍVEL COM O BTUN EM BYTES/PROTOCOLO
+Personalizado HTML	PERSONALIZADO HTML
+Por defecto	PADRÃO
+Por favor, elige un puerto diferente para evitar conflictos de red	POR FAVOR, ESCOLHA UMA PORTA DIFERENTE PARA EVITAR CONFLITOS DE REDE
+Por seguridad el manager limita este valor a	POR SEGURANÇA O GERENCIADOR LIMITA ESTE VALOR A
+Preparando Instalación del Panel Web	PREPARANDO INSTALAÇÃO DO PAINEL WEB
+Preparando sistema	PREPARANDO SISTEMA
+Presiona ENTER para continuar	PRESSIONE ENTER PARA CONTINUAR
+Presiona ENTER para volver al menú	PRESSIONE ENTER PARA VOLTAR AO MENU
+Presiona Enter	PRESSIONE ENTER
+Presiona Enter para cancelar la instalación	PRESSIONE ENTER PARA CANCELAR A INSTALAÇÃO
+Presiona Enter para continuar	PRESSIONE ENTER PARA CONTINUAR
+Presiona Enter para volver	PRESSIONE ENTER PARA VOLTAR
+Presione Enter	PRESSIONE ENTER
+Presione Enter para continuar	PRESSIONE ENTER PARA CONTINUAR
+Presione Enter para regresar	PRESSIONE ENTER PARA VOLTAR
+Presione Enter para regresar al menú	PRESSIONE ENTER PARA VOLTAR AO MENU
+Press any key to back	PRESSIONE QUALQUER TECLA PARA VOLTAR
+Primer puerto BHTTP	PRIMEIRA PORTA BHTTP
+Principal	PRINCIPAL
+Protecc. HWID	PROTEÇÃO HWID
+Protege	PROTEGE
+Puerto	PORTA
+Puerto BHTTP	PORTA BHTTP
+Puerto BHTTP cambiado	PORTA BHTTP ALTERADA
+Puerto BHTTP que quieres CERRAR/ELIMINAR	PORTA BHTTP QUE VOCÊ QUER FECHAR/ELIMINAR
+Puerto Extra	PORTA EXTRA
+Puerto Payload	PORTA PAYLOAD
+Puerto Principal	PORTA PRINCIPAL
+Puerto SSH backend local	PORTA SSH BACKEND LOCAL
+Puerto SSL	PORTA SSL
+Puerto SSL/TLS	PORTA SSL/TLS
+Puerto UDP	PORTA UDP
+Puerto actual	PORTA ATUAL
+Puerto cambiado	PORTA ALTERADA
+Puerto cambiado a	PORTA ALTERADA PARA
+Puerto de escucha	PORTA DE ESCUTA
+Puerto en uso	PORTA EM USO
+Puerto extra cambiado a	PORTA EXTRA ALTERADA PARA
+Puerto inválido	PORTA INVÁLIDA
+Puerto inválido. Debe ser un número entre 1024 y	PORTA INVÁLIDA. DEVE SER UM NÚMERO ENTRE 1024 E
+Puerto no válido	PORTA INVÁLIDA
+Puerto no válido. Se cancela la configuración de puerto	PORTA INVÁLIDA. A CONFIGURAÇÃO DE PORTA FOI CANCELADA
+Puerto principal cambiado a	PORTA PRINCIPAL ALTERADA PARA
+Puertos	PORTAS
+Puertos    : 6000 al 19999 (Redirige a	PORTAS    : 6000 A 19999 (REDIRECIONA PARA
+Puertos BHTTP	PORTAS BHTTP
+Puertos BHTTP actuales	PORTAS BHTTP ATUAIS
+Puertos existentes conservados y habilitados para reinicios	PORTAS EXISTENTES MANTIDAS E HABILITADAS PARA REINÍCIOS
+Re-certificando el dominio guardado	RECERTIFICANDO O DOMÍNIO SALVO
+Re-certificar Subdominio Actual (Solución Errores	RECERTIFICAR SUBDOMÍNIO ATUAL (SOLUÇÃO DE ERROS
+Reaplicar HIGH PERFORMANCE + STABILITY	REAPLICAR HIGH PERFORMANCE + STABILITY
+Recopilando información del sistema, por favor espere	COLETANDO INFORMAÇÕES DO SISTEMA, POR FAVOR AGUARDE
+Red	REDE
+Region	REGIÃO
+Regresar	VOLTAR
+Reiniciando BHTTP v	REINICIANDO BHTTP V
+Reiniciando Dropbear	REINICIANDO DROPBEAR
+Reiniciando HCR v	REINICIANDO HCR V
+Reiniciando Online App	REINICIANDO ONLINE APP
+Reiniciando Panel Web	REINICIANDO PAINEL WEB
+Reiniciando WebSocket	REINICIANDO WEBSOCKET
+Reiniciando servicio vps-webpanel para aplicar cambios	REINICIANDO SERVIÇO vps-webpanel PARA APLICAR AS ALTERAÇÕES
+Reiniciando servicios	REINICIANDO SERVIÇOS
+Reiniciar	REINICIAR
+Reiniciar BHTTP	REINICIAR BHTTP
+Reiniciar Panel Web	REINICIAR PAINEL WEB
+Reiniciar Servicio	REINICIAR SERVIÇO
+Reinicie el panel para aplicar cambios	REINICIE O PAINEL PARA APLICAR AS ALTERAÇÕES
+Reinstalar / Reparar Motor Xray	REINSTALAR / REPARAR MOTOR XRAY
+Reintento	NOVA TENTATIVA
+Renovado	RENOVADO
+Renovar Días de Cuenta	RENOVAR DIAS DA CONTA
+Renovar Usuario	RENOVAR USUÁRIO
+Repite la Contraseña	REPITA A SENHA
+Requiere tener el puerto libre 443 y el	REQUER A PORTA 443 LIVRE E A
+Revendedor eliminado	REVENDEDOR ELIMINADO
+Revendedor guardado	REVENDEDOR SALVO
+Revisa antes de probar la app	VERIFIQUE ANTES DE TESTAR O APP
+Rollback del motor anterior	ROLLBACK DO MOTOR ANTERIOR
+SCRIPT REESTRUCTURA y AUTOCONFIGURACION	SCRIPT REESTRUTURA E AUTOCONFIGURAÇÃO
+SHA-256 incorrecto del motor descargado	SHA-256 INCORRETO DO MOTOR BAIXADO
+SSH (puerto	SSH (PORTA
+SSH backend no escucha en	SSH BACKEND NÃO ESCUTA EM
+SSL + ( Payload / Directo	SSL + ( PAYLOAD / DIRETO
+SSL / TLS desinstalado correctamente	SSL / TLS DESINSTALADO COM SUCESSO
+Salir	SAIR
+Salir del Gestor	SAIR DO GERENCIADOR
+Se descargarán los siguientes archivos	SERÃO BAIXADOS OS SEGUINTES ARQUIVOS
+Se eliminará BHTTP v2.0 (servicio, binario y configuración	O BHTTP V2.0 SERÁ ELIMINADO (SERVIÇO, BINÁRIO E CONFIGURAÇÃO
+Se instalará BadVPN UDP Gateway en los puertos	O BADVPN UDP GATEWAY SERÁ INSTALADO NAS PORTAS
+Se recomienda usar otro puerto como	RECOMENDA-SE USAR OUTRA PORTA COMO
+Se usarán los certificados que ya hay en	SERÃO USADOS OS CERTIFICADOS QUE JÁ EXISTEM EM
+Selecciona una opción	SELECIONE UMA OPÇÃO
+Seleccione el formato de fecha	SELECIONE O FORMATO DE DATA
+Seleccione el transporte	SELECIONE O TRANSPORTE
+Seleccione una opción	SELECIONE UMA OPÇÃO
+Servicio SSL detenido	SERVIÇO SSL PARADO
+Servicio SSL iniciado	SERVIÇO SSL INICIADO
+Servicio SSL reiniciado	SERVIÇO SSL REINICIADO
+Servicio activo	SERVIÇO ATIVO
+Servicio reiniciado	SERVIÇO REINICIADO
+Servicios desactivados correctamente	SERVIÇOS DESATIVADOS COM SUCESSO
+Servidor OpenVPN y Certificados configurados exitosamente	SERVIDOR OPENVPN E CERTIFICADOS CONFIGURADOS COM SUCESSO
+Si aún no conecta desde tu app VPN, ejecuta	SE AINDA NÃO CONECTAR PELO SEU APP VPN, EXECUTE
+Solicitando Certificado SSL Let's Encrypt para	SOLICITANDO CERTIFICADO SSL Let's Encrypt PARA
+Soporte	SUPORTE
+Swap amplía la RAM (recomendado en VPS con poca RAM	O SWAP AMPLIA A RAM (RECOMENDADO EM VPS COM POUCA RAM
+Swap en uso	SWAP EM USO
+System Uptime	TEMPO LIGADO
+SÍ	SIM
+TCP Congestion Ctrl	CONGESTIONAMENTO TCP
+TCP ESTAB ahora	TCP ESTAB AGORA
+TCP activas	TCP ATIVAS
+Techo de sesiones BHTTP por listener	LIMITE DE SESSÕES BHTTP POR LISTENER
+Todos los listeners BHTTP fueron detenidos manualmente. Siguen habilitados para el próximo boot salvo que los elimines	TODOS OS LISTENERS BHTTP FORAM PARADOS MANUALMENTE. CONTINUAM HABILITADOS PARA O PRÓXIMO BOOT, A MENOS QUE VOCÊ OS ELIMINE
+Todos usan el mismo engine	TODOS USAM O MESMO ENGINE
+Token inválido. Formato: 123456789:AAxxxx	TOKEN INVÁLIDO. FORMATO: 123456789:AAxxxx
+Total Disk	DISCO TOTAL
+Total RAM	RAM TOTAL
+Total Swap	SWAP TOTAL
+Total bloqueadas	TOTAL BLOQUEADAS
+Transporte	TRANSPORTE
+Transporte no válido	TRANSPORTE INVÁLIDO
+Túnel     : UDP 0.0.0.0:53 ➔ SSH	TÚNEL     : UDP 0.0.0.0:53 ➔ SSH
+UFW: el puerto	UFW: A PORTA
+UFW: puerto	UFW: PORTA
+URL de usuarios online para la App	URL DE USUÁRIOS ONLINE PARA O APP
+USUARIO	USUÁRIO
+Usa la opción 16 para abrir únicamente los puertos que tú quieras	USE A OPÇÃO 16 PARA ABRIR SOMENTE AS PORTAS QUE QUISER
+Usa: sudo bash install.sh	USE: sudo bash install.sh
+Used	USADO
+User	USUÁRIO
+Usuario	USUÁRIO
+Usuario HWID	USUÁRIO HWID
+Usuario Normal	USUÁRIO NORMAL
+Usuario a Bloquear	USUÁRIO A BLOQUEAR
+Usuario a Desbloquear	USUÁRIO A DESBLOQUEAR
+Usuario a eliminar	USUÁRIO A ELIMINAR
+Usuario a renovar	USUÁRIO A RENOVAR
+VERIFICAR CONEXIONES EN VIVO	VERIFICAR CONEXÕES AO VIVO
+VPS nueva: NO se abrirá ningún puerto BHTTP automáticamente	VPS NOVA: NENHUMA PORTA BHTTP SERÁ ABERTA AUTOMATICAMENTE
+Valor inválido	VALOR INVÁLIDO
+Valor no válido	VALOR INVÁLIDO
+Valor no válido: escribe un número entero mayor que	VALOR INVÁLIDO: DIGITE UM NÚMERO INTEIRO MAIOR QUE
+Vence	VENCE
+Ver estado e IPs bloqueadas	VER ESTADO E IPS BLOQUEADOS
+Ver logs	VER LOGS
+Verifica con: systemctl status dropbear	VERIFIQUE COM: systemctl status dropbear
+Verifica que el dominio apunte a tu IP en Cloudflare (Nube gris	VERIFIQUE SE O DOMÍNIO APONTA PARA O SEU IP NA CLOUDFLARE (NUVEM CINZA
+Verifica tu conexión a internet o asegúrate de que el archivo menu existe en el repositorio	VERIFIQUE SUA CONEXÃO COM A INTERNET OU CERTIFIQUE-SE DE QUE O ARQUIVO menu EXISTE NO REPOSITÓRIO
+Verificando disponibilidad de apt	VERIFICANDO DISPONIBILIDADE DO APT
+Verificando e instalando TCP BBR	VERIFICANDO E INSTALANDO TCP BBR
+Verificando puertos 80 y	VERIFICANDO PORTAS 80 E
+Verificar Usuarios en Vivo	VERIFICAR USUÁRIOS AO VIVO
+Version	VERSÃO
+Virtualization	VIRTUALIZAÇÃO
+Volver al Menú Anterior	VOLTAR AO MENU ANTERIOR
+Volver al Menú Principal	VOLTAR AO MENU PRINCIPAL
+Volviendo al menú en 3 segundos	VOLTANDO AO MENU EM 3 SEGUNDOS
+WebSocket activado con systemd (se reinicia al arrancar el VPS	WEBSOCKET ATIVADO COM SYSTEMD (REINICIA AO INICIAR A VPS
+WebSocket desactivado correctamente	WEBSOCKET DESATIVADO COM SUCESSO
+WebSocket no está activo	WEBSOCKET NÃO ESTÁ ATIVO
+WebSocket no está activo. Actívalo primero	WEBSOCKET NÃO ESTÁ ATIVO. ATIVE-O PRIMEIRO
+Xray no aplica este límite por sí solo: solo queda anotado	O XRAY NÃO APLICA ESTE LIMITE POR SI SÓ: FICA APENAS ANOTADO
+Y verifica que aparezcan estos algoritmos	E VERIFIQUE SE ESTES ALGORITMOS APARECEM
+YYYY/MM/DD (Más común	AAAA/MM/DD (MAIS COMUM
+Ya está usando el puerto	JÁ ESTÁ USANDO A PORTA
+Ya está usando ese puerto	JÁ ESTÁ USANDO ESSA PORTA
+Zivpn Pass	SENHA ZIVPN
+abierto y habilitado para reinicios	ABERTA E HABILITADA PARA REINÍCIOS
+activo	ATIVO
+auth hasheada en	AUTENTICAÇÃO COM HASH EM
+auto  (TLS y sin TLS en el mismo puerto	AUTO  (TLS E SEM TLS NA MESMA PORTA
+cerrado y eliminado del auto-boot	FECHADA E REMOVIDA DO AUTO-BOOT
+con éxito	COM SUCESSO
+conexión(es)	CONEXÃO(ÕES)
+desbloqueada	DESBLOQUEADO
+disponible	DISPONÍVEL
+dispositivos registrado para	DISPOSITIVOS REGISTRADO PARA
+días	DIAS
+en el Firewall	NO FIREWALL
+enlazado	VINCULADO
+es común en virtualización OpenVZ/LXC	É COMUM EM VIRTUALIZAÇÃO OPENVZ/LXC
+está ocupado	ESTÁ OCUPADA
+está ocupado por otro servicio. No se detuvo ni modificó ese servicio	ESTÁ OCUPADA POR OUTRO SERVIÇO. ESSE SERVIÇO NÃO FOI PARADO NEM MODIFICADO
+excedió el límite. Desconectando	EXCEDEU O LIMITE. DESCONECTANDO
+firewalld: el puerto	firewalld: A PORTA
+firewalld: puerto	firewalld: PORTA
+inactivo	INATIVO
+install.sh. Reinstale HCR v2.0 con la opción	install.sh. REINSTALE O HCR V2.0 COM A OPÇÃO
+libres	LIVRES
+ninguno	NENHUM
+no creado	NÃO CRIADO
+no estaba bloqueada	NÃO ESTAVA BLOQUEADA
+no está activo	NÃO ESTÁ ATIVO(A)
+no está escuchando	NÃO ESTÁ ESCUTANDO
+no está habilitado para boot	NÃO ESTÁ HABILITADO(A) PARA O BOOT
+no está registrado como BHTTP	NÃO ESTÁ REGISTRADA COMO BHTTP
+no quedó activo; revisa logs: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE OS LOGS: journalctl -u
+no quedó activo; revisa: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE: journalctl -u
+para descargar	PARA BAIXAR
+plain (sin TLS	PLAIN (SEM TLS
+principal) y	PRINCIPAL) E
+recomendado	RECOMENDADO
+recomendado para esta VPS	RECOMENDADO PARA ESTA VPS
+se deja 1 GB libre	FICA 1 GB LIVRE
+suma de puertos BHTTP gestionados; no equivale exactamente a usuarios	SOMA DAS PORTAS BHTTP GERENCIADAS; NÃO EQUIVALE EXATAMENTE A USUÁRIOS
+tcp abierto por este manager	tcp ABERTA POR ESTE GERENCIADOR
+tcp ya estaba permitido	tcp JÁ ESTAVA PERMITIDA
+tls   (solo TLS	TLS   (SOMENTE TLS
+usado	USADO
+verificado por SHA-256 y self-test	VERIFICADO POR SHA-256 E SELF-TEST
+y servicio reiniciado	E SERVIÇO REINICIADO
+ya está abierto por BHTTP	JÁ ESTÁ ABERTA PELO BHTTP
+ya está configurado como BHTTP adicional	JÁ ESTÁ CONFIGURADA COMO BHTTP ADICIONAL
+ya está en uso	JÁ ESTÁ EM USO
+ya está en uso por	JÁ ESTÁ EM USO POR
+ya está en uso por otro servicio	JÁ ESTÁ EM USO POR OUTRO SERVIÇO
+ya está ocupado por otro listener. No se modificó nada	JÁ ESTÁ OCUPADA POR OUTRO LISTENER. NADA FOI MODIFICADO
+¡BadVPN configurado y activo en puertos 7100, 7200 y	BADVPN CONFIGURADO E ATIVO NAS PORTAS 7100, 7200 E
+¡CheckUser Multi-App Instalado Correctamente	CHECKUSER MULTI-APP INSTALADO COM SUCESSO
+¡Conexión SSL/TLS instalada y asegurada sin conflictos	CONEXÃO SSL/TLS INSTALADA E PROTEGIDA SEM CONFLITOS
+¡Dominio y Certificado 100% operativos	DOMÍNIO E CERTIFICADO 100% OPERACIONAIS
+¡Firewall reseteado y libre	FIREWALL REDEFINIDO E LIVRE
+¡Hysteria v1 configurado perfectamente en el puerto	HYSTERIA V1 CONFIGURADO PERFEITAMENTE NA PORTA
+¡Instalación TROJAN completada	INSTALAÇÃO TROJAN CONCLUÍDA
+¡Instalación completada con éxito	INSTALAÇÃO CONCLUÍDA COM SUCESSO
+¡Panel Web PRO Instalado	PAINEL WEB PRO INSTALADO
+¡Panel actualizado con éxito! Reiniciando	PAINEL ATUALIZADO COM SUCESSO! REINICIANDO
+¡Puerto 443 (TLS) activo para VLESS y VMess	PORTA 443 (TLS) ATIVA PARA VLESS E VMESS
+¡SlowDNS Oficial (DNSTT) instalado y activo	SLOWDNS OFICIAL (DNSTT) INSTALADO E ATIVO
+¡TCP BBR activado y configurado con éxito	TCP BBR ATIVADO E CONFIGURADO COM SUCESSO
+¡TCP BBR ya se encuentra activo en este VPS	TCP BBR JÁ ESTÁ ATIVO NESTA VPS
+¡Todos los puertos del panel están abiertos y seguros	TODAS AS PORTAS DO PAINEL ESTÃO ABERTAS E SEGURAS
+¡Tráfico Torrent y Spam bloqueado exitosamente	TRÁFEGO TORRENT E SPAM BLOQUEADO COM SUCESSO
+¡UDP Custom oficial instalado y operando en el puerto	UDP CUSTOM OFICIAL INSTALADO E OPERANDO NA PORTA
+¡Zivpn UDP instalado y activo con éxito	ZIVPN UDP INSTALADO E ATIVO COM SUCESSO
+¿Continuar de todos modos? (s/n	CONTINUAR MESMO ASSIM? (S/N
+¿Cuántos GB quieres usar	QUANTOS GB VOCÊ QUER USAR
+¿Desea reinstalarlo con configuración compatible? (s/n	DESEJA REINSTALÁ-LO COM CONFIGURAÇÃO COMPATÍVEL? (S/N
+¿Deseas reconfigurar Token y Admin ID? (s/n	DESEJA RECONFIGURAR TOKEN E ADMIN ID? (S/N
+¿Desinstalar BHTTP v2.0? (s/n	DESINSTALAR BHTTP V2.0? (S/N
+¿Desinstalar CheckUser Multi-App (puerto	DESINSTALAR CHECKUSER MULTI-APP (PORTA
+¿Desinstalar Fail2ban? (s/n	DESINSTALAR FAIL2BAN? (S/N
+¿Desinstalar HCR v2.0 y borrar sus archivos? (s/n	DESINSTALAR HCR V2.0 E APAGAR SEUS ARQUIVOS? (S/N
+¿Desinstalar SSL / TLS (puerto	DESINSTALAR SSL / TLS (PORTA
+¿Desinstalar todo? (s/n	DESINSTALAR TUDO? (S/N
+¿Instalar en modo plain (sin TLS)? (s/n	INSTALAR EM MODO PLAIN (SEM TLS)? (S/N
+¿Mostrar código QR (TLS) en pantalla	MOSTRAR CÓDIGO QR (TLS) NA TELA
+¿Qué puerto principal quieres usar	QUAL PORTA PRINCIPAL VOCÊ QUER USAR
+¿Qué puerto quieres usar	QUAL PORTA VOCÊ QUER USAR
+Índices actualizados correctamente	ÍNDICES ATUALIZADOS COM SUCESSO

@@ -1,4 +1,19 @@
 #!/usr/bin/env bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 set -Euo pipefail
 
 MANAGER_VERSION="2.5.4"
@@ -35,9 +50,9 @@ fail(){ printf '%b✘%b %s\n' "$red" "$reset" "$*" >&2; }
 have(){ command -v "$1" >/dev/null 2>&1; }
 need_root(){ [ "${EUID:-$(id -u)}" -eq 0 ] || { fail "Ejecuta como root/sudo."; exit 1; }; }
 interactive_tty_ready(){ [ -c /dev/tty ] && { : </dev/tty; } 2>/dev/null; }
-require_tty(){ interactive_tty_ready || { fail "Esta acción necesita una terminal interactiva (/dev/tty)."; return 1; }; }
+require_tty(){ interactive_tty_ready || { fail "${T[Esta acción necesita una terminal interactiva (/dev/tty]:-Esta acción necesita una terminal interactiva (/dev/tty})."; return 1; }; }
 prompt_read(){ local __v="$1" __p="$2"; require_tty || return 1; IFS= read -r -p "$__p" "$__v" </dev/tty; }
-pause(){ echo; prompt_read _ "Presiona ENTER para continuar..." || true; }
+pause(){ echo; prompt_read _ "${T[Presiona ENTER para continuar]:-Presiona ENTER para continuar}..." || true; }
 valid_port(){ [[ "${1:-}" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le 65535 ]; }
 valid_uint(){ [[ "${1:-}" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ]; }
 normalize_ports(){
@@ -136,7 +151,7 @@ pkg_install_fast(){
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${pkgs[@]}" >/dev/null
   elif have dnf; then dnf install -y "${pkgs[@]}" >/dev/null
   elif have yum; then yum install -y "${pkgs[@]}" >/dev/null
-  else fail "No se detectó apt, dnf ni yum."; return 1
+  else fail "${T[No se detectó apt, dnf ni yum]:-No se detectó apt, dnf ni yum}."; return 1
   fi
 }
 
@@ -144,7 +159,7 @@ ensure_deps(){
   local missing=0 c
   for c in curl sha256sum systemctl ss sysctl awk grep sed; do have "$c" || missing=1; done
   [ "$missing" -eq 0 ] && return 0
-  info "Instalando dependencias mínimas faltantes..."
+  info "${T[Instalando dependencias mínimas faltantes]:-Instalando dependencias mínimas faltantes}..."
   if have apt-get; then pkg_install_fast ca-certificates curl coreutils iproute2 procps gawk grep sed
   else pkg_install_fast ca-certificates curl coreutils iproute procps-ng gawk grep sed
   fi
@@ -164,17 +179,17 @@ backup_current(){
 download_engine(){
   local file exp tmp got
   file="$(engine_filename)"; exp="$(expected_sha)"
-  [ -n "$file" ] && [ -n "$exp" ] || { fail "Arquitectura no soportada: $(uname -m). Solo amd64/arm64."; return 1; }
+  [ -n "$file" ] && [ -n "$exp" ] || { fail "${T[Arquitectura no soportada]:-Arquitectura no soportada}: $(uname -m). Solo amd64/arm64."; return 1; }
   tmp="$(mktemp /tmp/superflash-bhttp-engine.XXXXXX)"
-  info "Descargando motor BHTTP exacto para $(arch_name)..."
+  info "${T[Descargando motor BHTTP exacto para]:-Descargando motor BHTTP exacto para} $(arch_name)..."
   curl -fL --retry 3 --connect-timeout 12 "$(raw_url "$file")" -o "$tmp"
   got="$(sha256sum "$tmp" | awk '{print $1}')"
-  [ "$got" = "$exp" ] || { rm -f "$tmp"; fail "SHA-256 incorrecto del motor descargado."; return 1; }
+  [ "$got" = "$exp" ] || { rm -f "$tmp"; fail "${T[SHA-256 incorrecto del motor descargado]:-SHA-256 incorrecto del motor descargado}."; return 1; }
   chmod 755 "$tmp"
   "$tmp" --self-test >/dev/null
   install -m 755 "$tmp" "$BIN"
   rm -f "$tmp"
-  ok "Motor $ENGINE_VERSION verificado por SHA-256 y self-test."
+  ok "Motor $ENGINE_VERSION ${T[verificado por SHA-256 y self-test]:-verificado por SHA-256 y self-test}."
 }
 
 install_manager_copy(){
@@ -233,7 +248,7 @@ EOF
     append_sysctl net.ipv4.tcp_congestion_control bbr
   fi
   sysctl -p "$SYSCTL_FILE" >/dev/null 2>&1 || true
-  ok "Perfil de red aplicado. BHP1 permanece byte/protocolo compatible con BTUN."
+  ok "${T[Perfil de red aplicado. BHP1 permanece byte/protocolo compatible con BTUN]:-Perfil de red aplicado. BHP1 permanece byte/protocolo compatible con BTUN}."
 }
 
 remove_performance_tuning(){
@@ -364,8 +379,8 @@ firewall_open_port(){
         EXTRA_UFW_PORTS="$(list_add_port "${EXTRA_UFW_PORTS:-}" "$p")"
       fi
       save_config
-      ok "UFW: puerto $p/tcp abierto por este manager."
-    else info "UFW: el puerto $p/tcp ya estaba permitido."; fi
+      ok "${T[UFW: puerto]:-UFW: puerto} $p/${T[tcp abierto por este manager]:-tcp abierto por este manager}."
+    else info "${T[UFW: el puerto]:-UFW: el puerto} $p/${T[tcp ya estaba permitido]:-tcp ya estaba permitido}."; fi
   elif have firewall-cmd && firewall-cmd --state >/dev/null 2>&1; then
     if ! firewall-cmd --query-port="${p}/tcp" >/dev/null 2>&1; then
       firewall-cmd --permanent --add-port="${p}/tcp" >/dev/null
@@ -376,17 +391,17 @@ firewall_open_port(){
         EXTRA_FIREWALLD_PORTS="$(list_add_port "${EXTRA_FIREWALLD_PORTS:-}" "$p")"
       fi
       save_config
-      ok "firewalld: puerto $p/tcp abierto por este manager."
-    else info "firewalld: el puerto $p/tcp ya estaba permitido."; fi
+      ok "${T[firewalld: puerto]:-firewalld: puerto} $p/${T[tcp abierto por este manager]:-tcp abierto por este manager}."
+    else info "${T[firewalld: el puerto]:-firewalld: el puerto} $p/${T[tcp ya estaba permitido]:-tcp ya estaba permitido}."; fi
   else
-    info "Firewall local no activo/detectado. Si tu proveedor usa firewall externo, permite TCP $p."
+    info "${T[Firewall local no activo/detectado. Si tu proveedor usa firewall externo, permite TCP]:-Firewall local no activo/detectado. Si tu proveedor usa firewall externo, permite TCP} $p."
   fi
 }
 
 firewall_open(){
   load_config
   if [ -z "${BHTTP_PORT:-}" ]; then
-    info "No hay puerto BHTTP principal configurado. Usa la opción 16 para abrir el puerto que quieras."
+    info "${T[No hay puerto BHTTP principal configurado. Usa la opción 16 para abrir el puerto que quieras]:-No hay puerto BHTTP principal configurado. Usa la opción 16 para abrir el puerto que quieras}."
     return 0
   fi
   firewall_open_port "$BHTTP_PORT" main
@@ -495,24 +510,24 @@ status_all(){
   echo "============================================================"
   echo "Manager        : v$MANAGER_VERSION"
   echo "Engine         : $ENGINE_VERSION"
-  echo "Arquitectura   : $(uname -m)"
+  echo "${T[Arquitectura]:-Arquitectura}   : $(uname -m)"
   echo "RAM            : $(mem_mb) MB"
   echo "Motor SHA      : $(engine_hash)"
-  echo "Motor exacto   : $(engine_exact && echo SÍ || echo NO)"
+  echo "${T[Motor exacto]:-Motor exacto}   : $(engine_exact && echo "${T[SÍ]:-SÍ}" || echo "${T[NO]:-NO}")"
   echo "Listeners      : $(any_listener_active && echo ACTIVO || echo APAGADO/SIN PUERTOS)"
-  echo "Inicio al boot : $(any_listener_enabled && echo SÍ || echo NO/SIN PUERTOS)"
-  echo "Puertos BHTTP  : $(managed_ports_text) -> SSH 127.0.0.1:$BACKEND_PORT"
-  echo "Max sesiones   : $MAX_SESSIONS"
-  echo "TCP ESTAB ahora: $(connected_tcp_all) (suma de puertos BHTTP gestionados; no equivale exactamente a usuarios)"
+  echo "${T[Inicio al boot]:-Inicio al boot} : $(any_listener_enabled && echo "${T[SÍ]:-SÍ}" || echo "${T[NO/SIN PUERTOS]:-NO/SIN PUERTOS}")"
+  echo "${T[Puertos BHTTP]:-Puertos BHTTP}  : $(managed_ports_text) -> SSH 127.0.0.1:$BACKEND_PORT"
+  echo "${T[Max sesiones]:-Max sesiones}   : $MAX_SESSIONS"
+  echo "${T[TCP ESTAB ahora]:-TCP ESTAB ahora}: $(connected_tcp_all) (${T[suma de puertos BHTTP gestionados; no equivale exactamente a usuarios]:-suma de puertos BHTTP gestionados; no equivale exactamente a usuarios})"
   echo "Tuning         : $([ -f "$SYSCTL_FILE" ] && echo 'HIGH PERFORMANCE + STABILITY' || echo 'OFF')"
-  if sysctl_supported net.ipv4.tcp_congestion_control; then echo "Congestión TCP : $(sysctl -n net.ipv4.tcp_congestion_control 2>/dev/null || true)"; fi
+  if sysctl_supported net.ipv4.tcp_congestion_control; then echo "${T[Congestión TCP]:-Congestión TCP} : $(sysctl -n net.ipv4.tcp_congestion_control 2>/dev/null || true)"; fi
   echo
   local ep allp; allp="$(normalize_ports "${BHTTP_PORT:-} ${EXTRA_PORTS:-}")"
   if [ -n "$allp" ]; then
-    echo "Listeners BHTTP gestionados:"
+    echo "${T[Listeners BHTTP gestionados]:-Listeners BHTTP gestionados}:"
     for ep in $allp; do port_owner "$ep"; done
   else
-    echo "Listeners BHTTP gestionados: ninguno (abre los que quieras desde el menú)."
+    echo "${T[Listeners BHTTP gestionados: ninguno (abre los que quieras desde el menú]:-Listeners BHTTP gestionados: ninguno (abre los que quieras desde el menú})."
   fi
   echo "SSH local:"; port_owner "$BACKEND_PORT"
   echo
@@ -521,47 +536,47 @@ status_all(){
 
 self_test(){
   need_root; load_config
-  echo "===== AUTOPRUEBA BHTTP NEW GOLDEN ====="
-  [ -x "$BIN" ] || { fail "Motor no instalado."; return 1; }
-  engine_exact || { fail "El SHA-256 del motor no coincide con $ENGINE_VERSION."; return 1; }
+  echo "===== ${T[AUTOPRUEBA BHTTP NEW GOLDEN]:-AUTOPRUEBA BHTTP NEW GOLDEN} ====="
+  [ -x "$BIN" ] || { fail "${T[Motor no instalado]:-Motor no instalado}."; return 1; }
+  engine_exact || { fail "${T[El SHA-256 del motor no coincide con]:-El SHA-256 del motor no coincide con} $ENGINE_VERSION."; return 1; }
   "$BIN" --self-test
-  ssh_backend_ready || { fail "SSH backend no escucha en :$BACKEND_PORT."; return 1; }
+  ssh_backend_ready || { fail "${T[SSH backend no escucha en]:-SSH backend no escucha en} :$BACKEND_PORT."; return 1; }
   ok "Motor/BHP1 original PASS"
   ok "SSH backend 127.0.0.1:$BACKEND_PORT PASS"
   local allp ep eu; allp="$(normalize_ports "${BHTTP_PORT:-} ${EXTRA_PORTS:-}")"
   if [ -z "$allp" ]; then
-    info "No hay puertos BHTTP abiertos por el manager. Esto es correcto en una VPS nueva."
-    info "Usa la opción 16 para abrir únicamente los puertos que tú quieras."
+    info "${T[No hay puertos BHTTP abiertos por el manager. Esto es correcto en una VPS nueva]:-No hay puertos BHTTP abiertos por el manager. Esto es correcto en una VPS nueva}."
+    info "${T[Usa la opción 16 para abrir únicamente los puertos que tú quieras]:-Usa la opción 16 para abrir únicamente los puertos que tú quieras}."
     return 0
   fi
   if [ -n "${BHTTP_PORT:-}" ]; then
-    systemctl is-enabled --quiet "$SERVICE" || { fail "Listener :$BHTTP_PORT no está habilitado para boot."; return 1; }
-    systemctl is-active --quiet "$SERVICE" || { fail "Listener :$BHTTP_PORT no está activo."; return 1; }
-    listener_up || { fail "No escucha en :$BHTTP_PORT."; return 1; }
+    systemctl is-enabled --quiet "$SERVICE" || { fail "Listener :$BHTTP_PORT ${T[no está habilitado para boot]:-no está habilitado para boot}."; return 1; }
+    systemctl is-active --quiet "$SERVICE" || { fail "Listener :$BHTTP_PORT ${T[no está activo]:-no está activo}."; return 1; }
+    listener_up || { fail "${T[No escucha en]:-No escucha en} :$BHTTP_PORT."; return 1; }
     ok "Listener :$BHTTP_PORT + autostart PASS"
   fi
   for ep in ${EXTRA_PORTS:-}; do
     eu="$(basename "$(extra_unit_path "$ep")")"
-    systemctl is-enabled --quiet "$eu" || { fail "Puerto :$ep no está habilitado para boot."; return 1; }
-    systemctl is-active --quiet "$eu" || { fail "Puerto :$ep no está activo."; return 1; }
-    ss -lnt 2>/dev/null | awk -v p=":$ep" '$4 ~ p"$" {f=1} END{exit !f}' || { fail "Puerto :$ep no está escuchando."; return 1; }
+    systemctl is-enabled --quiet "$eu" || { fail "${T[Puerto]:-Puerto} :$ep ${T[no está habilitado para boot]:-no está habilitado para boot}."; return 1; }
+    systemctl is-active --quiet "$eu" || { fail "${T[Puerto]:-Puerto} :$ep ${T[no está activo]:-no está activo}."; return 1; }
+    ss -lnt 2>/dev/null | awk -v p=":$ep" '$4 ~ p"$" {f=1} END{exit !f}' || { fail "${T[Puerto]:-Puerto} :$ep ${T[no está escuchando]:-no está escuchando}."; return 1; }
     ok "Listener :$ep + autostart PASS"
   done
-  echo "BTUN/SuperFlash: usa cualquiera de los puertos mostrados arriba | DNS 1.1.1.1 | Upload 16 | Download 32"
+  echo "${T[BTUN/SuperFlash: usa cualquiera de los puertos mostrados arriba | DNS 1.1.1.1 | Upload 16 | Download]:-BTUN/SuperFlash: usa cualquiera de los puertos mostrados arriba | DNS 1.1.1.1 | Upload 16 | Download} 32"
 }
 
 install_or_update(){
   need_root; ensure_deps
-  [ "$(arch_name)" != unsupported ] || { fail "Arquitectura no soportada."; return 1; }
+  [ "$(arch_name)" != unsupported ] || { fail "${T[Arquitectura no soportada]:-Arquitectura no soportada}."; return 1; }
   local had_existing=0
   if [ -r "$CONFIG" ] || [ -r "$LEGACY_CONFIG" ] || [ -f "$UNIT" ]; then had_existing=1; fi
   load_config
   local auto; auto="$(adaptive_sessions)"
   if [ "$auto" -gt "$MAX_SESSIONS" ]; then MAX_SESSIONS="$auto"; fi
-  info "Instalación/actualización segura: motor BHP1 NO cambia; solo capacidad, boot, menú y tuning."
+  info "${T[Instalación/actualización segura: motor BHP1 NO cambia; solo capacidad, boot, menú y tuning]:-Instalación/actualización segura: motor BHP1 NO cambia; solo capacidad, boot, menú y tuning}."
   if [ "$had_existing" -eq 0 ] && [ -z "${BHTTP_PORT:-}" ] && [ -z "${EXTRA_PORTS:-}" ]; then
-    info "VPS nueva: NO se abrirá ningún puerto BHTTP automáticamente."
-    info "Después entra a 'sudo bhttp' y usa la opción 16 para abrir los puertos que tú quieras."
+    info "${T[VPS nueva: NO se abrirá ningún puerto BHTTP automáticamente]:-VPS nueva: NO se abrirá ningún puerto BHTTP automáticamente}."
+    info "${T[Después entra a 'sudo bhttp' y usa la opción 16 para abrir los puertos que tú quieras]:-Después entra a 'sudo bhttp' y usa la opción 16 para abrir los puertos que tú quieras}."
   else
     info "Puertos BHTTP existentes conservados: $(managed_ports_text) | SSH: $BACKEND_PORT"
   fi
@@ -569,7 +584,7 @@ install_or_update(){
   [ -n "${BHTTP_PORT:-}" ] && systemctl stop "$SERVICE" >/dev/null 2>&1 || true
   stop_extra_services
   if [ -n "${BHTTP_PORT:-}" ] && port_busy_by_other "$BHTTP_PORT"; then
-    fail "El puerto $BHTTP_PORT está ocupado por otro servicio. No se detuvo ni modificó ese servicio."
+    fail "${T[El puerto]:-El puerto} $BHTTP_PORT ${T[está ocupado por otro servicio. No se detuvo ni modificó ese servicio]:-está ocupado por otro servicio. No se detuvo ni modificó ese servicio}."
     port_owner "$BHTTP_PORT"
     return 1
   fi
@@ -587,17 +602,17 @@ install_or_update(){
   fi
   sleep .5
   if [ -n "${BHTTP_PORT:-}" ] && { ! systemctl is-active --quiet "$SERVICE" || ! listener_up; }; then
-    fail "BHTTP no quedó activo; revisa logs con: sudo bhttp"
+    fail "${T[BHTTP no quedó activo; revisa logs con: sudo bhttp]:-BHTTP no quedó activo; revisa logs con: sudo bhttp}"
     return 1
   fi
-  ok "Motor BHTTP instalado/actualizado."
-  ok "Perfil HIGH PERFORMANCE + STABILITY activo."
-  ok "Menú instalado: sudo bhttp"
+  ok "${T[Motor BHTTP instalado/actualizado]:-Motor BHTTP instalado/actualizado}."
+  ok "${T[Perfil HIGH PERFORMANCE + STABILITY activo]:-Perfil HIGH PERFORMANCE + STABILITY activo}."
+  ok "${T[Menú instalado: sudo bhttp]:-Menú instalado: sudo bhttp}"
   if [ "$(managed_ports_text)" = "ninguno" ]; then
-    ok "Ningún puerto BHTTP fue abierto automáticamente."
-    info "Abre solamente los que quieras con la opción 16."
+    ok "${T[Ningún puerto BHTTP fue abierto automáticamente]:-Ningún puerto BHTTP fue abierto automáticamente}."
+    info "${T[Abre solamente los que quieras con la opción]:-Abre solamente los que quieras con la opción} 16."
   else
-    ok "Puertos existentes conservados y habilitados para reinicios: $(managed_ports_text)"
+    ok "${T[Puertos existentes conservados y habilitados para reinicios]:-Puertos existentes conservados y habilitados para reinicios}: $(managed_ports_text)"
   fi
   echo
   self_test
@@ -606,32 +621,32 @@ install_or_update(){
 set_bhttp_port(){
   load_config; local old="${BHTTP_PORT:-}" p
   if [ -z "$old" ]; then
-    info "No hay puerto principal configurado todavía. Usa la opción 16 para abrir el primer puerto BHTTP."
+    info "${T[No hay puerto principal configurado todavía. Usa la opción 16 para abrir el primer puerto BHTTP]:-No hay puerto principal configurado todavía. Usa la opción 16 para abrir el primer puerto BHTTP}."
     return 0
   fi
-  prompt_read p "Nuevo puerto externo BHTTP [$BHTTP_PORT]: "; p="${p:-$BHTTP_PORT}"
-  valid_port "$p" || { fail "Puerto inválido."; return 1; }
+  prompt_read p "${T[Nuevo puerto externo BHTTP]:-Nuevo puerto externo BHTTP} [$BHTTP_PORT]: "; p="${p:-$BHTTP_PORT}"
+  valid_port "$p" || { fail "${T[Puerto inválido]:-Puerto inválido}."; return 1; }
   [ "$p" = "$BHTTP_PORT" ] && return 0
-  if list_has_port "${EXTRA_PORTS:-}" "$p"; then fail "El puerto $p ya está configurado como BHTTP adicional."; return 1; fi
+  if list_has_port "${EXTRA_PORTS:-}" "$p"; then fail "${T[El puerto]:-El puerto} $p ${T[ya está configurado como BHTTP adicional]:-ya está configurado como BHTTP adicional}."; return 1; fi
   systemctl stop "$SERVICE" >/dev/null 2>&1 || true
   if ss -lntp 2>/dev/null | awk -v p=":$p" '$4 ~ p"$" {f=1} END{exit !f}'; then
-    fail "El puerto $p está ocupado."; systemctl start "$SERVICE" >/dev/null 2>&1 || true; return 1
+    fail "${T[El puerto]:-El puerto} $p ${T[está ocupado]:-está ocupado}."; systemctl start "$SERVICE" >/dev/null 2>&1 || true; return 1
   fi
   firewall_remove_main_tracked
   BHTTP_PORT="$p"; save_config; write_unit; firewall_open
   systemctl restart "$SERVICE"
-  ok "Puerto BHTTP cambiado: $old -> $BHTTP_PORT"
+  ok "${T[Puerto BHTTP cambiado]:-Puerto BHTTP cambiado}: $old -> $BHTTP_PORT"
 }
 
 add_extra_port(){
   load_config; local p unit
-  echo "Puertos BHTTP actuales: $(managed_ports_text)"
-  prompt_read p "Nuevo puerto BHTTP que quieres ABRIR: "
-  valid_port "$p" || { fail "Puerto inválido."; return 1; }
-  if [ -n "${BHTTP_PORT:-}" ] && [ "$p" = "$BHTTP_PORT" ]; then info "El puerto $p ya está abierto por BHTTP."; return 0; fi
-  if list_has_port "${EXTRA_PORTS:-}" "$p"; then info "El puerto $p ya está abierto por BHTTP."; return 0; fi
+  echo "${T[Puertos BHTTP actuales]:-Puertos BHTTP actuales}: $(managed_ports_text)"
+  prompt_read p "${T[Nuevo puerto BHTTP que quieres ABRIR]:-Nuevo puerto BHTTP que quieres ABRIR}: "
+  valid_port "$p" || { fail "${T[Puerto inválido]:-Puerto inválido}."; return 1; }
+  if [ -n "${BHTTP_PORT:-}" ] && [ "$p" = "$BHTTP_PORT" ]; then info "${T[El puerto]:-El puerto} $p ${T[ya está abierto por BHTTP]:-ya está abierto por BHTTP}."; return 0; fi
+  if list_has_port "${EXTRA_PORTS:-}" "$p"; then info "${T[El puerto]:-El puerto} $p ${T[ya está abierto por BHTTP]:-ya está abierto por BHTTP}."; return 0; fi
   if ss -lntp 2>/dev/null | awk -v p=":$p" '$4 ~ p"$" {f=1} END{exit !f}'; then
-    fail "El puerto $p ya está ocupado por otro listener. No se modificó nada."
+    fail "${T[El puerto]:-El puerto} $p ${T[ya está ocupado por otro listener. No se modificó nada]:-ya está ocupado por otro listener. No se modificó nada}."
     port_owner "$p"
     return 1
   fi
@@ -643,9 +658,9 @@ add_extra_port(){
     firewall_open_port "$p" main
     sleep .5
     if ss -lnt 2>/dev/null | awk -v p=":$p" '$4 ~ p"$" {f=1} END{exit !f}'; then
-      ok "Primer puerto BHTTP :$p abierto y habilitado para reinicios."
+      ok "${T[Primer puerto BHTTP]:-Primer puerto BHTTP} :$p ${T[abierto y habilitado para reinicios]:-abierto y habilitado para reinicios}."
     else
-      fail "El listener :$p no quedó activo; revisa: journalctl -u $SERVICE"
+      fail "${T[El listener]:-El listener} :$p ${T[no quedó activo; revisa: journalctl -u]:-no quedó activo; revisa: journalctl -u} $SERVICE"
       return 1
     fi
   else
@@ -658,9 +673,9 @@ add_extra_port(){
     firewall_open_port "$p" extra
     sleep .5
     if ss -lnt 2>/dev/null | awk -v p=":$p" '$4 ~ p"$" {f=1} END{exit !f}'; then
-      ok "Puerto BHTTP :$p abierto y habilitado para reinicios."
+      ok "${T[Puerto BHTTP]:-Puerto BHTTP} :$p ${T[abierto y habilitado para reinicios]:-abierto y habilitado para reinicios}."
     else
-      fail "El listener :$p no quedó activo; revisa logs: journalctl -u $unit"
+      fail "${T[El listener]:-El listener} :$p ${T[no quedó activo; revisa logs: journalctl -u]:-no quedó activo; revisa logs: journalctl -u} $unit"
       return 1
     fi
   fi
@@ -670,12 +685,12 @@ add_extra_port(){
 close_extra_port(){
   load_config; local p unit
   local allp; allp="$(normalize_ports "${BHTTP_PORT:-} ${EXTRA_PORTS:-}")"
-  [ -n "$allp" ] || { info "No hay puertos BHTTP abiertos por el manager."; return 0; }
-  echo "Puertos BHTTP actuales: $allp"
-  prompt_read p "Puerto BHTTP que quieres CERRAR/ELIMINAR: "
-  valid_port "$p" || { fail "Puerto inválido."; return 1; }
-  list_has_port "$allp" "$p" || { fail "El puerto $p no está registrado como BHTTP."; return 1; }
-  prompt_read c "Escribe CERRAR para confirmar el puerto $p: "
+  [ -n "$allp" ] || { info "${T[No hay puertos BHTTP abiertos por el manager]:-No hay puertos BHTTP abiertos por el manager}."; return 0; }
+  echo "${T[Puertos BHTTP actuales]:-Puertos BHTTP actuales}: $allp"
+  prompt_read p "${T[Puerto BHTTP que quieres CERRAR/ELIMINAR]:-Puerto BHTTP que quieres CERRAR/ELIMINAR}: "
+  valid_port "$p" || { fail "${T[Puerto inválido]:-Puerto inválido}."; return 1; }
+  list_has_port "$allp" "$p" || { fail "${T[El puerto]:-El puerto} $p ${T[no está registrado como BHTTP]:-no está registrado como BHTTP}."; return 1; }
+  prompt_read c "${T[Escribe CERRAR para confirmar el puerto]:-Escribe CERRAR para confirmar el puerto} $p: "
   [ "$c" = "CERRAR" ] || { info "Sin cambios."; return 0; }
   if [ -n "${BHTTP_PORT:-}" ] && [ "$p" = "$BHTTP_PORT" ]; then
     systemctl disable --now "$SERVICE" >/dev/null 2>&1 || true
@@ -685,7 +700,7 @@ close_extra_port(){
     save_config
     systemctl daemon-reload
     systemctl reset-failed "$SERVICE" >/dev/null 2>&1 || true
-    ok "Puerto BHTTP :$p cerrado y eliminado del auto-boot."
+    ok "${T[Puerto BHTTP]:-Puerto BHTTP} :$p ${T[cerrado y eliminado del auto-boot]:-cerrado y eliminado del auto-boot}."
   else
     unit="$(basename "$(extra_unit_path "$p")")"
     systemctl disable --now "$unit" >/dev/null 2>&1 || true
@@ -695,7 +710,7 @@ close_extra_port(){
     save_config
     systemctl daemon-reload
     systemctl reset-failed "$unit" >/dev/null 2>&1 || true
-    ok "Puerto BHTTP :$p cerrado y eliminado del auto-boot."
+    ok "${T[Puerto BHTTP]:-Puerto BHTTP} :$p ${T[cerrado y eliminado del auto-boot]:-cerrado y eliminado del auto-boot}."
   fi
   info "Puertos BHTTP restantes: $(managed_ports_text)"
 }
@@ -703,13 +718,13 @@ close_extra_port(){
 show_managed_ports(){
   load_config; local p unit state boot allp
   allp="$(normalize_ports "${BHTTP_PORT:-} ${EXTRA_PORTS:-}")"
-  echo "===== PUERTOS BHTTP GESTIONADOS ====="
+  echo "===== ${T[PUERTOS BHTTP GESTIONADOS]:-PUERTOS BHTTP GESTIONADOS} ====="
   if [ -z "$allp" ]; then
-    echo "Ninguno. Usa la opción 16 para abrir los puertos que quieras."
+    echo "${T[Ninguno. Usa la opción 16 para abrir los puertos que quieras]:-Ninguno. Usa la opción 16 para abrir los puertos que quieras}."
     return 0
   fi
   if [ -n "${BHTTP_PORT:-}" ]; then
-    echo "Principal : $BHTTP_PORT | $(systemctl is-active "$SERVICE" 2>/dev/null || true) | boot=$(systemctl is-enabled "$SERVICE" 2>/dev/null || true)"
+    echo "${T[Principal]:-Principal} : $BHTTP_PORT | $(systemctl is-active "$SERVICE" 2>/dev/null || true) | boot=$(systemctl is-enabled "$SERVICE" 2>/dev/null || true)"
     port_owner "$BHTTP_PORT"
   fi
   for p in ${EXTRA_PORTS:-}; do
@@ -721,46 +736,46 @@ show_managed_ports(){
     port_owner "$p"
   done
   echo
-  info "Todos usan el mismo engine $ENGINE_VERSION y SSH backend 127.0.0.1:$BACKEND_PORT."
+  info "${T[Todos usan el mismo engine]:-Todos usan el mismo engine} $ENGINE_VERSION y SSH backend 127.0.0.1:$BACKEND_PORT."
 }
 
 set_backend_port(){
   load_config; local p
-  prompt_read p "Puerto SSH backend local [$BACKEND_PORT]: "; p="${p:-$BACKEND_PORT}"
-  valid_port "$p" || { fail "Puerto inválido."; return 1; }
+  prompt_read p "${T[Puerto SSH backend local]:-Puerto SSH backend local} [$BACKEND_PORT]: "; p="${p:-$BACKEND_PORT}"
+  valid_port "$p" || { fail "${T[Puerto inválido]:-Puerto inválido}."; return 1; }
   BACKEND_PORT="$p"; save_config; [ -n "${BHTTP_PORT:-}" ] && write_unit || true
   local ep
   for ep in ${EXTRA_PORTS:-}; do write_extra_unit "$ep"; done
   systemctl daemon-reload
   restart_service
-  ssh_backend_ready || warn "No detecto un listener SSH en :$BACKEND_PORT. Revisa antes de probar la app."
+  ssh_backend_ready || warn "${T[No detecto un listener SSH en]:-No detecto un listener SSH en} :$BACKEND_PORT. ${T[Revisa antes de probar la app]:-Revisa antes de probar la app}."
 }
 
 set_max_sessions(){
   load_config; local p auto; auto="$(adaptive_sessions)"
-  prompt_read p "Max sesiones simultáneas [$MAX_SESSIONS] (recomendado para esta VPS: $auto): "; p="${p:-$MAX_SESSIONS}"
-  valid_uint "$p" || { fail "Valor inválido."; return 1; }
-  [ "$p" -le 32768 ] || { fail "Por seguridad el manager limita este valor a 32768."; return 1; }
+  prompt_read p "${T[Max sesiones simultáneas]:-Max sesiones simultáneas} [$MAX_SESSIONS] (${T[recomendado para esta VPS]:-recomendado para esta VPS}: $auto): "; p="${p:-$MAX_SESSIONS}"
+  valid_uint "$p" || { fail "${T[Valor inválido]:-Valor inválido}."; return 1; }
+  [ "$p" -le 32768 ] || { fail "${T[Por seguridad el manager limita este valor a]:-Por seguridad el manager limita este valor a} 32768."; return 1; }
   MAX_SESSIONS="$p"; save_config; [ -n "${BHTTP_PORT:-}" ] && write_unit || true
   local ep
   for ep in ${EXTRA_PORTS:-}; do write_extra_unit "$ep"; done
   systemctl daemon-reload
   restart_service
-  ok "Techo de sesiones BHTTP por listener: $MAX_SESSIONS"
+  ok "${T[Techo de sesiones BHTTP por listener]:-Techo de sesiones BHTTP por listener}: $MAX_SESSIONS"
 }
 
 restart_service(){
   load_config; local p any=0
   if [ -n "${BHTTP_PORT:-}" ]; then systemctl restart "$SERVICE"; any=1; fi
   for p in ${EXTRA_PORTS:-}; do systemctl restart "$(basename "$(extra_unit_path "$p")")"; any=1; done
-  [ "$any" -eq 1 ] || info "No hay puertos BHTTP configurados para reiniciar."
+  [ "$any" -eq 1 ] || info "${T[No hay puertos BHTTP configurados para reiniciar]:-No hay puertos BHTTP configurados para reiniciar}."
   sleep .5; status_compact
 }
 start_service(){
   load_config; local p any=0
   if [ -n "${BHTTP_PORT:-}" ]; then systemctl enable --now "$SERVICE"; any=1; fi
   for p in ${EXTRA_PORTS:-}; do systemctl enable --now "$(basename "$(extra_unit_path "$p")")"; any=1; done
-  [ "$any" -eq 1 ] || info "No hay puertos BHTTP configurados. Usa la opción 16 para abrir uno."
+  [ "$any" -eq 1 ] || info "${T[No hay puertos BHTTP configurados. Usa la opción 16 para abrir uno]:-No hay puertos BHTTP configurados. Usa la opción 16 para abrir uno}."
   status_compact
 }
 stop_service(){
@@ -768,30 +783,30 @@ stop_service(){
   if [ -n "${BHTTP_PORT:-}" ]; then systemctl stop "$SERVICE"; any=1; fi
   [ -n "${EXTRA_PORTS:-}" ] && any=1
   stop_extra_services
-  [ "$any" -eq 1 ] && warn "Todos los listeners BHTTP fueron detenidos manualmente. Siguen habilitados para el próximo boot salvo que los elimines." || info "No había listeners BHTTP configurados."
+  [ "$any" -eq 1 ] && warn "${T[Todos los listeners BHTTP fueron detenidos manualmente. Siguen habilitados para el próximo boot salvo que los elimines]:-Todos los listeners BHTTP fueron detenidos manualmente. Siguen habilitados para el próximo boot salvo que los elimines}." || info "${T[No había listeners BHTTP configurados]:-No había listeners BHTTP configurados}."
 }
 logs(){
   load_config; local p any=0
   if [ -n "${BHTTP_PORT:-}" ]; then journalctl -u "$SERVICE" -n 80 --no-pager || true; any=1; fi
   for p in ${EXTRA_PORTS:-}; do echo "===== :$p ====="; journalctl -u "$(basename "$(extra_unit_path "$p")")" -n 60 --no-pager || true; any=1; done
-  [ "$any" -eq 1 ] || info "No hay listeners BHTTP configurados; todavía no hay logs de puertos."
+  [ "$any" -eq 1 ] || info "${T[No hay listeners BHTTP configurados; todavía no hay logs de puertos]:-No hay listeners BHTTP configurados; todavía no hay logs de puertos}."
 }
 
 ssh_capacity_diag(){
   load_config
-  echo "===== CAPACIDAD SSH BACKEND (solo diagnóstico) ====="
+  echo "===== ${T[CAPACIDAD SSH BACKEND (solo diagnóstico]:-CAPACIDAD SSH BACKEND (solo diagnóstico}) ====="
   local out
   out="$(sshd -T 2>/dev/null || /usr/sbin/sshd -T 2>/dev/null || true)"
-  if [ -z "$out" ]; then warn "No pude leer sshd -T."; return 0; fi
+  if [ -z "$out" ]; then warn "${T[No pude leer sshd -T]:-No pude leer sshd -T}."; return 0; fi
   echo "$out" | grep -Ei '^(maxstartups|maxsessions|allowtcpforwarding|disableforwarding|permitopen) ' || true
   echo
-  echo "Nota: BHTTP abre una conexión SSH backend por sesión. MaxStartups puede limitar ráfagas de autenticaciones simultáneas."
-  echo "Este diagnóstico NO cambia sshd para evitar afectar tu acceso administrativo."
+  echo "${T[Nota: BHTTP abre una conexión SSH backend por sesión. MaxStartups puede limitar ráfagas de autenticaciones simultáneas]:-Nota: BHTTP abre una conexión SSH backend por sesión. MaxStartups puede limitar ráfagas de autenticaciones simultáneas}."
+  echo "${T[Este diagnóstico NO cambia sshd para evitar afectar tu acceso administrativo]:-Este diagnóstico NO cambia sshd para evitar afectar tu acceso administrativo}."
 }
 
 rollback_engine(){
   need_root
-  [ -x "$BACKUP_DIR/engine.previous" ] || { fail "No hay motor previo guardado."; return 1; }
+  [ -x "$BACKUP_DIR/engine.previous" ] || { fail "${T[No hay motor previo guardado]:-No hay motor previo guardado}."; return 1; }
   [ -n "${BHTTP_PORT:-}" ] && systemctl stop "$SERVICE" >/dev/null 2>&1 || true
   stop_extra_services
   cp -a "$BACKUP_DIR/engine.previous" "$BIN"; chmod 755 "$BIN"
@@ -802,8 +817,8 @@ rollback_engine(){
 
 uninstall_all(){
   load_config
-  warn "Esto elimina SOLO SuperFlash BHTTP. SSH, H2/XHTTP y otros servicios no se tocan."
-  prompt_read c "Escribe BHTTP para confirmar: "
+  warn "${T[Esto elimina SOLO SuperFlash BHTTP. SSH, H2/XHTTP y otros servicios no se tocan]:-Esto elimina SOLO SuperFlash BHTTP. SSH, H2/XHTTP y otros servicios no se tocan}."
+  prompt_read c "${T[Escribe BHTTP para confirmar]:-Escribe BHTTP para confirmar}: "
   [ "$c" = "BHTTP" ] || return 0
   firewall_remove_all_tracked
   systemctl disable --now "$SERVICE" >/dev/null 2>&1 || true
@@ -813,7 +828,7 @@ uninstall_all(){
   remove_performance_tuning
   rm -rf "$BASE"; rm -f "$LEGACY_CONFIG"
   systemctl daemon-reload
-  ok "BHTTP eliminado. SSH y los demás protocolos permanecen intactos."
+  ok "${T[BHTTP eliminado. SSH y los demás protocolos permanecen intactos]:-BHTTP eliminado. SSH y los demás protocolos permanecen intactos}."
 }
 
 header(){
@@ -831,15 +846,15 @@ header(){
   echo -e "${blue}╚══════════════════════════════════════════════════════════╝${reset}"
   echo " Manager v$MANAGER_VERSION | Engine $ENGINE_VERSION"
   echo
-  echo -e " [$installed_icon] Instalado    [$service_icon] Activo    [$boot_icon] Auto-boot    [$tune_icon] Performance"
+  echo -e " [$installed_icon] ${T[Instalado]:-Instalado}    [$service_icon] ${T[Activo]:-Activo}    [$boot_icon] Auto-boot    [$tune_icon] Performance"
   echo -e " [✔] BHP1 Original  [✔] TCP Keep-Alive BHTTP"
   local display_ports="ninguno"
   if [ "$ports" != "ninguno" ]; then display_ports="${ports// /, }"; fi
-  echo -e " Puerto BHTTP : ${green}$display_ports${reset}"
+  echo -e " ${T[Puerto BHTTP]:-Puerto BHTTP} : ${green}$display_ports${reset}"
   echo -e " SSH backend  : ${green}$BACKEND_PORT${reset}"
-  echo -e " Max sesiones : ${green}$MAX_SESSIONS${reset}     TCP activas : ${green}$(connected_tcp_all)${reset}"
-  if sysctl_supported net.ipv4.tcp_congestion_control; then echo -e " Congestión   : ${green}$(sysctl -n net.ipv4.tcp_congestion_control 2>/dev/null || true)${reset}"; fi
-  if [ "$ports" = "ninguno" ]; then echo -e " ${dim}Abre los puertos que quieras con la opción 16.${reset}"; fi
+  echo -e " ${T[Max sesiones]:-Max sesiones} : ${green}$MAX_SESSIONS${reset}     ${T[TCP activas]:-TCP activas} : ${green}$(connected_tcp_all)${reset}"
+  if sysctl_supported net.ipv4.tcp_congestion_control; then echo -e " ${T[Congestión]:-Congestión}   : ${green}$(sysctl -n net.ipv4.tcp_congestion_control 2>/dev/null || true)${reset}"; fi
+  if [ "$ports" = "${T[ninguno]:-ninguno}" ]; then echo -e " ${dim}${T[Abre los puertos que quieras con la opción]:-Abre los puertos que quieras con la opción} 16.${reset}"; fi
   echo
 }
 
@@ -847,26 +862,26 @@ menu(){
   need_root; require_tty || return 1
   while true; do
     header
-    echo " 1) INSTALAR / ACTUALIZAR + OPTIMIZAR (recomendado)"
-    echo " 2) Estado completo"
-    echo " 3) Autoprueba completa"
-    echo " 4) Cambiar puerto BHTTP principal (si existe)"
-    echo " 5) Cambiar puerto SSH backend"
-    echo " 6) Ajustar máximo de sesiones"
-    echo " 7) Reaplicar HIGH PERFORMANCE + STABILITY"
-    echo " 8) Diagnóstico de capacidad SSH"
-    echo " 9) Reiniciar BHTTP"
-    echo "10) Ver logs"
-    echo "11) Iniciar BHTTP"
-    echo "12) Detener BHTTP"
-    echo "13) Abrir puerto en firewall local"
-    echo "14) Rollback del motor anterior"
-    echo "15) DESINSTALAR BHTTP"
-    echo "16) Abrir/agregar puerto BHTTP"
-    echo "17) Cerrar/eliminar puerto BHTTP"
-    echo " 0) Salir"
+    echo " 1) ${T[INSTALAR / ACTUALIZAR + OPTIMIZAR (recomendado]:-INSTALAR / ACTUALIZAR + OPTIMIZAR (recomendado})"
+    echo " 2) ${T[Estado completo]:-Estado completo}"
+    echo " 3) ${T[Autoprueba completa]:-Autoprueba completa}"
+    echo " 4) ${T[Cambiar puerto BHTTP principal (si existe]:-Cambiar puerto BHTTP principal (si existe})"
+    echo " 5) ${T[Cambiar puerto SSH backend]:-Cambiar puerto SSH backend}"
+    echo " 6) ${T[Ajustar máximo de sesiones]:-Ajustar máximo de sesiones}"
+    echo " 7) ${T[Reaplicar HIGH PERFORMANCE + STABILITY]:-Reaplicar HIGH PERFORMANCE + STABILITY}"
+    echo " 8) ${T[Diagnóstico de capacidad SSH]:-Diagnóstico de capacidad SSH}"
+    echo " 9) ${T[Reiniciar BHTTP]:-Reiniciar BHTTP}"
+    echo "10) ${T[Ver logs]:-Ver logs}"
+    echo "11) ${T[Iniciar BHTTP]:-Iniciar BHTTP}"
+    echo "12) ${T[Detener BHTTP]:-Detener BHTTP}"
+    echo "13) ${T[Abrir puerto en firewall local]:-Abrir puerto en firewall local}"
+    echo "14) ${T[Rollback del motor anterior]:-Rollback del motor anterior}"
+    echo "15) ${T[DESINSTALAR BHTTP]:-DESINSTALAR BHTTP}"
+    echo "16) ${T[Abrir/agregar puerto BHTTP]:-Abrir/agregar puerto BHTTP}"
+    echo "17) ${T[Cerrar/eliminar puerto BHTTP]:-Cerrar/eliminar puerto BHTTP}"
+    echo " 0) ${T[Salir]:-Salir}"
     echo
-    local op; prompt_read op "Opción: "
+    local op; prompt_read op "${T[Opción]:-Opción}: "
     case "$op" in
       1) install_or_update; pause;;
       2) status_all; pause;;
@@ -886,7 +901,7 @@ menu(){
       16) add_extra_port; pause;;
       17) close_extra_port; pause;;
       0) exit 0;;
-      *) echo "Opción inválida"; sleep .5;;
+      *) echo "${T[Opción inválida]:-Opción inválida}"; sleep .5;;
     esac
   done
 }

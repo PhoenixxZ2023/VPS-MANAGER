@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo: Gestor de Firewall y Seguridad
 # ==========================================
@@ -6,18 +21,18 @@ C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "${C_GREEN}        GESTOR DE FIREWALL (IPTABLES / UFW)${C_NC}"
+echo -e "${C_GREEN}        ${T[GESTOR DE FIREWALL (IPTABLES / UFW]:-GESTOR DE FIREWALL (IPTABLES / UFW})${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "  ${C_YELLOW}1.${C_NC} 🔓 Abrir Todos los Puertos del Panel (Recomendado)"
-echo -e "  ${C_YELLOW}2.${C_NC} 🚫 Bloquear Tráfico Torrent / P2P (Evitar Baneos)"
-echo -e "  ${C_YELLOW}3.${C_NC} 🧹 Limpiar todas las reglas (Reset Firewall)"
-echo -e "  ${C_RED}0.${C_NC} 🚪 Salir"
+echo -e "  ${C_YELLOW}1.${C_NC} 🔓 ${T[Abrir Todos los Puertos del Panel (Recomendado]:-Abrir Todos los Puertos del Panel (Recomendado})"
+echo -e "  ${C_YELLOW}2.${C_NC} 🚫 ${T[Bloquear Tráfico Torrent / P2P (Evitar Baneos]:-Bloquear Tráfico Torrent / P2P (Evitar Baneos})"
+echo -e "  ${C_YELLOW}3.${C_NC} 🧹 ${T[Limpiar todas las reglas (Reset Firewall]:-Limpiar todas las reglas (Reset Firewall})"
+echo -e "  ${C_RED}0.${C_NC} 🚪 ${T[Salir]:-Salir}"
 echo -e "${C_CYAN}================================================${C_NC}"
-read -p "Seleccione una opción: " optfw
+read -p "${T[Seleccione una opción]:-Seleccione una opción}: " optfw
 
 case $optfw in
     1)
-        echo -e "${C_YELLOW}[+] Abriendo puertos TCP y UDP...${C_NC}"
+        echo -e "${C_YELLOW}[+] ${T[Abriendo puertos TCP y UDP]:-Abriendo puertos TCP y UDP}...${C_NC}"
         apt install iptables-persistent ufw -y >/dev/null 2>&1
         # Puertos TCP (SSH, Web, Xray, OpenVPN, BHTTP, CheckUser)
         for port in 22 80 443 2081 2083 8080 8880 8181 7300 7200 5432; do
@@ -33,27 +48,27 @@ case $optfw in
         iptables -I INPUT -p udp --dport 6000:19999 -j ACCEPT
         ufw allow 6000:19999/udp >/dev/null 2>&1
         iptables-save > /etc/iptables.up.rules
-        echo -e "${C_GREEN}[✔] ¡Todos los puertos del panel están abiertos y seguros!${C_NC}"
+        echo -e "${C_GREEN}[✔] ${T[¡Todos los puertos del panel están abiertos y seguros]:-¡Todos los puertos del panel están abiertos y seguros}!${C_NC}"
         ;;
     2)
-        echo -e "${C_YELLOW}[+] Aplicando reglas Anti-Torrent y P2P...${C_NC}"
+        echo -e "${C_YELLOW}[+] ${T[Aplicando reglas Anti-Torrent y P2P]:-Aplicando reglas Anti-Torrent y P2P}...${C_NC}"
         iptables -A FORWARD -m string --algo bm --string "BitTorrent" -j DROP
         iptables -A FORWARD -m string --algo bm --string "BitTorrent protocol" -j DROP
         iptables -A FORWARD -m string --algo bm --string "peer_id=" -j DROP
         iptables -A FORWARD -m string --algo bm --string ".torrent" -j DROP
         iptables -A FORWARD -m string --algo bm --string "announce.php?passkey=" -j DROP
         iptables-save > /etc/iptables.up.rules
-        echo -e "${C_GREEN}[✔] ¡Tráfico Torrent y Spam bloqueado exitosamente!${C_NC}"
+        echo -e "${C_GREEN}[✔] ${T[¡Tráfico Torrent y Spam bloqueado exitosamente]:-¡Tráfico Torrent y Spam bloqueado exitosamente}!${C_NC}"
         ;;
     3)
-        echo -e "${C_YELLOW}[+] Limpiando Firewall...${C_NC}"
+        echo -e "${C_YELLOW}[+] ${T[Limpiando Firewall]:-Limpiando Firewall}...${C_NC}"
         iptables -F
         iptables -X
         iptables -P INPUT ACCEPT
         iptables -P FORWARD ACCEPT
         iptables -P OUTPUT ACCEPT
         iptables-save > /etc/iptables.up.rules
-        echo -e "${C_GREEN}[✔] ¡Firewall reseteado y libre!${C_NC}"
+        echo -e "${C_GREEN}[✔] ${T[¡Firewall reseteado y libre]:-¡Firewall reseteado y libre}!${C_NC}"
         ;;
 esac
-read -p "Presione Enter para regresar..."
+read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."

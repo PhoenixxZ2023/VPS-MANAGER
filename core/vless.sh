@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo Unificado: VLESS (XRAY)
 # Puerto: 443 (solo TLS, sin puerto 80)
@@ -23,28 +38,28 @@ FLAG_FILE="/etc/vps-manager/xray_dual_ok"
 
 instalar_xray_dual() {
     clear
-    cabecera "INSTALACIÓN XRAY (SOLO TLS 443)"
+    cabecera "${T[INSTALACIÓN XRAY (SOLO TLS]:-INSTALACIÓN XRAY (SOLO TLS} 443)"
     
-    read -p "Ingresa tu dominio (Ej: centrix.golbertvps.online): " DOMINIO
-    if [ -z "$DOMINIO" ]; then echo -e "${C_RED}[!] Dominio inválido.${C_RST}"; sleep 2; return; fi
+    read -p "${T[Ingresa tu dominio (Ej: centrix.golbertvps.online]:-Ingresa tu dominio (Ej: centrix.golbertvps.online}): " DOMINIO
+    if [ -z "$DOMINIO" ]; then echo -e "${C_RED}[!] ${T[Dominio inválido]:-Dominio inválido}.${C_RST}"; sleep 2; return; fi
     mkdir -p /etc/vps-manager
     echo "$DOMINIO" > $DOM_FILE
 
-    echo -e "${C_YELLOW}[+] Instalando dependencias y núcleo Xray...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Instalando dependencias y núcleo Xray]:-Instalando dependencias y núcleo Xray}...${C_RST}"
     apt update -y >/dev/null 2>&1
     apt install -y certbot jq uuid-runtime curl iptables ufw psmisc openssl python3 >/dev/null 2>&1
     bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install >/dev/null 2>&1
 
-    echo -e "${C_YELLOW}[+] Liberando puerto 443...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Liberando puerto]:-Liberando puerto} 443...${C_RST}"
     systemctl stop nginx apache2 haproxy xray 2>/dev/null
     fuser -k 443/tcp 2>/dev/null
 
     mkdir -p $XRAY_DIR
-    echo -e "${C_YELLOW}[+] Configurando Certificado SSL para puerto 443...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Configurando Certificado SSL para puerto]:-Configurando Certificado SSL para puerto} 443...${C_RST}"
     if [ ! -f "/etc/letsencrypt/live/$DOMINIO/fullchain.pem" ]; then
         # Let's Encrypt valida por el puerto 80 solo al emitir; Xray ya no lo usa.
         if ss -ltnH 'sport = :80' 2>/dev/null | grep -q .; then
-            echo -e "${C_RED}[!] El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let's Encrypt.${C_RST}"
+            echo -e "${C_RED}[!] ${T[El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let's Encrypt]:-El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let's Encrypt}.${C_RST}"
         else
             certbot certonly --standalone -d "$DOMINIO" --non-interactive --agree-tos -m "admin@$DOMINIO" >/dev/null 2>&1
         fi
@@ -54,14 +69,14 @@ instalar_xray_dual() {
         cp /etc/letsencrypt/live/$DOMINIO/fullchain.pem $XRAY_DIR/server.crt
         cp /etc/letsencrypt/live/$DOMINIO/privkey.pem $XRAY_DIR/server.key
     else
-        echo -e "${C_YELLOW}[!] Generando certificado SSL autofirmado de respaldo...${C_RST}"
+        echo -e "${C_YELLOW}[!] ${T[Generando certificado SSL autofirmado de respaldo]:-Generando certificado SSL autofirmado de respaldo}...${C_RST}"
         openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
             -keyout $XRAY_DIR/server.key -out $XRAY_DIR/server.crt \
             -subj "/C=PE/ST=Lima/L=Lima/O=VPS/CN=$DOMINIO" >/dev/null 2>&1
     fi
     chmod 644 $XRAY_DIR/server.crt $XRAY_DIR/server.key
 
-    echo -e "${C_YELLOW}[+] Aplicando permisos root y estructura TLS (443)...${C_RST}"
+    echo -e "${C_YELLOW}[+] ${T[Aplicando permisos root y estructura TLS]:-Aplicando permisos root y estructura TLS} (443)...${C_RST}"
     sed -i 's/User=nobody/User=root/g' /etc/systemd/system/xray.service 2>/dev/null
     systemctl daemon-reload
 
@@ -145,7 +160,7 @@ EOF
     python3 /etc/vps-manager/v2ray_ctl.py restore
     systemctl restart xray
     touch $FLAG_FILE
-    echo -e "${C_GREEN}[✔] ¡Puerto 443 (TLS) activo para VLESS y VMess!${C_RST}"
+    echo -e "${C_GREEN}[✔] ${T[¡Puerto 443 (TLS) activo para VLESS y VMess]:-¡Puerto 443 (TLS) activo para VLESS y VMess}!${C_RST}"
     sleep 2
 }
 
@@ -817,7 +832,7 @@ asegurar_cron() {
 }
 
 mostrar_cuentas() {
-    echo -e "  ${C_NEON_GREEN}Cuentas actuales:${C_RST}"
+    echo -e "  ${C_NEON_GREEN}${T[Cuentas actuales]:-Cuentas actuales}:${C_RST}"
     ctl list "$PROTO"
     echo -e "${C_NEON_BLUE}${LINEA}${C_RST}"
 }
@@ -829,77 +844,77 @@ menu_vless() {
         ctl purge >/dev/null 2>&1
         clear
         echo -e "${C_NEON_BLUE}╔${LINEA}╗${C_RST}"
-        echo -e "${C_NEON_BLUE}  ${C_NEON_YELLOW}GESTION DE VLESS (443 TLS)${C_RST}"
+        echo -e "${C_NEON_BLUE}  ${C_NEON_YELLOW}${T[GESTION DE VLESS (443 TLS]:-GESTION DE VLESS (443 TLS})${C_RST}"
         echo -e "${C_NEON_BLUE}╠${LINEA}╣${C_RST}"
-        echo -e "  ${C_NEON_YELLOW}1.${C_RST} Crear Cuenta Vless"
-        echo -e "  ${C_NEON_YELLOW}2.${C_RST} Eliminar Cuenta Vless"
-        echo -e "  ${C_NEON_YELLOW}3.${C_RST} Renovar Días de Cuenta"
-        echo -e "  ${C_NEON_YELLOW}4.${C_RST} Bloquear / Desbloquear Cuenta"
-        echo -e "  ${C_NEON_YELLOW}5.${C_RST} Configurar Límite de Dispositivos"
-        echo -e "  ${C_NEON_YELLOW}6.${C_RST} Reinstalar / Reparar Motor Xray"
+        echo -e "  ${C_NEON_YELLOW}1.${C_RST} ${T[Crear Cuenta Vless]:-Crear Cuenta Vless}"
+        echo -e "  ${C_NEON_YELLOW}2.${C_RST} ${T[Eliminar Cuenta Vless]:-Eliminar Cuenta Vless}"
+        echo -e "  ${C_NEON_YELLOW}3.${C_RST} ${T[Renovar Días de Cuenta]:-Renovar Días de Cuenta}"
+        echo -e "  ${C_NEON_YELLOW}4.${C_RST} ${T[Bloquear / Desbloquear Cuenta]:-Bloquear / Desbloquear Cuenta}"
+        echo -e "  ${C_NEON_YELLOW}5.${C_RST} ${T[Configurar Límite de Dispositivos]:-Configurar Límite de Dispositivos}"
+        echo -e "  ${C_NEON_YELLOW}6.${C_RST} ${T[Reinstalar / Reparar Motor Xray]:-Reinstalar / Reparar Motor Xray}"
         echo -e "${C_NEON_BLUE}╠${LINEA}╣${C_RST}"
-        echo -e "  ${C_RED}0.${C_RST} Salir del Gestor"
+        echo -e "  ${C_RED}0.${C_RST} ${T[Salir del Gestor]:-Salir del Gestor}"
         echo -e "${C_NEON_BLUE}╚${LINEA}╝${C_RST}"
-        echo -n -e "${C_YELLOW}Seleccione una opción:${C_RST} "
+        echo -n -e "${C_YELLOW}${T[Seleccione una opción]:-Seleccione una opción}:${C_RST} "
         read opc
 
         case $opc in
             1)
                 clear
-                cabecera "CREAR USUARIO XRAY VLESS"
-                read -p "Nombre de usuario: " user
+                cabecera "${T[CREAR USUARIO XRAY VLESS]:-CREAR USUARIO XRAY VLESS}"
+                read -p "${T[Nombre de usuario]:-Nombre de usuario}: " user
                 [ -z "$user" ] && continue
-                read -p "Duración (días): " dias
+                read -p "${T[Duración (días]:-Duración (días}): " dias
                 clear
                 if ctl add "$PROTO" "$user" "$dias"; then
-                    read -p "¿Mostrar código QR (TLS) en pantalla? [s/N]: " q
+                    read -p "${T[¿Mostrar código QR (TLS) en pantalla]:-¿Mostrar código QR (TLS) en pantalla}? [s/N]: " q
                     if [[ "$q" =~ ^[sS]$ ]]; then ctl qr "$PROTO" "$user" tls; fi
                 fi
-                read -p "Presiona ENTER para volver al menú " foo
+                read -p "${T[Presiona ENTER para volver al menú]:-Presiona ENTER para volver al menú} " foo
                 ;;
             2)
                 clear
-                cabecera "ELIMINAR USUARIO XRAY VLESS"
+                cabecera "${T[ELIMINAR USUARIO XRAY VLESS]:-ELIMINAR USUARIO XRAY VLESS}"
                 mostrar_cuentas
-                read -p "Usuario a eliminar: " user
+                read -p "${T[Usuario a eliminar]:-Usuario a eliminar}: " user
                 [ -z "$user" ] && continue
                 ctl del "$PROTO" "$user"
-                read -p "Presiona ENTER para continuar..." foo
+                read -p "${T[Presiona ENTER para continuar]:-Presiona ENTER para continuar}..." foo
                 ;;
             3)
                 clear
                 cabecera "RENOVAR CUENTA XRAY VLESS"
                 mostrar_cuentas
-                read -p "Nombre del usuario a renovar: " user
-                read -p "Días a sumar: " dias_extras
+                read -p "${T[Nombre del usuario a renovar]:-Nombre del usuario a renovar}: " user
+                read -p "${T[Días a sumar]:-Días a sumar}: " dias_extras
                 { [ -z "$user" ] || [ -z "$dias_extras" ]; } && continue
                 ctl renew "$PROTO" "$user" "$dias_extras"
-                read -p "Presiona ENTER para continuar..." foo
+                read -p "${T[Presiona ENTER para continuar]:-Presiona ENTER para continuar}..." foo
                 ;;
             4)
                 clear
-                cabecera "BLOQUEAR / DESBLOQUEAR USUARIO"
+                cabecera "${T[BLOQUEAR / DESBLOQUEAR USUARIO]:-BLOQUEAR / DESBLOQUEAR USUARIO}"
                 mostrar_cuentas
-                read -p "Nombre del usuario: " user
+                read -p "${T[Nombre del usuario]:-Nombre del usuario}: " user
                 [ -z "$user" ] && continue
                 ctl block "$PROTO" "$user"
-                read -p "Presiona ENTER para continuar..." foo
+                read -p "${T[Presiona ENTER para continuar]:-Presiona ENTER para continuar}..." foo
                 ;;
             5)
                 clear
-                cabecera "LÍMITE DE DISPOSITIVOS (IPs)"
-                read -p "Nombre del usuario: " user
-                read -p "Máximo de dispositivos permitidos: " max_disp
+                cabecera "${T[LÍMITE DE DISPOSITIVOS (IPs]:-LÍMITE DE DISPOSITIVOS (IPs})"
+                read -p "${T[Nombre del usuario]:-Nombre del usuario}: " user
+                read -p "${T[Máximo de dispositivos permitidos]:-Máximo de dispositivos permitidos}: " max_disp
                 { [ -z "$user" ] || [ -z "$max_disp" ]; } && continue
                 if ! [[ "$user" =~ ^[A-Za-z0-9._-]{1,40}$ ]] || ! [[ "$max_disp" =~ ^[0-9]+$ ]]; then
-                    echo -e "${C_RED}[!] Datos inválidos.${C_RST}"; read -p "ENTER..." foo; continue
+                    echo -e "${C_RED}[!] ${T[Datos inválidos]:-Datos inválidos}.${C_RST}"; read -p "ENTER..." foo; continue
                 fi
                 mkdir -p /etc/vps-manager
                 [ -f "$LIMIT_FILE" ] && sed -i "/^$user /d" "$LIMIT_FILE"
                 echo "$user $max_disp" >> "$LIMIT_FILE"
-                echo -e "${C_GREEN}[✔] Límite de $max_disp dispositivos registrado para $user.${C_RST}"
-                echo -e "${C_YELLOW}[i] Xray no aplica este límite por sí solo: solo queda anotado.${C_RST}"
-                read -p "Presiona ENTER para continuar..." foo
+                echo -e "${C_GREEN}[✔] ${T[Límite de]:-Límite de} $max_disp ${T[dispositivos registrado para]:-dispositivos registrado para} $user.${C_RST}"
+                echo -e "${C_YELLOW}[i] ${T[Xray no aplica este límite por sí solo: solo queda anotado]:-Xray no aplica este límite por sí solo: solo queda anotado}.${C_RST}"
+                read -p "${T[Presiona ENTER para continuar]:-Presiona ENTER para continuar}..." foo
                 ;;
             6)
                 instalar_xray_dual

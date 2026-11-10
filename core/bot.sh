@@ -1,4 +1,19 @@
 #!/bin/bash
+# ── i18n (es / en / pt-BR): os textos usam T/TP; com idioma "pt" mostram a tradução, senão o texto original ──
+declare -A T=() TP=()
+PT_B=$'\033[1m'; PT_N=$'\033[22m'
+load_lang() {
+    SYS_LANG=$(cat /etc/vps-manager/lang 2>/dev/null || echo "pt")
+    [ "$SYS_LANG" = "${_T_LOADED:-}" ] && return 0
+    T=(); TP=(); _T_LOADED="$SYS_LANG"
+    [ "$SYS_LANG" = "pt" ] && [ -r /etc/vps-manager/i18n/pt-BR.tsv ] || return 0
+    local k v
+    while IFS=$'\t' read -r k v; do
+        [ -n "$k" ] || continue
+        T["$k"]="${PT_B}${v}${PT_N}"; TP["$k"]="$v"
+    done < /etc/vps-manager/i18n/pt-BR.tsv
+}
+load_lang
 # ==========================================
 # Módulo: Bot de Telegram (Vendedores + SSH + VLESS/VMess)
 # Versión final con validaciones y rollback
@@ -14,36 +29,36 @@ chmod 600 "$BOT_DIR/resellers.txt" "$LOG_FILE"
 
 clear
 echo -e "${C_CYAN}================================================${C_NC}"
-echo -e "${C_GREEN}   BOT TELEGRAM (VENDEDORES + SSH + V2RAY)     ${C_NC}"
+echo -e "${C_GREEN}   ${T[BOT TELEGRAM (VENDEDORES + SSH + V2RAY]:-BOT TELEGRAM (VENDEDORES + SSH + V2RAY})     ${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
 
 # ---------- Configuración ----------
 if [ -f "$BOT_DIR/config.env" ]; then
-    echo -e "${C_YELLOW}[+] Bot ya configurado.${C_NC}"
-    read -p "¿Deseas reconfigurar Token y Admin ID? (s/n): " reconf
+    echo -e "${C_YELLOW}[+] ${T[Bot ya configurado]:-Bot ya configurado}.${C_NC}"
+    read -p "${T[¿Deseas reconfigurar Token y Admin ID? (s/n]:-¿Deseas reconfigurar Token y Admin ID? (s/n}): " reconf
     if [[ "$reconf" =~ ^[sS]$ ]]; then
         rm -f "$BOT_DIR/config.env"
     else
-        echo -e "${C_GREEN}Manteniendo configuración actual.${C_NC}"
+        echo -e "${C_GREEN}${T[Manteniendo configuración actual]:-Manteniendo configuración actual}.${C_NC}"
     fi
 fi
 
 if [ ! -f "$BOT_DIR/config.env" ]; then
     while true; do
-        read -p "Ingresa el Token del Bot: " TELEGRAM_TOKEN
+        read -p "${T[Ingresa el Token del Bot]:-Ingresa el Token del Bot}: " TELEGRAM_TOKEN
         TELEGRAM_TOKEN=$(echo "$TELEGRAM_TOKEN" | tr -d ' "'"'"'')
         if [[ "$TELEGRAM_TOKEN" =~ ^[0-9]{6,}:[A-Za-z0-9_-]{30,}$ ]]; then
             break
         fi
-        echo -e "${C_RED}[!] Token inválido. Formato: 123456789:AAxxxx...${C_NC}"
+        echo -e "${C_RED}[!] ${T[Token inválido. Formato: 123456789:AAxxxx]:-Token inválido. Formato: 123456789:AAxxxx}...${C_NC}"
     done
     while true; do
-        read -p "Ingresa tu Admin ID de Telegram (solo números): " ADMIN_ID
+        read -p "${T[Ingresa tu Admin ID de Telegram (solo números]:-Ingresa tu Admin ID de Telegram (solo números}): " ADMIN_ID
         ADMIN_ID=$(echo "$ADMIN_ID" | tr -d ' "')
         if [[ "$ADMIN_ID" =~ ^[0-9]{5,20}$ ]]; then
             break
         fi
-        echo -e "${C_RED}[!] Admin ID inválido.${C_NC}"
+        echo -e "${C_RED}[!] ${T[Admin ID inválido]:-Admin ID inválido}.${C_NC}"
     done
     {
         echo "TOKEN=\"$TELEGRAM_TOKEN\""
@@ -721,7 +736,7 @@ systemctl daemon-reload
 systemctl enable vps-bot >/dev/null 2>&1
 systemctl restart vps-bot
 
-echo -e "\n${C_GREEN}[✔] Bot instalado con SSH + VLESS + VMess y arrancado.${C_NC}"
+echo -e "\n${C_GREEN}[✔] ${T[Bot instalado con SSH + VLESS + VMess y arrancado]:-Bot instalado con SSH + VLESS + VMess y arrancado}.${C_NC}"
 echo -e "${C_YELLOW}Log:   ${LOG_FILE}${C_NC}"
-echo -e "${C_YELLOW}Estado: systemctl status vps-bot${C_NC}"
-read -p "Presione Enter para regresar..."
+echo -e "${C_YELLOW}${T[Estado: systemctl status vps-bot]:-Estado: systemctl status vps-bot}${C_NC}"
+read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."
