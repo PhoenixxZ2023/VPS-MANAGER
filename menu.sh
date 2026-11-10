@@ -675,7 +675,7 @@ EXTRA_PORTS=
 EXTRA_UFW_PORTS=
 EXTRA_FIREWALLD_PORTS=
 EOF
-            chmod 600 /etc/superflash-bhttp.conf /etc/superflash-bhttp/config
+            chmod 777 /etc/superflash-bhttp.conf /etc/superflash-bhttp/config
             
             cat > /etc/systemd/system/superflash-bhttp.service << EOF
 [Unit]
