@@ -59,7 +59,7 @@ instalar_xray_dual() {
     if [ ! -f "/etc/letsencrypt/live/$DOMINIO/fullchain.pem" ]; then
         # Let's Encrypt valida por el puerto 80 solo al emitir; Xray ya no lo usa.
         if ss -ltnH 'sport = :80' 2>/dev/null | grep -q .; then
-            echo -e "${C_RED}[!] ${T[El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let's Encrypt]:-El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let's Encrypt}.${C_RST}"
+            echo -e "${C_RED}[!] ${T[El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let]:-El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let}'s Encrypt.${C_RST}"
         else
             certbot certonly --standalone -d "$DOMINIO" --non-interactive --agree-tos -m "admin@$DOMINIO" >/dev/null 2>&1
         fi
@@ -175,6 +175,93 @@ instalar_ctl() {
 # -*- coding: utf-8 -*-
 """v2ray_ctl: registro compartido (v2ray_users.json) + config de Xray.
 Lo usan vmess.sh, vless.sh y el panel web (mismo archivo y mismo bloqueo)."""
+# ── i18n pt-BR (somente exibição; catálogo: /etc/vps-manager/i18n/pt-BR.py.tsv) ──
+import re as _pt_re, os as _pt_os
+_PT_STATE = {'k': None, 'd': {}, 'rx': None}
+def _pt_ready():
+    try:
+        lm = _pt_os.stat('/etc/vps-manager/lang').st_mtime
+        tm = _pt_os.stat('/etc/vps-manager/i18n/pt-BR.py.tsv').st_mtime
+    except OSError:
+        _PT_STATE.update(k=None, d={}, rx=None)
+        return False
+    if _PT_STATE['k'] != (lm, tm):
+        d = {}
+        try:
+            if open('/etc/vps-manager/lang').read().strip() == 'pt':
+                for ln in open('/etc/vps-manager/i18n/pt-BR.py.tsv', encoding='utf-8'):
+                    k, _, v = ln.rstrip('\n').partition('\t')
+                    if k and v:
+                        d[k] = v
+        except Exception:
+            d = {}
+        pats = [(r'(?<!\w)' if k[0].isalnum() else '') + _pt_re.escape(k) + (r'(?!\w)' if k[-1].isalnum() else '')
+                for k in sorted(d, key=len, reverse=True)]
+        _PT_STATE.update(k=(lm, tm), d=d, rx=(_pt_re.compile('|'.join(pats)) if pats else None))
+    return bool(_PT_STATE['rx'])
+def pt_text(s, mode='plain'):
+    if not isinstance(s, str) or not _pt_ready():
+        return s
+    d = _PT_STATE['d']
+    if mode == 'ansi':
+        f = lambda m: '\033[1m' + d[m.group(0)] + '\033[22m'
+    elif mode == 'bold':
+        f = lambda m: '<b>' + d[m.group(0)] + '</b>'
+    else:
+        f = lambda m: d[m.group(0)]
+    return _PT_STATE['rx'].sub(f, s)
+def pt_tg(s):
+    """Telegram (HTML): traduz só o texto fora de <code>/<pre>/<a>; negrito sem aninhar <b>."""
+    if not isinstance(s, str) or not _pt_ready():
+        return s
+    out, skip, bold = [], 0, 0
+    for p in _pt_re.split(r'(<[^>]+>)', s):
+        if p.startswith('<'):
+            m = _pt_re.match(r'<(/?)(code|pre|a)\b', p, _pt_re.I)
+            if m:
+                skip += -1 if m.group(1) else 1
+            m = _pt_re.match(r'<(/?)(b|strong)\b', p, _pt_re.I)
+            if m:
+                bold += -1 if m.group(1) else 1
+            out.append(p)
+        elif skip > 0 or not p:
+            out.append(p)
+        else:
+            out.append(pt_text(p, 'plain' if bold > 0 else 'bold'))
+    return ''.join(out)
+def pt_html(s):
+    """Painel web: texto, atributos (placeholder/title/alt/aria-label/onclick) e literais de string do JS; negrito via CSS."""
+    if not isinstance(s, str) or not _pt_ready():
+        return s
+    js = lambda t: _pt_re.sub(r"'(?:[^'\\\n]|\\.)*'|\"(?:[^\"\\\n]|\\.)*\"|`[^`]*`", lambda m: pt_text(m.group(0)), t)
+    attrs = lambda t: _pt_re.sub(r'\b(placeholder|title|alt|aria-label|onclick)=("[^"]*"|\'[^\']*\')', lambda m: m.group(1) + '=' + pt_text(m.group(2)), t)
+    out = []
+    for p in _pt_re.split(r'(<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<[^>]+>)', s, flags=_pt_re.S | _pt_re.I):
+        if not p:
+            continue
+        if p[0] == '<':
+            m = _pt_re.match(r'(<script\b[^>]*>)(.*?)(</script>)$', p, _pt_re.S | _pt_re.I)
+            if m:
+                out.append(m.group(1) + js(m.group(2)) + m.group(3))
+            elif p[:6].lower() == '<style':
+                out.append(p)
+            else:
+                out.append(attrs(p))
+        else:
+            out.append(pt_text(p))
+    r = ''.join(out)
+    return r.replace('</head>', '<style>body,input,button,select,textarea{font-weight:700}</style></head>', 1)
+import sys as _pt_sys
+_pt_print = print
+def print(*a, **k):
+    f = k.get('file') or _pt_sys.stdout
+    try:
+        tty = f.isatty()
+    except Exception:
+        tty = False
+    if tty:
+        a = [pt_text(x, 'ansi') for x in a]
+    _pt_print(*a, **k)
 import sys, os, json, re, uuid as _uuid, base64, subprocess, tempfile, fcntl, time, shutil
 from datetime import date, datetime, timedelta
 from urllib.parse import quote

@@ -68,7 +68,7 @@ EOF
 echo -e "\n${C_CYAN}================================================${C_NC}"
 echo -e " 🔑 ${C_GREEN}${T[CONFIGURACIÓN DE CONTRASEÑA (ZIVPN]:-CONFIGURACIÓN DE CONTRASEÑA (ZIVPN})${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-read -p "${T[Ingresa las contraseñas separadas por comas (Ej: pass1,pass]:-Ingresa las contraseñas separadas por comas (Ej: pass1,pass}2) [${T[Enter para usar 'zi]:-Enter para usar 'zi}']: " input_config
+read -p "${T[Ingresa las contraseñas separadas por comas (Ej: pass1,pass]:-Ingresa las contraseñas separadas por comas (Ej: pass1,pass}2) [${T[Enter para usar]:-Enter para usar} 'zi']: " input_config
 
 if [ -n "$input_config" ]; then
     IFS=',' read -r -a config <<< "$input_config"

@@ -156,7 +156,95 @@ def load_config() -> tuple[str, str]:
     return token, admin
 
 TOKEN, ADMIN_ID = load_config()
+# ── i18n pt-BR (somente exibição; catálogo: /etc/vps-manager/i18n/pt-BR.py.tsv) ──
+import re as _pt_re, os as _pt_os
+_PT_STATE = {'k': None, 'd': {}, 'rx': None}
+def _pt_ready():
+    try:
+        lm = _pt_os.stat('/etc/vps-manager/lang').st_mtime
+        tm = _pt_os.stat('/etc/vps-manager/i18n/pt-BR.py.tsv').st_mtime
+    except OSError:
+        _PT_STATE.update(k=None, d={}, rx=None)
+        return False
+    if _PT_STATE['k'] != (lm, tm):
+        d = {}
+        try:
+            if open('/etc/vps-manager/lang').read().strip() == 'pt':
+                for ln in open('/etc/vps-manager/i18n/pt-BR.py.tsv', encoding='utf-8'):
+                    k, _, v = ln.rstrip('\n').partition('\t')
+                    if k and v:
+                        d[k] = v
+        except Exception:
+            d = {}
+        pats = [(r'(?<!\w)' if k[0].isalnum() else '') + _pt_re.escape(k) + (r'(?!\w)' if k[-1].isalnum() else '')
+                for k in sorted(d, key=len, reverse=True)]
+        _PT_STATE.update(k=(lm, tm), d=d, rx=(_pt_re.compile('|'.join(pats)) if pats else None))
+    return bool(_PT_STATE['rx'])
+def pt_text(s, mode='plain'):
+    if not isinstance(s, str) or not _pt_ready():
+        return s
+    d = _PT_STATE['d']
+    if mode == 'ansi':
+        f = lambda m: '\033[1m' + d[m.group(0)] + '\033[22m'
+    elif mode == 'bold':
+        f = lambda m: '<b>' + d[m.group(0)] + '</b>'
+    else:
+        f = lambda m: d[m.group(0)]
+    return _PT_STATE['rx'].sub(f, s)
+def pt_tg(s):
+    """Telegram (HTML): traduz só o texto fora de <code>/<pre>/<a>; negrito sem aninhar <b>."""
+    if not isinstance(s, str) or not _pt_ready():
+        return s
+    out, skip, bold = [], 0, 0
+    for p in _pt_re.split(r'(<[^>]+>)', s):
+        if p.startswith('<'):
+            m = _pt_re.match(r'<(/?)(code|pre|a)\b', p, _pt_re.I)
+            if m:
+                skip += -1 if m.group(1) else 1
+            m = _pt_re.match(r'<(/?)(b|strong)\b', p, _pt_re.I)
+            if m:
+                bold += -1 if m.group(1) else 1
+            out.append(p)
+        elif skip > 0 or not p:
+            out.append(p)
+        else:
+            out.append(pt_text(p, 'plain' if bold > 0 else 'bold'))
+    return ''.join(out)
+def pt_html(s):
+    """Painel web: texto, atributos (placeholder/title/alt/aria-label/onclick) e literais de string do JS; negrito via CSS."""
+    if not isinstance(s, str) or not _pt_ready():
+        return s
+    js = lambda t: _pt_re.sub(r"'(?:[^'\\\n]|\\.)*'|\"(?:[^\"\\\n]|\\.)*\"|`[^`]*`", lambda m: pt_text(m.group(0)), t)
+    attrs = lambda t: _pt_re.sub(r'\b(placeholder|title|alt|aria-label|onclick)=("[^"]*"|\'[^\']*\')', lambda m: m.group(1) + '=' + pt_text(m.group(2)), t)
+    out = []
+    for p in _pt_re.split(r'(<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<[^>]+>)', s, flags=_pt_re.S | _pt_re.I):
+        if not p:
+            continue
+        if p[0] == '<':
+            m = _pt_re.match(r'(<script\b[^>]*>)(.*?)(</script>)$', p, _pt_re.S | _pt_re.I)
+            if m:
+                out.append(m.group(1) + js(m.group(2)) + m.group(3))
+            elif p[:6].lower() == '<style':
+                out.append(p)
+            else:
+                out.append(attrs(p))
+        else:
+            out.append(pt_text(p))
+    r = ''.join(out)
+    return r.replace('</head>', '<style>body,input,button,select,textarea{font-weight:700}</style></head>', 1)
 bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
+_pt_reply_to = bot.reply_to
+def _pt_reply(message, text, *a, **k):
+    return _pt_reply_to(message, pt_tg(text), *a, **k)
+bot.reply_to = _pt_reply
+_PT_BTNS = ["👤 Crear SSH", "❌ Eliminar SSH", "🛡️ Crear VLESS", "🛡️ Crear VMess", "📋 Lista SSH", "👥 Panel Vendedores", "📊 Info Servidor", "💰 Mis Créditos"]
+def _btn(s):
+    return pt_text(s, 'plain')
+def _btn_rev(s):
+    for b in _PT_BTNS:
+        if pt_text(b, 'plain') == s:
+            return b
+    return s
 
 # ---------- Resellers ----------
 def load_resellers() -> dict:
@@ -339,15 +427,15 @@ def send_welcome(message):
     uid = str(message.from_user.id)
     if is_admin(uid):
         markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-        markup.add("👤 Crear SSH", "❌ Eliminar SSH")
-        markup.add("🛡️ Crear VLESS", "🛡️ Crear VMess")
-        markup.add("📋 Lista SSH", "👥 Panel Vendedores")
-        markup.add("📊 Info Servidor")
+        markup.add(*map(_btn, ("👤 Crear SSH", "❌ Eliminar SSH",)))
+        markup.add(*map(_btn, ("🛡️ Crear VLESS", "🛡️ Crear VMess",)))
+        markup.add(*map(_btn, ("📋 Lista SSH", "👥 Panel Vendedores",)))
+        markup.add(*map(_btn, ("📊 Info Servidor",)))
         bot.reply_to(message, "👑 <b>Panel ADMIN VPS Activo</b>", reply_markup=markup)
     elif is_reseller(uid):
         markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-        markup.add("👤 Crear SSH", "🛡️ Crear VLESS")
-        markup.add("💰 Mis Créditos")
+        markup.add(*map(_btn, ("👤 Crear SSH", "🛡️ Crear VLESS",)))
+        markup.add(*map(_btn, ("💰 Mis Créditos",)))
         bot.reply_to(
             message,
             f"🤝 <b>Panel VENDEDOR Activo</b>\nCréditos: {get_credits(uid)}",
@@ -364,7 +452,7 @@ def handle_message(message):
     uid = str(message.from_user.id)
     if not (is_admin(uid) or is_reseller(uid)):
         return
-    text = message.text.strip()
+    text = _btn_rev(message.text.strip())
 
     # ========== ADMIN ==========
     if is_admin(uid):

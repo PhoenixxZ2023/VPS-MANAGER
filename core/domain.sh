@@ -27,7 +27,7 @@ tramitar_ssl() {
     systemctl stop nginx apache2 haproxy xray ws-python stunnel4 bhttp 2>/dev/null
     fuser -k 80/tcp 2>/dev/null
     
-    echo -e "${C_YELLOW}[+] ${T[Solicitando Certificado SSL Let's Encrypt para]:-Solicitando Certificado SSL Let's Encrypt para}: $dom${C_NC}"
+    echo -e "${C_YELLOW}[+] ${T[Solicitando Certificado SSL Let]:-Solicitando Certificado SSL Let}'${T[s Encrypt para]:-s Encrypt para}: $dom${C_NC}"
     apt install -y certbot >/dev/null 2>&1
     certbot certonly --standalone -d "$dom" --non-interactive --agree-tos -m "admin@$dom"
     

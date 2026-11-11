@@ -74,6 +74,7 @@ Banner Global guardado	BANNER GLOBAL SALVO
 Banner por Defecto	BANNER PADRÃO
 Bienvenido a VPS Manager	BEM-VINDO AO VPS MANAGER
 Bloqueadas ahora	BLOQUEADAS AGORA
+Bloqueado al Login	BLOQUEADO NO LOGIN
 Bloquear / Desbloquear Cuenta	BLOQUEAR / DESBLOQUEAR CONTA
 Bloquear Tráfico Torrent / P2P (Evitar Baneos	BLOQUEAR TRÁFEGO TORRENT / P2P (EVITAR BANIMENTOS
 Bloquear Usuario SSH	BLOQUEAR USUÁRIO SSH
@@ -135,7 +136,7 @@ Configurar Nuevo Subdominio y Certificar	CONFIGURAR NOVO SUBDOMÍNIO E CERTIFICA
 Congestión	CONGESTIONAMENTO
 Congestión TCP	CONGESTIONAMENTO TCP
 Contraseña	SENHA
-Contraseña (la misma que pusiste en Autenticación 'grey:grey' o similar	SENHA (A MESMA QUE VOCÊ COLOCOU EM AUTENTICAÇÃO 'grey:grey' OU SIMILAR
+Contraseña (la misma que pusiste en Autenticación	SENHA (A MESMA QUE VOCÊ COLOCOU EM AUTENTICAÇÃO
 Contraseña HWID (Global	SENHA HWID (GLOBAL
 Copia los datos y presiona Enter	COPIE OS DADOS E PRESSIONE ENTER
 Crea un Usuario Admin para el Web	CRIE UM USUÁRIO ADMIN PARA O WEB
@@ -197,7 +198,8 @@ Desinstalar CheckUser Multi-App	DESINSTALAR CHECKUSER MULTI-APP
 Desinstalar Fail2ban	DESINSTALAR FAIL2BAN
 Desinstalar SSL / TLS	DESINSTALAR SSL / TLS
 Desinstalar y Liberar Puerto	DESINSTALAR E LIBERAR PORTA
-Después entra a 'sudo bhttp' y usa la opción 16 para abrir los puertos que tú quieras	DEPOIS ENTRE EM 'sudo bhttp' E USE A OPÇÃO 16 PARA ABRIR AS PORTAS QUE QUISER
+Después de instalar también puedes usar	DEPOIS DE INSTALAR VOCÊ TAMBÉM PODE USAR
+Después entra a	DEPOIS ENTRE EM
 Destino	DESTINO
 Destino Proxy	DESTINO PROXY
 Destino SSH (HOST:PUERTO	DESTINO SSH (HOST:PORTA
@@ -239,7 +241,7 @@ Días	DIAS
 Días a sumar	DIAS A SOMAR
 ELIMINAR USUARIO XRAY VLESS	ELIMINAR USUÁRIO XRAY VLESS
 ELIMINAR USUARIO XRAY VMESS	ELIMINAR USUÁRIO XRAY VMESS
-ERROR CRÍTICO: El archivo 'hcr-server' no fue encontrado en GitHub	ERRO CRÍTICO: O ARQUIVO 'hcr-server' NÃO FOI ENCONTRADO NO GITHUB
+ERROR CRÍTICO: El archivo	ERRO CRÍTICO: O ARQUIVO
 ERROR CRÍTICO: El puerto	ERRO CRÍTICO: A PORTA
 ESTADO DE PUERTOS Y SERVICIOS	ESTADO DAS PORTAS E SERVIÇOS
 ESTADO E IPs BLOQUEADAS	ESTADO E IPS BLOQUEADOS
@@ -251,7 +253,7 @@ El listener	O LISTENER
 El menú no se instaló correctamente. Revisa tu conexión	O MENU NÃO FOI INSTALADO CORRETAMENTE. VERIFIQUE SUA CONEXÃO
 El máximo recomendado ahora es	O MÁXIMO RECOMENDADO AGORA É
 El puerto	A PORTA
-El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let's Encrypt	A PORTA 80 ESTÁ OCUPADA POR OUTRO SERVIÇO: NÃO É POSSÍVEL EMITIR O CERTIFICADO Let's Encrypt
+El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let	A PORTA 80 ESTÁ OCUPADA POR OUTRO SERVIÇO: NÃO É POSSÍVEL EMITIR O CERTIFICADO Let
 El servicio no arrancó con el nuevo puerto. Revise: journalctl -u	O SERVIÇO NÃO INICIOU COM A NOVA PORTA. VERIFIQUE: journalctl -u
 El sistema aún tiene otra swap propia que este gestor no modifica	O SISTEMA AINDA TEM OUTRO SWAP PRÓPRIO QUE ESTE GERENCIADOR NÃO MODIFICA
 Eliminado	ELIMINADO
@@ -260,8 +262,8 @@ Eliminar Cuenta Vless	ELIMINAR CONTA VLESS
 Eliminar Cuenta Vmess	ELIMINAR CONTA VMESS
 Eliminar Revendedor	ELIMINAR REVENDEDOR
 Eliminar Usuario	ELIMINAR USUÁRIO
-Enter para 'grey	ENTER PARA 'grey
-Enter para usar 'zi	ENTER PARA USAR 'zi
+Enter para	ENTER PARA
+Enter para usar	ENTER PARA USAR
 Error SSL. Revisa que tu IP apunte al dominio en Cloudflare	ERRO SSL. VERIFIQUE SE SEU IP APONTA PARA O DOMÍNIO NA CLOUDFLARE
 Error al descargar el archivo de actualización	ERRO AO BAIXAR O ARQUIVO DE ATUALIZAÇÃO
 Error al descargar la actualización	ERRO AO BAIXAR A ATUALIZAÇÃO
@@ -293,7 +295,7 @@ Fail2ban no está activo	FAIL2BAN NÃO ESTÁ ATIVO
 Fail2ban no está instalado	FAIL2BAN NÃO ESTÁ INSTALADO
 Fail2ban no pudo iniciar. Últimas líneas del registro	FAIL2BAN NÃO CONSEGUIU INICIAR. ÚLTIMAS LINHAS DO REGISTRO
 Fallos actuales	FALHAS ATUAIS
-Falló 'apt-get update'. Revisa tu conexión	FALHOU 'apt-get update'. VERIFIQUE SUA CONEXÃO
+Falló	FALHOU
 Falló la instalación de dependencias críticas	FALHOU A INSTALAÇÃO DE DEPENDÊNCIAS CRÍTICAS
 Falló la instalación de paquetes base. Abortando	FALHOU A INSTALAÇÃO DOS PACOTES BASE. ABORTANDO
 Falta	FALTA
@@ -360,7 +362,7 @@ INSTALAR BHTTP (v	INSTALAR BHTTP (V
 INSTALAR BHTTP PROXY	INSTALAR BHTTP PROXY
 INSTALAR CHECKUSER AVANZADO	INSTALAR CHECKUSER AVANÇADO
 INSTALAR HCR NATIVO	INSTALAR HCR NATIVO
-IP a desbloquear (o escriba 'todas	IP A DESBLOQUEAR (OU DIGITE 'todas
+IP a desbloquear (o escriba	IP A DESBLOQUEAR (OU DIGITE
 IP no válida	IP INVÁLIDO
 IPs bloqueadas	IPS BLOQUEADOS
 IPs ignoradas	IPS IGNORADOS
@@ -536,7 +538,7 @@ No se pudo reiniciar. Revisa: journalctl -u stunnel	NÃO FOI POSSÍVEL REINICIAR
 Nombre de usuario	NOME DE USUÁRIO
 Nombre del usuario	NOME DO USUÁRIO
 Nombre del usuario a renovar	NOME DO USUÁRIO A RENOVAR
-Nota: Algunas apps pueden requerir mensajes específicos como 'internet premium' o 'SSHPLUS	NOTA: ALGUNS APPS PODEM EXIGIR MENSAGENS ESPECÍFICAS COMO 'internet premium' OU 'SSHPLUS
+Nota: Algunas apps pueden requerir mensajes específicos como	NOTA: ALGUNS APPS PODEM EXIGIR MENSAGENS ESPECÍFICAS COMO
 Nota: BHTTP abre una conexión SSH backend por sesión. MaxStartups puede limitar ráfagas de autenticaciones simultáneas	NOTA: O BHTTP ABRE UMA CONEXÃO SSH BACKEND POR SESSÃO. O MaxStartups PODE LIMITAR RAJADAS DE AUTENTICAÇÕES SIMULTÂNEAS
 Nota: cuando actualices con panel.py, podrás entrar con este mismo usuario/contraseña	NOTA: QUANDO ATUALIZAR COM panel.py, VOCÊ PODERÁ ENTRAR COM ESTE MESMO USUÁRIO/SENHA
 Nuevo Límite de IPs	NOVO LIMITE DE IPS
@@ -649,6 +651,7 @@ Requiere tener el puerto libre 443 y el	REQUER A PORTA 443 LIVRE E A
 Revendedor eliminado	REVENDEDOR ELIMINADO
 Revendedor guardado	REVENDEDOR SALVO
 Revisa antes de probar la app	VERIFIQUE ANTES DE TESTAR O APP
+Revisa tu conexión	VERIFIQUE SUA CONEXÃO
 Rollback del motor anterior	ROLLBACK DO MOTOR ANTERIOR
 SCRIPT REESTRUCTURA y AUTOCONFIGURACION	SCRIPT REESTRUTURA E AUTOCONFIGURAÇÃO
 SHA-256 incorrecto del motor descargado	SHA-256 INCORRETO DO MOTOR BAIXADO
@@ -675,7 +678,7 @@ Servicio reiniciado	SERVIÇO REINICIADO
 Servicios desactivados correctamente	SERVIÇOS DESATIVADOS COM SUCESSO
 Servidor OpenVPN y Certificados configurados exitosamente	SERVIDOR OPENVPN E CERTIFICADOS CONFIGURADOS COM SUCESSO
 Si aún no conecta desde tu app VPN, ejecuta	SE AINDA NÃO CONECTAR PELO SEU APP VPN, EXECUTE
-Solicitando Certificado SSL Let's Encrypt para	SOLICITANDO CERTIFICADO SSL Let's Encrypt PARA
+Solicitando Certificado SSL Let	SOLICITANDO CERTIFICADO SSL Let
 Soporte	SUPORTE
 Swap amplía la RAM (recomendado en VPS con poca RAM	O SWAP AMPLIA A RAM (RECOMENDADO EM VPS COM POUCA RAM
 Swap en uso	SWAP EM USO
@@ -769,13 +772,17 @@ no está activo	NÃO ESTÁ ATIVO(A)
 no está escuchando	NÃO ESTÁ ESCUTANDO
 no está habilitado para boot	NÃO ESTÁ HABILITADO(A) PARA O BOOT
 no está registrado como BHTTP	NÃO ESTÁ REGISTRADA COMO BHTTP
+no fue encontrado en GitHub	NÃO FOI ENCONTRADO NO GITHUB
 no quedó activo; revisa logs: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE OS LOGS: journalctl -u
 no quedó activo; revisa: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE: journalctl -u
+o	OU
+o similar	OU SIMILAR
 para descargar	PARA BAIXAR
 plain (sin TLS	PLAIN (SEM TLS
 principal) y	PRINCIPAL) E
 recomendado	RECOMENDADO
 recomendado para esta VPS	RECOMENDADO PARA ESTA VPS
+s Encrypt para	s Encrypt PARA
 se deja 1 GB libre	FICA 1 GB LIVRE
 suma de puertos BHTTP gestionados; no equivale exactamente a usuarios	SOMA DAS PORTAS BHTTP GERENCIADAS; NÃO EQUIVALE EXATAMENTE A USUÁRIOS
 tcp abierto por este manager	tcp ABERTA POR ESTE GERENCIADOR
@@ -784,6 +791,7 @@ tls   (solo TLS	TLS   (SOMENTE TLS
 usado	USADO
 verificado por SHA-256 y self-test	VERIFICADO POR SHA-256 E SELF-TEST
 y servicio reiniciado	E SERVIÇO REINICIADO
+y usa la opción 16 para abrir los puertos que tú quieras	E USE A OPÇÃO 16 PARA ABRIR AS PORTAS QUE QUISER
 ya está abierto por BHTTP	JÁ ESTÁ ABERTA PELO BHTTP
 ya está configurado como BHTTP adicional	JÁ ESTÁ CONFIGURADA COMO BHTTP ADICIONAL
 ya está en uso	JÁ ESTÁ EM USO

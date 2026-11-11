@@ -1,0 +1,228 @@
+(la contraseña que configuraste)	(A SENHA QUE VOCÊ CONFIGUROU)
+(sin registro) eliminada de Xray	(SEM REGISTRO) ELIMINADA DO XRAY
+(válido)	(VÁLIDO)
+3 a 32 caracteres: minúsculas, números, _ o	3 A 32 CARACTERES: MINÚSCULAS, NÚMEROS, _ OU
+ACTIVO	ATIVO
+Abrir menú	ABRIR MENU
+Acceso Denegado	ACESSO NEGADO
+Acceso Denegado.	ACESSO NEGADO.
+Acceso bloqueado temporalmente. Inténtalo de nuevo en unos minutos	ACESSO BLOQUEADO TEMPORARIAMENTE. TENTE NOVAMENTE EM ALGUNS MINUTOS
+Acción no permitida o usuario inexistente	AÇÃO NÃO PERMITIDA OU USUÁRIO INEXISTENTE
+Actuales	ATUAIS
+Administración VPS	ADMINISTRAÇÃO VPS
+Añadir	ADICIONAR
+Aún no hay cuentas V2Ray creadas desde el panel	AINDA NÃO HÁ CONTAS V2RAY CRIADAS PELO PAINEL
+BLOQUEADA: ya no puede conectar	BLOQUEADA: NÃO PODE MAIS CONECTAR
+BLOQUEADO	BLOQUEADO
+Bienvenido al panel	BEM-VINDO AO PAINEL
+Bloqueado	BLOQUEADO
+Bloquear	BLOQUEAR
+Buscar usuario o cuenta	BUSCAR USUÁRIO OU CONTA
+CREADA EXITOSAMENTE	CRIADA COM SUCESSO
+CUENTA	CONTA
+CUENTA SSH CREADA	CONTA SSH CRIADA
+Cambiar contraseña	ALTERAR SENHA
+Cambiar contraseña del panel	ALTERAR SENHA DO PAINEL
+Cerrar	FECHAR
+Cerrar menú	FECHAR MENU
+Cerrar sesión	ENCERRAR SESSÃO
+CheckUser Estándar	CHECKUSER PADRÃO
+Clave	SENHA
+Clave inválida: 6–64 chars, sin espacios ni comillas.	SENHA INVÁLIDA: 6–64 CARACTERES, SEM ESPAÇOS NEM ASPAS.
+Contacta al administrador.	CONTATE O ADMINISTRADOR.
+Contraseña	SENHA
+Contraseña actual	SENHA ATUAL
+Contraseña del panel actualizada (guardada con hash)	SENHA DO PAINEL ATUALIZADA (SALVA COM HASH)
+Copia los datos abajo	COPIE OS DADOS ABAIXO
+Crear Cuenta	CRIAR CONTA
+Crear Cuentas	CRIAR CONTAS
+Crear SSH	CRIAR SSH
+Crear V2Ray	CRIAR V2RAY
+Crear V2Ray (VMess)	CRIAR V2RAY (VMESS)
+Crear VLESS	CRIAR VLESS
+Crear VMess	CRIAR VMESS
+Crear cuenta	CRIAR CONTA
+Crear cuenta SSH	CRIAR CONTA SSH
+Crear cuenta V2Ray	CRIAR CONTA V2RAY
+Créditos	CRÉDITOS
+Créditos Disponibles	CRÉDITOS DISPONÍVEIS
+Créditos deben ser 1–10000.	OS CRÉDITOS DEVEM SER DE 1 A 10000.
+Créditos disponibles	CRÉDITOS DISPONÍVEIS
+Créditos restantes	CRÉDITOS RESTANTES
+Cuenta	CONTA
+Cuenta SSH	CONTA SSH
+Cuenta V2Ray eliminada del panel y de Xray	CONTA V2RAY ELIMINADA DO PAINEL E DO XRAY
+Cuenta V2Ray no encontrada	CONTA V2RAY NÃO ENCONTRADA
+Cuenta antigua que nunca estuvo en Xray: elimínala y créala de nuevo	CONTA ANTIGA QUE NUNCA ESTEVE NO XRAY: ELIMINE-A E CRIE-A NOVAMENTE
+Cuenta bloqueada: ya no puede conectar	CONTA BLOQUEADA: NÃO PODE MAIS CONECTAR
+Cuenta desbloqueada pero VENCIDA: renuévala para activarla	CONTA DESBLOQUEADA, MAS VENCIDA: RENOVE-A PARA ATIVÁ-LA
+Cuenta desbloqueada y activa en Xray	CONTA DESBLOQUEADA E ATIVA NO XRAY
+Cuenta renovada hasta	CONTA RENOVADA ATÉ
+Cuentas	CONTAS
+Cuentas SSH	CONTAS SSH
+Cuentas V2Ray	CONTAS V2RAY
+DATOS DE ACCESO SSH	DADOS DE ACESSO SSH
+DESBLOQUEADA y activa	DESBLOQUEADA E ATIVA
+Datos para el cliente	DADOS PARA O CLIENTE
+Debes iniciar sesión con las credenciales de Admin	VOCÊ DEVE FAZER LOGIN COM AS CREDENCIAIS DE ADMIN
+Dominio	DOMÍNIO
+Días	DIAS
+Días a sumar	DIAS A SOMAR
+Días de duración	DIAS DE DURAÇÃO
+Días inválidos: entero 1–3650.	DIAS INVÁLIDOS: INTEIRO DE 1 A 3650.
+Días restantes	DIAS RESTANTES
+Días restantes (exactos)	DIAS RESTANTES (EXATOS)
+EN LÍNEA	ONLINE
+ESTADO	ESTADO
+Editar cuenta SSH	EDITAR CONTA SSH
+Ejecuta	EXECUTE
+El enlace es demasiado largo para un QR	O LINK É LONGO DEMAIS PARA UM QR
+El límite de conexiones debe ser un número entre 1 y 1000	O LIMITE DE CONEXÕES DEVE SER UM NÚMERO ENTRE 1 E 1000
+El puerto 80 (NTLS) ya no está disponible: solo se usa TLS en el 443	A PORTA 80 (NTLS) NÃO ESTÁ MAIS DISPONÍVEL: SOMENTE TLS NA 443 É USADO
+El registro	O REGISTRO
+El usuario	O USUÁRIO
+Eliminar	ELIMINAR
+Eliminar SSH	ELIMINAR SSH
+En línea	ONLINE
+Error	ERRO
+Error al crear la cuenta.	ERRO AO CRIAR A CONTA.
+Error creando VLESS.	ERRO AO CRIAR VLESS.
+Error creando VMess.	ERRO AO CRIAR VMESS.
+Error de archivo/permisos	ERRO DE ARQUIVO/PERMISSÕES
+Error desconocido	ERRO DESCONHECIDO
+Error editando sshd_config	ERRO AO EDITAR sshd_config
+Error invocando v2ray_ctl.py	ERRO AO EXECUTAR v2ray_ctl.py
+Estado	ESTADO
+Expira	EXPIRA
+Formato	FORMATO
+GESTIÓN DE REVENDEDORES	GESTÃO DE REVENDEDORES
+Guardar	SALVAR
+Guardar cambios	SALVAR ALTERAÇÕES
+ID de Telegram inválido.	ID DO TELEGRAM INVÁLIDO.
+INACTIVO	INATIVO
+Info Servidor	INFO DO SERVIDOR
+Iniciar sesión	FAZER LOGIN
+La contraseña actual no es correcta	A SENHA ATUAL NÃO ESTÁ CORRETA
+La contraseña debe tener entre 4 y 64 caracteres, sin saltos de línea	A SENHA DEVE TER ENTRE 4 E 64 CARACTERES, SEM QUEBRAS DE LINHA
+La cuenta no tiene ese enlace	A CONTA NÃO TEM ESSE LINK
+La nueva contraseña contiene caracteres no válidos	A NOVA SENHA CONTÉM CARACTERES INVÁLIDOS
+La nueva contraseña debe ser distinta a la actual	A NOVA SENHA DEVE SER DIFERENTE DA ATUAL
+La nueva contraseña debe tener entre 8 y 64 caracteres	A NOVA SENHA DEVE TER ENTRE 8 E 64 CARACTERES
+La nueva contraseña y la confirmación no coinciden	A NOVA SENHA E A CONFIRMAÇÃO NÃO COINCIDEM
+Lista SSH	LISTA SSH
+Los contadores son acumulados desde el arranque del sistema. La vista se actualiza sola cada 5 s	OS CONTADORES SÃO ACUMULADOS DESDE A INICIALIZAÇÃO DO SISTEMA. A VISTA SE ATUALIZA SOZINHA A CADA 5 S
+Los días deben estar entre 1 y 3650	OS DIAS DEVEM ESTAR ENTRE 1 E 3650
+Los días deben ser un número entre 1 y 3650	OS DIAS DEVEM SER UM NÚMERO ENTRE 1 E 3650
+Límite	LIMITE
+Límite de Conexiones	LIMITE DE CONEXÕES
+Límite de Conexiones (ej: 1)	LIMITE DE CONEXÕES (EX: 1)
+Límite de conexiones	LIMITE DE CONEXÕES
+Menú	MENU
+Mis Créditos	MEUS CRÉDITOS
+Monitor del VPS	MONITOR DA VPS
+Motor Xray no instalado.	MOTOR XRAY NÃO INSTALADO.
+Mínimo 8 caracteres	MÍNIMO 8 CARACTERES
+NTLS · puerto 80	NTLS · PORTA 80
+Navegación	NAVEGAÇÃO
+No estás registrado.	VOCÊ NÃO ESTÁ REGISTRADO.
+No existe la config de Xray. Instala el motor desde el menú	NÃO EXISTE A CONFIGURAÇÃO DO XRAY. INSTALE O MOTOR PELO MENU
+No existe la config de Xray. Instala el motor desde el menú VMess/VLESS	NÃO EXISTE A CONFIGURAÇÃO DO XRAY. INSTALE O MOTOR PELO MENU VMESS/VLESS
+No existe la cuenta	NÃO EXISTE A CONTA
+No hay dominio configurado (/etc/vps-manager/dominio) ni se pudo obtener la IP	NÃO HÁ DOMÍNIO CONFIGURADO (/etc/vps-manager/dominio) E NÃO FOI POSSÍVEL OBTER O IP
+No hay usuarios creados	NÃO HÁ USUÁRIOS CRIADOS
+No se modificó ningún campo	NENHUM CAMPO FOI MODIFICADO
+No se pudo asignar la contraseña	NÃO FOI POSSÍVEL DEFINIR A SENHA
+No se pudo cambiar el estado en Xray (sin cambios)	NÃO FOI POSSÍVEL ALTERAR O ESTADO NO XRAY (SEM ALTERAÇÕES)
+No se pudo cambiar la contraseña	NÃO FOI POSSÍVEL ALTERAR A SENHA
+No se pudo cambiar la expiración	NÃO FOI POSSÍVEL ALTERAR A EXPIRAÇÃO
+No se pudo crear el usuario	NÃO FOI POSSÍVEL CRIAR O USUÁRIO
+No se pudo descontar crédito.	NÃO FOI POSSÍVEL DESCONTAR O CRÉDITO.
+No se pudo descontar el crédito.	NÃO FOI POSSÍVEL DESCONTAR O CRÉDITO.
+No se pudo generar el QR (enlace demasiado largo). Usa el botón de copiar	NÃO FOI POSSÍVEL GERAR O QR (LINK LONGO DEMAIS). USE O BOTÃO DE COPIAR
+No se pudo guardar el límite	NÃO FOI POSSÍVEL SALVAR O LIMITE
+No se pudo guardar el registro	NÃO FOI POSSÍVEL SALVAR O REGISTRO
+No se pudo guardar la cuenta V2Ray	NÃO FOI POSSÍVEL SALVAR A CONTA V2RAY
+No se pudo guardar la nueva contraseña	NÃO FOI POSSÍVEL SALVAR A NOVA SENHA
+No se pudo guardar la renovación	NÃO FOI POSSÍVEL SALVAR A RENOVAÇÃO
+No se pudo obtener el dominio o la IP del servidor	NÃO FOI POSSÍVEL OBTER O DOMÍNIO OU O IP DO SERVIDOR
+No se pudo quitar la cuenta de Xray (no se borró)	NÃO FOI POSSÍVEL REMOVER A CONTA DO XRAY (NÃO FOI APAGADA)
+No se pudo reactivar la cuenta en Xray	NÃO FOI POSSÍVEL REATIVAR A CONTA NO XRAY
+No se pudo registrar la cuenta en Xray	NÃO FOI POSSÍVEL REGISTRAR A CONTA NO XRAY
+Nombre inválido: 1–40 chars [A-Za-z0-9 ._-]	NOME INVÁLIDO: 1–40 CARACTERES [A-Za-z0-9 ._-]
+Nombre inválido: hasta 40 caracteres (letras, números, espacio, . _ -)	NOME INVÁLIDO: ATÉ 40 CARACTERES (LETRAS, NÚMEROS, ESPAÇO, . _ -)
+Nombre inválido: usa hasta 40 caracteres (letras, números, espacio, . _ -)	NOME INVÁLIDO: USE ATÉ 40 CARACTERES (LETRAS, NÚMEROS, ESPAÇO, . _ -)
+Nombre: 1–40 chars (letras, números, espacio, . _ -)	NOME: 1–40 CARACTERES (LETRAS, NÚMEROS, ESPAÇO, . _ -)
+Nueva contraseña	NOVA SENHA
+Panel	PAINEL
+Panel ADMIN VPS Activo	PAINEL ADMIN VPS ATIVO
+Panel VENDEDOR Activo	PAINEL VENDEDOR ATIVO
+Panel Vendedores	PAINEL DE VENDEDORES
+Panel de administración VPS	PAINEL DE ADMINISTRAÇÃO VPS
+Puerto	PORTA
+Puerto 80 (NTLS) retirado de Xray: ahora solo TLS en 443	PORTA 80 (NTLS) REMOVIDA DO XRAY: AGORA SOMENTE TLS NA 443
+Renovar	RENOVAR
+Repetir nueva contraseña	REPETIR NOVA SENHA
+Revísalo antes de continuar	REVISE-O ANTES DE CONTINUAR
+Ruta (Path)	ROTA (PATH)
+Se guarda con hash PBKDF2-SHA256 en el servidor (nunca en texto plano)	É SALVA COM HASH PBKDF2-SHA256 NO SERVIDOR (NUNCA EM TEXTO PLANO)
+Sesión	SESSÃO
+Sesión cerrada correctamente	SESSÃO ENCERRADA COM SUCESSO
+Sesión inválida. Recarga el panel e inténtalo de nuevo	SESSÃO INVÁLIDA. RECARREGUE O PAINEL E TENTE NOVAMENTE
+Sin créditos.	SEM CRÉDITOS.
+TLS · puerto 443	TLS · PORTA 443
+Texto demasiado largo para un QR	TEXTO LONGO DEMAIS PARA UM QR
+Todas las cuentas	TODAS AS CONTAS
+Todos los derechos reservados	TODOS OS DIREITOS RESERVADOS
+Tráfico de red (total)	TRÁFEGO DE REDE (TOTAL)
+Tu ID	SEU ID
+Tu sesión expiró. Inicia sesión de nuevo	SUA SESSÃO EXPIROU. FAÇA LOGIN NOVAMENTE
+USUARIO	USUÁRIO
+UUID inválido	UUID INVÁLIDO
+Usuario	USUÁRIO
+Usuario SSH	USUÁRIO SSH
+Usuario inexistente o no gestionable	USUÁRIO INEXISTENTE OU NÃO GERENCIÁVEL
+Usuario inválido: 3–32 chars, minúsculas, [a-z0-9_-], sin 'root'.	USUÁRIO INVÁLIDO: 3–32 CARACTERES, MINÚSCULAS, [a-z0-9_-], SEM 'root'.
+Usuario inválido: usa 3 a 32 caracteres en minúsculas, números, _ o	USUÁRIO INVÁLIDO: USE DE 3 A 32 CARACTERES EM MINÚSCULAS, NÚMEROS, _ OU
+Usuario o contraseña incorrectos	USUÁRIO OU SENHA INCORRETOS
+Usuarios SSH	USUÁRIOS SSH
+VENCE	VENCE
+Vence	VENCE
+Vendedor	VENDEDOR
+Volver al Panel	VOLTAR AO PAINEL
+Volver al panel	VOLTAR AO PAINEL
+Web Panel UI	PAINEL WEB
+Xray no arrancó con el cambio (se restauró la config anterior)	O XRAY NÃO INICIOU COM A ALTERAÇÃO (A CONFIGURAÇÃO ANTERIOR FOI RESTAURADA)
+Xray rechazó la configuración	O XRAY REJEITOU A CONFIGURAÇÃO
+Xray tampoco arranca con la config anterior: el problema es del servidor (puerto 80/443 ocupado, certificado ilegible o servicio dañado), no de la cuenta. Detalle	O XRAY TAMBÉM NÃO INICIA COM A CONFIGURAÇÃO ANTERIOR: O PROBLEMA É DO SERVIDOR (PORTA 80/443 OCUPADA, CERTIFICADO ILEGÍVEL OU SERVIÇO DANIFICADO), NÃO DA CONTA. DETALHE
+Ya existe una cuenta	JÁ EXISTE UMA CONTA
+argumentos incorrectos para	ARGUMENTOS INCORRETOS PARA
+bloqueado	BLOQUEADO
+con	COM
+conexión(es)	CONEXÃO(ÕES)
+creado con éxito	CRIADO COM SUCESSO
+créditos	CRÉDITOS
+cuenta(s) vencida(s) retirada(s) de Xray	CONTA(S) VENCIDA(S) REMOVIDA(S) DO XRAY
+de Xray no es JSON válido	DO XRAY NÃO É UM JSON VÁLIDO
+desbloqueada pero está VENCIDA; renuévala para activarla	DESBLOQUEADA, MAS ESTÁ VENCIDA; RENOVE-A PARA ATIVÁ-LA
+días	DIAS
+el protocolo debe ser vmess o vless	O PROTOCOLO DEVE SER vmess OU vless
+eliminada del panel y de Xray	ELIMINADA DO PAINEL E DO XRAY
+en el registro	NO REGISTRO
+está dañado	ESTÁ DANIFICADO
+no existe	NÃO EXISTE
+pero la cuenta sigue BLOQUEADA: desbloquéala para que conecte	MAS A CONTA CONTINUA BLOQUEADA: DESBLOQUEIE-A PARA QUE CONECTE
+renovada. Nuevo vencimiento	RENOVADA. NOVO VENCIMENTO
+renovado: +30 días (vence	RENOVADO: +30 DIAS (VENCE
+sigue BLOQUEADA: desbloquéala para que conecte	CONTINUA BLOQUEADA: DESBLOQUEIE-A PARA QUE CONECTE
+una vez desde el VPS.	UMA VEZ NA VPS.
+uso:	USO:
+v2ray_ctl.py no existe (ejecuta vless.sh una vez en el VPS)	v2ray_ctl.py NÃO EXISTE (EXECUTE vless.sh UMA VEZ NA VPS)
+ya existe	JÁ EXISTE
+ya existe en el sistema	JÁ EXISTE NO SISTEMA
+¡Copiado!	COPIADO!
+¿Bloquear esta cuenta? Dejará de conectar hasta que la desbloquees	BLOQUEAR ESTA CONTA? ELA DEIXARÁ DE CONECTAR ATÉ VOCÊ DESBLOQUEÁ-LA
+¿El panel corre como root?	O PAINEL ESTÁ EXECUTANDO COMO ROOT?
+¿Eliminar esta cuenta? También se quitará del servidor Xray y dejará de conectar	ELIMINAR ESTA CONTA? ELA TAMBÉM SERÁ REMOVIDA DO SERVIDOR XRAY E DEIXARÁ DE CONECTAR
+¿Eliminar este usuario?	ELIMINAR ESTE USUÁRIO?
+¿Eliminar?	ELIMINAR?
+Últimos 7 días	ÚLTIMOS 7 DIAS

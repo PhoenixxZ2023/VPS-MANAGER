@@ -576,7 +576,7 @@ install_or_update(){
   info "${T[Instalación/actualización segura: motor BHP1 NO cambia; solo capacidad, boot, menú y tuning]:-Instalación/actualización segura: motor BHP1 NO cambia; solo capacidad, boot, menú y tuning}."
   if [ "$had_existing" -eq 0 ] && [ -z "${BHTTP_PORT:-}" ] && [ -z "${EXTRA_PORTS:-}" ]; then
     info "${T[VPS nueva: NO se abrirá ningún puerto BHTTP automáticamente]:-VPS nueva: NO se abrirá ningún puerto BHTTP automáticamente}."
-    info "${T[Después entra a 'sudo bhttp' y usa la opción 16 para abrir los puertos que tú quieras]:-Después entra a 'sudo bhttp' y usa la opción 16 para abrir los puertos que tú quieras}."
+    info "${T[Después entra a]:-Después entra a} 'sudo bhttp' ${T[y usa la opción 16 para abrir los puertos que tú quieras]:-y usa la opción 16 para abrir los puertos que tú quieras}."
   else
     info "Puertos BHTTP existentes conservados: $(managed_ports_text) | SSH: $BACKEND_PORT"
   fi
@@ -920,7 +920,7 @@ Uso:
   sudo bash install.sh close-port
   sudo bash install.sh ports
 
-Después de instalar también puedes usar:
+${T[Después de instalar también puedes usar]:-Después de instalar también puedes usar}:
   sudo bhttp
 EOF
 }

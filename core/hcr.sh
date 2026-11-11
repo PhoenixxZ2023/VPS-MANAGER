@@ -62,7 +62,7 @@ wget -qO /etc/vps-manager/hcr/hcr-server "https://raw.githubusercontent.com/roge
 chmod +x /etc/vps-manager/hcr/hcr-server
 
 if grep -q "404: Not Found" /etc/vps-manager/hcr/hcr-server || [ ! -s /etc/vps-manager/hcr/hcr-server ]; then
-    echo -e "\n${C_RED}[!] ${T[ERROR CRÍTICO: El archivo 'hcr-server' no fue encontrado en GitHub]:-ERROR CRÍTICO: El archivo 'hcr-server' no fue encontrado en GitHub}.${C_NC}"
+    echo -e "\n${C_RED}[!] ${T[ERROR CRÍTICO: El archivo]:-ERROR CRÍTICO: El archivo} 'hcr-server' ${T[no fue encontrado en GitHub]:-no fue encontrado en GitHub}.${C_NC}"
     rm -f /etc/vps-manager/hcr/hcr-server
     read -p " ${T[Presiona Enter para cancelar la instalación]:-Presiona Enter para cancelar la instalación}..."
     exit 1

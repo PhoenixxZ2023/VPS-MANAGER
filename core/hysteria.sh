@@ -49,7 +49,7 @@ openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 \
 echo -e "\n${C_CYAN}================================================${C_NC}"
 echo -e " 🔑 ${C_GREEN}${T[CONFIGURACIÓN DE CREDENCIALES Hysteria v]:-CONFIGURACIÓN DE CREDENCIALES Hysteria v}1${C_NC}"
 echo -e "${C_CYAN}================================================${C_NC}"
-read -p "${T[Contraseña (la misma que pusiste en Autenticación 'grey:grey' o similar]:-Contraseña (la misma que pusiste en Autenticación 'grey:grey' o similar}) [${T[Enter para 'grey]:-Enter para 'grey}']: " HYS_PASS
+read -p "${T[Contraseña (la misma que pusiste en Autenticación]:-Contraseña (la misma que pusiste en Autenticación} 'grey:grey' ${T[o similar]:-o similar}) [${T[Enter para]:-Enter para} 'grey']: " HYS_PASS
 [ -z "$HYS_PASS" ] && HYS_PASS="grey"
 
 read -p "${T[Puerto UDP]:-Puerto UDP} [${T[Por defecto]:-Por defecto} 20000]: " INPUT_PORT

@@ -103,10 +103,10 @@ systemctl is-active --quiet checkuser-4g.service 2>/dev/null && is_4g_running=1
 
 local std_status="❌ INACTIVO"
 local std_color="$C_RED"
-[ "$is_std_running" -gt 0 ] && { std_status="✅ ACTIVO"; std_color="$C_GREEN"; }
+[ "$is_std_running" -gt 0 ] && { std_status="✅ ${T[ACTIVO]:-ACTIVO}"; std_color="$C_GREEN"; }
 local status_4g="❌ INACTIVO"
 local color_4g="$C_RED"
-[ "$is_4g_running" -gt 0 ] && { status_4g="✅ ACTIVO"; color_4g="$C_GREEN"; }
+[ "$is_4g_running" -gt 0 ] && { status_4g="✅ ${T[ACTIVO]:-ACTIVO}"; color_4g="$C_GREEN"; }
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
 echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}         🛡️ ${T[GESTIÓN DE CHECKUSER AVANZADO]:-GESTIÓN DE CHECKUSER AVANZADO}       ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
@@ -370,14 +370,16 @@ done
 
 instalar_idioma_pt() {
     local base="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/i18n"
-    local dir="/etc/vps-manager/i18n" tmp
+    local dir="/etc/vps-manager/i18n" tmp f
     mkdir -p "$dir"
-    tmp=$(mktemp) || return 1
-    if wget -qO "$tmp" "$base/pt-BR.tsv" && [ -s "$tmp" ] && ! grep -qi "<html" "$tmp"; then
-        mv -f "$tmp" "$dir/pt-BR.tsv"; chmod 644 "$dir/pt-BR.tsv"
-    else
-        rm -f "$tmp"
-    fi
+    for f in pt-BR.tsv pt-BR.py.tsv; do
+        tmp=$(mktemp) || return 1
+        if wget -qO "$tmp" "$base/$f" && [ -s "$tmp" ] && ! grep -qi "<html" "$tmp"; then
+            mv -f "$tmp" "$dir/$f"; chmod 644 "$dir/$f"
+        else
+            rm -f "$tmp"
+        fi
+    done
     [ -s "$dir/pt-BR.tsv" ]
 }
 
@@ -462,7 +464,7 @@ echo "$limite" > "/etc/vps-manager/limite_${user}"
 
 if [ "$tipo_creacion" == "2" ]; then 
     touch "/etc/vps-manager/hwid_${user}"
-    HWID_MSG="✅ (Bloqueado al Login)"
+    HWID_MSG="✅ (${T[Bloqueado al Login]:-Bloqueado al Login})"
 else 
     rm -f "/etc/vps-manager/hwid_${user}"
     HWID_MSG="❌ (Libre)"
@@ -484,7 +486,7 @@ systemctl restart zivpn.service >/dev/null 2>&1
 fi
 ZIVPN_PASS="$pass"
 else
-ZIVPN_PASS="No instalado"
+ZIVPN_PASS="${T[No instalado]:-No instalado}"
 fi
 clear; echo -e "${C_NEON_BLUE}================================================${C_RST}
 ${C_GREEN}        ✅ CUENTA CREADA EXITOSAMENTE ✅        ${C_RST}
@@ -1037,7 +1039,7 @@ fail2ban_desbloquear() {
         read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
     local ip res
-    echo -ne "${C_NEON_YELLOW}${T[IP a desbloquear (o escriba 'todas]:-IP a desbloquear (o escriba 'todas}'): ${C_RST}"
+    echo -ne "${C_NEON_YELLOW}${T[IP a desbloquear (o escriba]:-IP a desbloquear (o escriba} 'todas'): ${C_RST}"
     read ip
     if [ "$ip" = "todas" ]; then
         fail2ban-client unban --all >/dev/null 2>&1 && echo -e "${C_GREEN}[✔] Todas las IPs fueron desbloqueadas.${C_RST}" \
@@ -1212,7 +1214,7 @@ menu_torrents() {
         clear
         local estado="🔴 DESACTIVADO" bloq=""
         if torrent_activo; then
-            estado="🟢 ACTIVO"
+            estado="🟢 ${T[ACTIVO]:-ACTIVO}"
             bloq=$(iptables -nvxL VPS_BLOCK_TORRENT 2>/dev/null | awk '$3=="DROP"{s+=$1} END{print s+0}')
         fi
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
@@ -1276,8 +1278,8 @@ menu_hcr_v2() {
     while true; do
         clear
         local estado port
-        if ! hcr2_instalado; then estado="⚪ No instalado"
-        elif systemctl is-active --quiet hcr-server.service 2>/dev/null; then estado="🟢 ACTIVO"
+        if ! hcr2_instalado; then estado="⚪ ${T[No instalado]:-No instalado}"
+        elif systemctl is-active --quiet hcr-server.service 2>/dev/null; then estado="🟢 ${T[ACTIVO]:-ACTIVO}"
         else estado="🔴 DETENIDO"; fi
         port=$(cat /etc/vps-manager/hcr_port 2>/dev/null)
         echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
@@ -1570,7 +1572,7 @@ systemctl is-active --quiet wsproxy.service 2>/dev/null && is_running=1
 local WS_PORT=""
 [ -f /etc/vps-manager/wsproxy_port ] && WS_PORT=$(cat /etc/vps-manager/wsproxy_port)
 [ -z "$WS_PORT" ] && WS_PORT=$(grep -oE "wsproxy\.py [0-9]+" /etc/autostart 2>/dev/null | awk '{print $2}' | head -1)
-[ -z "$WS_PORT" ] && WS_PORT="No configurado"
+[ -z "$WS_PORT" ] && WS_PORT="${T[No configurado]:-No configurado}"
 
 local WS_MSG=""
 [ -f /etc/vps-manager/wsproxy_msg ] && WS_MSG=$(cat /etc/vps-manager/wsproxy_msg)
@@ -1746,7 +1748,7 @@ EOF
             systemctl restart wsproxy.service
             
             echo -e "${C_GREEN}[✔] ${T[Mensaje HTTP cambiado a]:-Mensaje HTTP cambiado a}: $new_msg${C_RST}"
-            echo -e "${C_CYAN}${T[Nota: Algunas apps pueden requerir mensajes específicos como 'internet premium' o 'SSHPLUS]:-Nota: Algunas apps pueden requerir mensajes específicos como 'internet premium' o 'SSHPLUS}'.${C_RST}"
+            echo -e "${C_CYAN}${T[Nota: Algunas apps pueden requerir mensajes específicos como]:-Nota: Algunas apps pueden requerir mensajes específicos como} 'internet premium' ${T[o]:-o} 'SSHPLUS'.${C_RST}"
         fi
     else
         echo -e "${C_RED}[!] ${T[WebSocket no está activo. Actívalo primero]:-WebSocket no está activo. Actívalo primero}.${C_RST}"
@@ -1769,13 +1771,13 @@ local is_running=0
 systemctl is-active --quiet dropbear 2>/dev/null && is_running=1
 [ "$is_running" -eq 0 ] && [ "$(netstat -tlpn 2>/dev/null | grep -c 'dropbear')" -gt 0 ] && is_running=1
 
-local DROPBEAR_PORT_MAIN="No configurado"
+local DROPBEAR_PORT_MAIN="${T[No configurado]:-No configurado}"
 local DROPBEAR_PORT_EXTRA="Ninguno"
 if [ -f /etc/default/dropbear ]; then
     DROPBEAR_PORT_MAIN=$(grep "^DROPBEAR_PORT=" /etc/default/dropbear 2>/dev/null | cut -d'=' -f2 | tr -d ' ')
     DROPBEAR_PORT_EXTRA=$(grep "^DROPBEAR_EXTRA_ARGS=" /etc/default/dropbear 2>/dev/null | grep -oE '\-p [0-9]+' | awk '{print $2}' | tr '\n' ' ')
 fi
-[ -z "$DROPBEAR_PORT_MAIN" ] && DROPBEAR_PORT_MAIN="No configurado"
+[ -z "$DROPBEAR_PORT_MAIN" ] && DROPBEAR_PORT_MAIN="${T[No configurado]:-No configurado}"
 [ -z "$DROPBEAR_PORT_EXTRA" ] && DROPBEAR_PORT_EXTRA="Ninguno"
 
 local limiter_running=0
@@ -2017,7 +2019,7 @@ done
 menu_ssl() {
 while true; do
 clear
-local SSL_CONF="" SSL_PORT="No configurado" is_installed=0 is_running=0
+local SSL_CONF="" SSL_PORT="${T[No configurado]:-No configurado}" is_installed=0 is_running=0
 SSL_CONF=$(grep -l -E '^[[:space:]]*accept[[:space:]]*=' /etc/stunnel/*.conf 2>/dev/null | head -n1)
 if command -v stunnel4 >/dev/null 2>&1 && [ -n "$SSL_CONF" ]; then
     is_installed=1
@@ -2157,7 +2159,7 @@ if [ -f "$CHKM_OLD" ] && grep -q "Multi-App" "$CHKM_OLD" 2>/dev/null; then
 fi
 while true; do
 clear
-local is_installed=0 is_running=0 CHKM_PORT="No configurado"
+local is_installed=0 is_running=0 CHKM_PORT="${T[No configurado]:-No configurado}"
 if [ -f "$CHKM_DIR/check.py" ] && [ -f "$CHKM_UNIT" ]; then
     is_installed=1
     CHKM_PORT=$(grep -m1 -oE 'def run\(port=[0-9]+' "$CHKM_DIR/check.py" | grep -oE '[0-9]+')

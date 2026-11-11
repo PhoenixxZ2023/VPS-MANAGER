@@ -25,12 +25,16 @@ REPO_BASE="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main"
 # i18n: catálogo de português do Brasil (somente dados, nunca executado)
 _i18n_fetch() {
     mkdir -p /etc/vps-manager/i18n 2>/dev/null || return 1
-    local tmp; tmp=$(mktemp 2>/dev/null) || return 1
-    if { wget -qO "$tmp" "$REPO_BASE/i18n/pt-BR.tsv" 2>/dev/null || curl -fsSL -o "$tmp" "$REPO_BASE/i18n/pt-BR.tsv" 2>/dev/null; } && [ -s "$tmp" ] && ! grep -qi "<html" "$tmp"; then
-        mv -f "$tmp" /etc/vps-manager/i18n/pt-BR.tsv; chmod 644 /etc/vps-manager/i18n/pt-BR.tsv
-    else
-        rm -f "$tmp"; return 1
-    fi
+    local f tmp ok=1
+    for f in pt-BR.tsv pt-BR.py.tsv; do
+        tmp=$(mktemp 2>/dev/null) || return 1
+        if { wget -qO "$tmp" "$REPO_BASE/i18n/$f" 2>/dev/null || curl -fsSL -o "$tmp" "$REPO_BASE/i18n/$f" 2>/dev/null; } && [ -s "$tmp" ] && ! grep -qi "<html" "$tmp"; then
+            mv -f "$tmp" "/etc/vps-manager/i18n/$f"; chmod 644 "/etc/vps-manager/i18n/$f"
+        else
+            rm -f "$tmp"; ok=0
+        fi
+    done
+    [ "$ok" -eq 1 ]
 }
 _i18n_fetch 2>/dev/null; _T_LOADED=""; load_lang
 
@@ -79,7 +83,7 @@ done
 # ==========================================
 echo -e "\n\033[1;36m[+] ${T[Actualizando índices del sistema]:-Actualizando índices del sistema}...\033[0m"
 if ! apt-get update -y > /dev/null 2>&1; then
-    echo -e "\033[1;31m[!] ${T[Falló 'apt-get update'. Revisa tu conexión]:-Falló 'apt-get update'. Revisa tu conexión}.\033[0m"
+    echo -e "\033[1;31m[!] ${T[Falló]:-Falló} 'apt-get update'. ${T[Revisa tu conexión]:-Revisa tu conexión}.\033[0m"
     sleep 2
 else
     echo -e "\033[1;32m[✔] ${T[Índices actualizados correctamente]:-Índices actualizados correctamente}.\033[0m"
