@@ -359,7 +359,7 @@ instalar_idioma_pt() {
     mkdir -p "$dir"
     for f in pt-BR.tsv pt-BR.py.tsv; do
         tmp=$(mktemp) || return 1
-        if wget -qO "$tmp" "$base/$f" && [ -s "$tmp" ] && ! grep -qi "<html" "$tmp"; then
+        if wget -qO "$tmp" "$base/$f" && [ -s "$tmp" ] && awk -F'\t' 'NF!=2{bad=1} END{exit bad}' "$tmp"; then
             mv -f "$tmp" "$dir/$f"; chmod 644 "$dir/$f"
         else
             rm -f "$tmp"

@@ -28,7 +28,7 @@ _i18n_fetch() {
     local f tmp ok=1
     for f in pt-BR.tsv pt-BR.py.tsv; do
         tmp=$(mktemp 2>/dev/null) || return 1
-        if { wget -qO "$tmp" "$REPO_BASE/i18n/$f" 2>/dev/null || curl -fsSL -o "$tmp" "$REPO_BASE/i18n/$f" 2>/dev/null; } && [ -s "$tmp" ] && ! grep -qi "<html" "$tmp"; then
+        if { wget -qO "$tmp" "$REPO_BASE/i18n/$f" 2>/dev/null || curl -fsSL -o "$tmp" "$REPO_BASE/i18n/$f" 2>/dev/null; } && [ -s "$tmp" ] && awk -F'\t' 'NF!=2{bad=1} END{exit bad}' "$tmp"; then
             mv -f "$tmp" "/etc/vps-manager/i18n/$f"; chmod 644 "/etc/vps-manager/i18n/$f"
         else
             rm -f "$tmp"; ok=0
