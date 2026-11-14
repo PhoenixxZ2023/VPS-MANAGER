@@ -37,6 +37,12 @@ LIMIT_FILE="/etc/vps-manager/limites_vless"
 FLAG_FILE="/etc/vps-manager/xray_dual_ok"
 
 instalar_xray_dual() {
+    if [ -f /etc/vps-manager/engine_haproxy ]; then
+        echo -e "${C_RED}[!] ${T[El motor unificado HAProxy está activo: no se puede reinstalar el Xray clásico desde aquí]:-El motor unificado HAProxy está activo: no se puede reinstalar el Xray clásico desde aquí}.${C_RST}"
+        echo -e "${C_YELLOW}    ${T[Para volver al esquema anterior usa Menú de Instaladores > Motor unificado > Restaurar backup]:-Para volver al esquema anterior usa Menú de Instaladores > Motor unificado > Restaurar backup}.${C_RST}"
+        sleep 4
+        return
+    fi
     clear
     cabecera "${T[INSTALACIÓN XRAY (SOLO TLS]:-INSTALACIÓN XRAY (SOLO TLS} 443)"
     
@@ -970,7 +976,7 @@ menu_vless() {
                 ;;
             3)
                 clear
-                cabecera "RENOVAR CUENTA XRAY VLESS"
+                cabecera "${T[RENOVAR CUENTA XRAY VLESS]:-RENOVAR CUENTA XRAY VLESS}"
                 mostrar_cuentas
                 read -p "${T[Nombre del usuario a renovar]:-Nombre del usuario a renovar}: " user
                 read -p "${T[Días a sumar]:-Días a sumar}: " dias_extras

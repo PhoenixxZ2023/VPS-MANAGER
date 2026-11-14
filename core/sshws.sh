@@ -21,6 +21,12 @@ C_RED='\033[1;31m'; C_GREEN='\033[1;32m'; C_YELLOW='\033[1;33m'; C_CYAN='\033[1;
 C_ORANGE='\033[38;5;214m' # Naranja similar a la imagen
 
 activar_autoconfig() {
+    if [ -f /etc/vps-manager/engine_haproxy ]; then
+        echo -e "${C_RED}[!] ${T[El motor unificado HAProxy ya sirve SSH-WS y SSL en los puertos 80, 8080 y]:-El motor unificado HAProxy ya sirve SSH-WS y SSL en los puertos 80, 8080 y} 443.${C_NC}"
+        echo -e "${C_YELLOW}    ${T[Esta instalación se bloquea para no cortar HAProxy]:-Esta instalación se bloquea para no cortar HAProxy}.${C_NC}"
+        sleep 4
+        return
+    fi
     clear
     echo -e "${C_YELLOW}${T[Verificando puertos 80 y]:-Verificando puertos 80 y} 443...${C_NC}"
     

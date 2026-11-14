@@ -44,7 +44,12 @@ tramitar_ssl() {
         echo -e "${C_YELLOW}${T[Verifica que el dominio apunte a tu IP en Cloudflare (Nube gris]:-Verifica que el dominio apunte a tu IP en Cloudflare (Nube gris}).${C_NC}"
     fi
     echo -e "${C_YELLOW}[+] ${T[Reiniciando servicios]:-Reiniciando servicios}...${C_NC}"
-    systemctl start xray ws-python stunnel4 bhttp 2>/dev/null
+    if [ -f /etc/vps-manager/engine_haproxy ]; then
+        systemctl start xray 2>/dev/null
+        bash /etc/vps-manager/core/xray_manager.sh cert-sync
+    else
+        systemctl start xray ws-python stunnel4 bhttp 2>/dev/null
+    fi
 }
 
 clear

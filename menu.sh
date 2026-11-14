@@ -642,7 +642,7 @@ bhttp2_instalar() {
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     
     echo -e "${C_YELLOW}[+] ${T[Descargando e instalando motor BHTTP v]:-Descargando e instalando motor BHTTP v}2.0...${C_RST}"
-    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
+    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.comPhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
     chmod +x /tmp/bhttpv2.sh
     
     bash /tmp/bhttpv2.sh install
@@ -2027,6 +2027,8 @@ echo -e "  ${C_NEON_YELLOW}14.${C_RST}⚡ ${T[Instalar Hysteria v1 (QUIC Proxy]:
 echo -e "  ${C_NEON_YELLOW}15.${C_RST}🔒 ${T[Instalar SSL / TLS (Puerto Dinámico]:-Instalar SSL / TLS (Puerto Dinámico})"
 echo -e "  ${C_NEON_YELLOW}16.${C_RST}🐻 ${T[Instalar Dropbear (Ubuntu]:-Instalar Dropbear (Ubuntu} 20)"
 echo -e "  ${C_NEON_YELLOW}17.${C_RST}🌐 ${T[Instalar WSProxy (WebSocket Proxy]:-Instalar WSProxy (WebSocket Proxy})"
+echo -e "  ${C_NEON_YELLOW}18.${C_RST}🚀 ${T[Menú Xray (VLESS XHTTP)]:-Menú Xray (VLESS XHTTP)}"
+echo -e "  ${C_NEON_YELLOW}19.${C_RST}🧩 ${T[Motor unificado HAProxy + Xray (avanzado)]:-Motor unificado HAProxy + Xray (avanzado)}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Principal]:-Volver al Menú Principal}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
@@ -2051,6 +2053,8 @@ case $hopt in
 16) menu_dropbear ;;
 #16) clear; echo -e "${C_YELLOW}[+] Descargando e instalando Dropbear...${C_RST}"; wget -qO /tmp/dropbear.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/dropbear.sh && chmod +x /tmp/dropbear.sh && bash /tmp/dropbear.sh ;;
 17) menu_wsproxy ;;
+19) clear; wget -qO /tmp/xray_manager.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/xray_manager.sh && chmod +x /tmp/xray_manager.sh && bash /tmp/xray_manager.sh ;;
+18) clear; wget -qO /tmp/xhttp.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/xhttp.sh && chmod +x /tmp/xhttp.sh && bash /tmp/xhttp.sh ;;
 0) break ;;
 *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac

@@ -19,6 +19,7 @@ Abrir/agregar puerto BHTTP	ABRIR/ADICIONAR PORTA BHTTP
 Activado	ATIVADO
 Activando Droplimiter en background	ATIVANDO DROPLIMITER EM SEGUNDO PLANO
 Activando servicio Systemd	ATIVANDO SERVIÇO SYSTEMD
+Activando servicios	ATIVANDO SERVIÇOS
 Activar AUTOCONFIG (Python + SSL	ATIVAR AUTOCONFIG (PYTHON + SSL
 Activar Auto-Inicio	ATIVAR AUTO-INÍCIO
 Activar Swap / Modificar valor de Swap	ATIVAR SWAP / MODIFICAR VALOR DO SWAP
@@ -34,6 +35,8 @@ Además se instalarán	ALÉM DISSO, SERÃO INSTALADOS
 Admin ID inválido	ID DE ADMIN INVÁLIDO
 Agregar Revendedor / Recargar Créditos	ADICIONAR REVENDEDOR / RECARREGAR CRÉDITOS
 Ajustar máximo de sesiones	AJUSTAR MÁXIMO DE SESSÕES
+Alguna ruta no llegó al backend esperado	ALGUMA ROTA NÃO CHEGOU AO BACKEND ESPERADO
+Antes de tocar nada se guarda un backup completo y se puede restaurar desde este menú	ANTES DE ALTERAR QUALQUER COISA, É SALVO UM BACKUP COMPLETO QUE PODE SER RESTAURADO POR ESTE MENU
 Aplicando configuración	APLICANDO CONFIGURAÇÃO
 Aplicando nuevo puerto	APLICANDO NOVA PORTA
 Aplicando permisos root y estructura TLS	APLICANDO PERMISSÕES ROOT E ESTRUTURA TLS
@@ -69,6 +72,7 @@ BLOQUEAR / DESBLOQUEAR USUARIO	BLOQUEAR / DESBLOQUEAR USUÁRIO
 BLOQUEO DE TORRENTS	BLOQUEIO DE TORRENTS
 BOT TELEGRAM (VENDEDORES + SSH + V2RAY	BOT TELEGRAM (VENDEDORES + SSH + V2RAY
 BTUN/SuperFlash: usa cualquiera de los puertos mostrados arriba | DNS 1.1.1.1 | Upload 16 | Download	BTUN/SuperFlash: USE QUALQUER UMA DAS PORTAS MOSTRADAS ACIMA | DNS 1.1.1.1 | Upload 16 | Download
+Backups	BACKUPS
 BadVPN desinstalado correctamente	BADVPN DESINSTALADO COM SUCESSO
 Banner Global guardado	BANNER GLOBAL SALVO
 Banner por Defecto	BANNER PADRÃO
@@ -92,11 +96,15 @@ CONFIGURACIÓN DE CREDENCIALES Hysteria v	CONFIGURAÇÃO DE CREDENCIAIS HYSTERIA
 CPU Cache	CACHE DA CPU
 CPU Cores	NÚCLEOS DA CPU
 CPU Model	MODELO DA CPU
+CREAR CUENTA VLESS XHTTP	CRIAR CONTA VLESS XHTTP
 CREAR USUARIO XRAY TROJAN	CRIAR USUÁRIO XRAY TROJAN
 CREAR USUARIO XRAY VLESS	CRIAR USUÁRIO XRAY VLESS
 CREAR USUARIO XRAY VMESS	CRIAR USUÁRIO XRAY VMESS
 CUENTA TROJAN CREADA EXITOSAMENTE	CONTA TROJAN CRIADA COM SUCESSO
+CUENTA VLESS-XHTTP CREADA EXITOSAMENTE	CONTA VLESS-XHTTP CRIADA COM SUCESSO
+CUENTAS TROJAN ACTIVAS	CONTAS TROJAN ATIVAS
 Calculando I/O Speed	CALCULANDO VELOCIDADE DE E/S
+Cambia su puerto o detenlos y vuelve a ejecutar la instalación. No se detuvo nada	ALTERE A PORTA DELES OU PARE-OS E EXECUTE A INSTALAÇÃO DE NOVO. NADA FOI PARADO
 Cambiar Límite de IPs (Cuenta SSH	ALTERAR LIMITE DE IPS (CONTA SSH
 Cambiar Mensaje HTTP	ALTERAR MENSAGEM HTTP
 Cambiar Puerto	ALTERAR PORTA
@@ -106,9 +114,12 @@ Cambiar puerto	ALTERAR PORTA
 Cambiar puerto BHTTP principal (si existe	ALTERAR PORTA BHTTP PRINCIPAL (SE EXISTIR
 Cambiar puerto SSH backend	ALTERAR PORTA SSH BACKEND
 Cancelado	CANCELADO
+Cancelar	CANCELAR
 Cantidad de Créditos	QUANTIDADE DE CRÉDITOS
 Cerrar/eliminar puerto BHTTP	FECHAR/ELIMINAR PORTA BHTTP
+Certificado	CERTIFICADO
 Certificado TLS de	CERTIFICADO TLS DE
+Certificado actualizado en HAProxy	CERTIFICADO ATUALIZADO NO HAPROXY
 Certificado generado. Distribuyendo a Xray y Stunnel	CERTIFICADO GERADO. DISTRIBUINDO PARA XRAY E STUNNEL
 CheckUser (Conecta4G) activado con systemd (se reinicia al arrancar el VPS	CHECKUSER (CONECTA4G) ATIVADO COM SYSTEMD (REINICIA AO INICIAR A VPS
 CheckUser (Conecta4G) desactivado	CHECKUSER (CONECTA4G) DESATIVADO
@@ -119,13 +130,16 @@ CheckUser Multi-App desinstalado correctamente	CHECKUSER MULTI-APP DESINSTALADO 
 CheckUser Multi-App detenido	CHECKUSER MULTI-APP PARADO
 Cierra procesos o reinicia el VPS e inténtalo de nuevo	ENCERRE PROCESSOS OU REINICIE A VPS E TENTE NOVAMENTE
 Clave	SENHA
+Con el motor unificado activo el inbound XHTTP forma parte del motor. Para quitarlo restaura el backup del motor	COM O MOTOR UNIFICADO ATIVO, O INBOUND XHTTP FAZ PARTE DO MOTOR. PARA REMOVÊ-LO, RESTAURE O BACKUP DO MOTOR
 Configura tu dominio en	CONFIGURE SEU DOMÍNIO EM
 Configuración compatible con TLS Túnel y HTTP Injector	CONFIGURAÇÃO COMPATÍVEL COM TLS TÚNEL E HTTP INJECTOR
 Configuración de puerto	CONFIGURAÇÃO DE PORTA
 Configurando Bot	CONFIGURANDO BOT
 Configurando Certificado SSL para puerto	CONFIGURANDO CERTIFICADO SSL PARA A PORTA
 Configurando Certificado y Stunnel4 en puerto	CONFIGURANDO CERTIFICADO E STUNNEL4 NA PORTA
+Configurando HAProxy y SSH-WS interno	CONFIGURANDO HAPROXY E SSH-WS INTERNO
 Configurando Reglas de Enrutamiento (Stunnel	CONFIGURANDO REGRAS DE ROTEAMENTO (STUNNEL
+Configurando inbound XHTTP en el puerto	CONFIGURANDO INBOUND XHTTP NA PORTA
 Configurando puerto	CONFIGURANDO PORTA
 Configurando servicio Systemd	CONFIGURANDO SERVIÇO SYSTEMD
 Configurando servicio systemd CheckUser (Conecta4G) en puerto	CONFIGURANDO SERVIÇO SYSTEMD CHECKUSER (CONECTA4G) NA PORTA
@@ -142,19 +156,25 @@ Copia los datos y presiona Enter	COPIE OS DADOS E PRESSIONE ENTER
 Crea un Usuario Admin para el Web	CRIE UM USUÁRIO ADMIN PARA O WEB
 Crea una Contraseña Admin para el Web	CRIE UMA SENHA ADMIN PARA O WEB
 Creando API de CheckUser en Python	CRIANDO API DO CHECKUSER EM PYTHON
+Creando backup	CRIANDO BACKUP
 Creando con dd (puede tardar unos minutos	CRIANDO COM dd (PODE DEMORAR ALGUNS MINUTOS
 Crear Cuenta Trojan	CRIAR CONTA TROJAN
 Crear Cuenta Vless	CRIAR CONTA VLESS
 Crear Cuenta Vmess	CRIAR CONTA VMESS
 Crear Usuario (Normal / HWID	CRIAR USUÁRIO (NORMAL / HWID
+Crear cuenta XHTTP	CRIAR CONTA XHTTP
 Créditos	CRÉDITOS
+Cuenta renovada hasta	CONTA RENOVADA ATÉ
+Cuentas	CONTAS
 Cuentas actuales	CONTAS ATUAIS
 DD/MM/YYYY	DD/MM/AAAA
 DESBLOQUEADO	DESBLOQUEADO
 DESBLOQUEAR IP	DESBLOQUEAR IP
 DESINSTALAR BHTTP	DESINSTALAR BHTTP
+DESINSTALAR XHTTP	DESINSTALAR XHTTP
 DESInstalar HCR (v	DESINSTALAR HCR (V
 DETENIDO	PARADO
+DIAGNÓSTICO DE RUTAS	DIAGNÓSTICO DE ROTAS
 Datos inválidos	DADOS INVÁLIDOS
 Deja siempre espacio libre en disco para evitar problemas	DEIXE SEMPRE ESPAÇO LIVRE NO DISCO PARA EVITAR PROBLEMAS
 Dependencias críticas instaladas	DEPENDÊNCIAS CRÍTICAS INSTALADAS
@@ -197,6 +217,7 @@ Desinstalar	DESINSTALAR
 Desinstalar CheckUser Multi-App	DESINSTALAR CHECKUSER MULTI-APP
 Desinstalar Fail2ban	DESINSTALAR FAIL2BAN
 Desinstalar SSL / TLS	DESINSTALAR SSL / TLS
+Desinstalar XHTTP	DESINSTALAR XHTTP
 Desinstalar y Liberar Puerto	DESINSTALAR E LIBERAR PORTA
 Después de instalar también puedes usar	DEPOIS DE INSTALAR VOCÊ TAMBÉM PODE USAR
 Después entra a	DEPOIS ENTRE EM
@@ -223,6 +244,7 @@ Deteniendo y desinstalando BadVPN	PARANDO E DESINSTALANDO BADVPN
 Deteniendo y desinstalando Dropbear	PARANDO E DESINSTALANDO DROPBEAR
 Developer	DESENVOLVEDOR
 Diagnóstico de capacidad SSH	DIAGNÓSTICO DE CAPACIDADE SSH
+Diagnóstico de rutas	DIAGNÓSTICO DE ROTAS
 Digite su opción	DIGITE SUA OPÇÃO
 Disco	DISCO
 Dominio	DOMÍNIO
@@ -239,29 +261,44 @@ Duración (días	DURAÇÃO (DIAS
 DÍAS RESTANTES	DIAS RESTANTES
 Días	DIAS
 Días a sumar	DIAS A SOMAR
+Días de duración	DIAS DE DURAÇÃO
+ELIMINAR CUENTA VLESS XHTTP	ELIMINAR CONTA VLESS XHTTP
 ELIMINAR USUARIO XRAY VLESS	ELIMINAR USUÁRIO XRAY VLESS
 ELIMINAR USUARIO XRAY VMESS	ELIMINAR USUÁRIO XRAY VMESS
 ERROR CRÍTICO: El archivo	ERRO CRÍTICO: O ARQUIVO
 ERROR CRÍTICO: El puerto	ERRO CRÍTICO: A PORTA
 ESTADO DE PUERTOS Y SERVICIOS	ESTADO DAS PORTAS E SERVIÇOS
+ESTADO DEL MOTOR UNIFICADO	ESTADO DO MOTOR UNIFICADO
 ESTADO E IPs BLOQUEADAS	ESTADO E IPS BLOQUEADOS
 Ejecuta este gestor como root	EXECUTE ESTE GERENCIADOR COMO ROOT
 El SHA-256 del motor no coincide con	O SHA-256 DO MOTOR NÃO COINCIDE COM
 El binario descargado no se puede ejecutar en esta arquitectura	O BINÁRIO BAIXADO NÃO PODE SER EXECUTADO NESTA ARQUITETURA
 El bloqueo de torrents no está activo	O BLOQUEIO DE TORRENTS NÃO ESTÁ ATIVO
+El config.json de Xray o el registro de cuentas XHTTP está dañado	O config.json DO XRAY OU O REGISTRO DE CONTAS XHTTP ESTÁ DANIFICADO
+El config.json de Xray o el registro de cuentas XHTTP está dañado. No se cambió nada	O config.json DO XRAY OU O REGISTRO DE CONTAS XHTTP ESTÁ DANIFICADO. NADA FOI ALTERADO
+El dominio apunta a	O DOMÍNIO APONTA PARA
+El inbound XHTTP lo gestiona el motor unificado HAProxy (ruta /xhttp en los puertos 443, 80 y	O INBOUND XHTTP É GERENCIADO PELO MOTOR UNIFICADO HAPROXY (ROTA /xhttp NAS PORTAS 443, 80 E
 El listener	O LISTENER
 El menú no se instaló correctamente. Revisa tu conexión	O MENU NÃO FOI INSTALADO CORRETAMENTE. VERIFIQUE SUA CONEXÃO
+El motor no está instalado	O MOTOR NÃO ESTÁ INSTALADO
+El motor unificado HAProxy está activo: Trojan ya viene incluido en él	O MOTOR UNIFICADO HAPROXY ESTÁ ATIVO: O TROJAN JÁ VEM INCLUÍDO NELE
+El motor unificado HAProxy está activo: no se puede reinstalar el Xray clásico desde aquí	O MOTOR UNIFICADO HAPROXY ESTÁ ATIVO: NÃO É POSSÍVEL REINSTALAR O XRAY CLÁSSICO POR AQUI
+El motor unificado HAProxy ya sirve SSH-WS y SSL en los puertos 80, 8080 y	O MOTOR UNIFICADO HAPROXY JÁ ATENDE SSH-WS E SSL NAS PORTAS 80, 8080 E
+El motor unificado está activo pero no tiene el inbound XHTTP. Reinstálalo desde Menú de Instaladores > Motor unificado	O MOTOR UNIFICADO ESTÁ ATIVO, MAS NÃO TEM O INBOUND XHTTP. REINSTALE-O EM MENU DE INSTALADORES > MOTOR UNIFICADO
 El máximo recomendado ahora es	O MÁXIMO RECOMENDADO AGORA É
 El puerto	A PORTA
 El puerto 80 está ocupado por otro servicio: no se puede emitir el certificado Let	A PORTA 80 ESTÁ OCUPADA POR OUTRO SERVIÇO: NÃO É POSSÍVEL EMITIR O CERTIFICADO Let
+El registro de cuentas XHTTP se conserva por si lo reinstalas	O REGISTRO DE CONTAS XHTTP É MANTIDO CASO VOCÊ REINSTALE
 El servicio no arrancó con el nuevo puerto. Revise: journalctl -u	O SERVIÇO NÃO INICIOU COM A NOVA PORTA. VERIFIQUE: journalctl -u
 El sistema aún tiene otra swap propia que este gestor no modifica	O SISTEMA AINDA TEM OUTRO SWAP PRÓPRIO QUE ESTE GERENCIADOR NÃO MODIFICA
+El usuario ya existe	O USUÁRIO JÁ EXISTE
 Eliminado	ELIMINADO
 Eliminar Cuenta Trojan	ELIMINAR CONTA TROJAN
 Eliminar Cuenta Vless	ELIMINAR CONTA VLESS
 Eliminar Cuenta Vmess	ELIMINAR CONTA VMESS
 Eliminar Revendedor	ELIMINAR REVENDEDOR
 Eliminar Usuario	ELIMINAR USUÁRIO
+Eliminar cuenta XHTTP	ELIMINAR CONTA XHTTP
 Enter para	ENTER PARA
 Enter para usar	ENTER PARA USAR
 Error SSL. Revisa que tu IP apunte al dominio en Cloudflare	ERRO SSL. VERIFIQUE SE SEU IP APONTA PARA O DOMÍNIO NA CLOUDFLARE
@@ -269,6 +306,7 @@ Error al descargar el archivo de actualización	ERRO AO BAIXAR O ARQUIVO DE ATUA
 Error al descargar la actualización	ERRO AO BAIXAR A ATUALIZAÇÃO
 Error al descargar wsproxy.py	ERRO AO BAIXAR wsproxy.py
 Error crítico: El servicio BHTTP colapsó al iniciar	ERRO CRÍTICO: O SERVIÇO BHTTP FALHOU AO INICIAR
+Error inesperado en el motor XHTTP (código	ERRO INESPERADO NO MOTOR XHTTP (CÓDIGO
 Error: Debes ingresar un subdominio NS válido	ERRO: VOCÊ DEVE INFORMAR UM SUBDOMÍNIO NS VÁLIDO
 Error: El servicio HCR colapsó	ERRO: O SERVIÇO HCR FALHOU
 Error: Este script debe ejecutarse como root	ERRO: ESTE SCRIPT DEVE SER EXECUTADO COMO ROOT
@@ -276,9 +314,13 @@ Error: No se pudo generar el SSL	ERRO: NÃO FOI POSSÍVEL GERAR O SSL
 Error: no se pudo descargar BHTTP.py	ERRO: NÃO FOI POSSÍVEL BAIXAR BHTTP.py
 Escribe BHTTP para confirmar	DIGITE BHTTP PARA CONFIRMAR
 Escribe CERRAR para confirmar el puerto	DIGITE CERRAR PARA CONFIRMAR A PORTA
+Ese puerto está reservado. Usa otro (por ejemplo	ESSA PORTA É RESERVADA. USE OUTRA (POR EXEMPLO
+Ese puerto ya lo usa otro inbound de Xray	ESSA PORTA JÁ É USADA POR OUTRO INBOUND DO XRAY
 Espacio insuficiente en disco	ESPAÇO INSUFICIENTE EM DISCO
 Esperando lock de apt	AGUARDANDO LOCK DO APT
 Esta acción necesita una terminal interactiva (/dev/tty	ESTA AÇÃO PRECISA DE UM TERMINAL INTERATIVO (/dev/tty
+Esta instalación se bloquea para no cortar HAProxy	ESTA INSTALAÇÃO É BLOQUEADA PARA NÃO CORTAR O HAPROXY
+Esta versión de Xray no acepta los inbounds Shadowsocks de la plantilla: se omiten	ESTA VERSÃO DO XRAY NÃO ACEITA OS INBOUNDS SHADOWSOCKS DO MODELO: ELES SÃO OMITIDOS
 Estado	ESTADO
 Estado completo	ESTADO COMPLETO
 Estado: systemctl status vps-bot	ESTADO: systemctl status vps-bot
@@ -286,6 +328,7 @@ Este VPS probablemente no soporta el módulo	ESTA VPS PROVAVELMENTE NÃO SUPORTA
 Este diagnóstico NO cambia sshd para evitar afectar tu acceso administrativo	ESTE DIAGNÓSTICO NÃO ALTERA O SSHD PARA NÃO AFETAR SEU ACESSO ADMINISTRATIVO
 Este script debe ejecutarse como root	ESTE SCRIPT DEVE SER EXECUTADO COMO ROOT
 Esto elimina SOLO SuperFlash BHTTP. SSH, H2/XHTTP y otros servicios no se tocan	ISTO ELIMINA SOMENTE O SuperFlash BHTTP. SSH, H2/XHTTP E OUTROS SERVIÇOS NÃO SÃO TOCADOS
+Estos servicios usan los puertos 80/8080/443 y no son parte del manager	ESTES SERVIÇOS USAM AS PORTAS 80/8080/443 E NÃO FAZEM PARTE DO MANAGER
 Estándar	PADRÃO
 Expira	EXPIRA
 FAIL2BAN (ANTI FUERZA BRUTA	FAIL2BAN (ANTI FORÇA BRUTA
@@ -307,6 +350,7 @@ GESTION DE VLESS (443 TLS	GESTÃO DE VLESS (443 TLS
 GESTION DE VMESS (443 TLS	GESTÃO DE VMESS (443 TLS
 GESTIÓN CHECKUSER MULTI-APP	GESTÃO CHECKUSER MULTI-APP
 GESTIÓN DE CHECKUSER AVANZADO	GESTÃO DE CHECKUSER AVANÇADO
+GESTIÓN DE CUENTAS VLESS XHTTP	GESTÃO DE CONTAS VLESS XHTTP
 GESTIÓN DE DROPBEAR SSH	GESTÃO DE DROPBEAR SSH
 GESTIÓN DE ONLINE APP	GESTÃO DE ONLINE APP
 GESTIÓN DE REVENDEDORES (BOT	GESTÃO DE REVENDEDORES (BOT
@@ -326,6 +370,7 @@ Generando certificado SSL autofirmado de respaldo	GERANDO CERTIFICADO SSL AUTOAS
 Generando certificados SSL	GERANDO CERTIFICADOS SSL
 Generando claves criptográficas RSA y ECDSA	GERANDO CHAVES CRIPTOGRÁFICAS RSA E ECDSA
 Generando contraseña global (Token) para HWID	GERANDO SENHA GLOBAL (TOKEN) PARA HWID
+HAProxy tomará los puertos 80, 8080 y 443 (TLS con tu certificado	O HAPROXY ASSUMIRÁ AS PORTAS 80, 8080 E 443 (TLS COM O SEU CERTIFICADO
 HCR desinstalado correctamente	HCR DESINSTALADO COM SUCESSO
 HCR operando en el puerto	HCR OPERANDO NA PORTA
 HCR v2.0 - GESTIÓN	HCR V2.0 - GESTÃO
@@ -336,6 +381,7 @@ HCR v2.0 no está instalado	HCR V2.0 NÃO ESTÁ INSTALADO
 HCR v2.0 no está instalado. Use la opción 1 primero	HCR V2.0 NÃO ESTÁ INSTALADO. USE A OPÇÃO 1 PRIMEIRO
 HCR v2.0 reiniciado	HCR V2.0 REINICIADO
 HTTP Custom, HTTP Injector, Paneles Web	HTTP CUSTOM, HTTP INJECTOR, PAINÉIS WEB
+Hay rutas con problemas	HÁ ROTAS COM PROBLEMAS
 Herramientas y Sistema > Gestor de Dominio y Certificados SSL	FERRAMENTAS E SISTEMA > GERENCIADOR DE DOMÍNIO E CERTIFICADOS SSL
 Host / Dominio	HOST / DOMÍNIO
 Host / Servidor	HOST / SERVIDOR
@@ -362,10 +408,13 @@ INSTALAR BHTTP (v	INSTALAR BHTTP (V
 INSTALAR BHTTP PROXY	INSTALAR BHTTP PROXY
 INSTALAR CHECKUSER AVANZADO	INSTALAR CHECKUSER AVANÇADO
 INSTALAR HCR NATIVO	INSTALAR HCR NATIVO
+INSTALAR MOTOR UNIFICADO HAPROXY + XRAY	INSTALAR MOTOR UNIFICADO HAPROXY + XRAY
 IP a desbloquear (o escriba	IP A DESBLOQUEAR (OU DIGITE
 IP no válida	IP INVÁLIDO
 IPs bloqueadas	IPS BLOQUEADOS
 IPs ignoradas	IPS IGNORADOS
+Inbound	INBOUND
+Inbounds públicos antiguos reemplazados por HAProxy	INBOUNDS PÚBLICOS ANTIGOS SUBSTITUÍDOS PELO HAPROXY
 Ingresa el Token del Bot	INFORME O TOKEN DO BOT
 Ingresa el puerto para SSL/TLS	INFORME A PORTA PARA SSL/TLS
 Ingresa las contraseñas separadas por comas (Ej: pass1,pass	INFORME AS SENHAS SEPARADAS POR VÍRGULA (EX: pass1,pass
@@ -394,8 +443,10 @@ Instalador PHP	INSTALADOR PHP
 Instalando Dropbear	INSTALANDO DROPBEAR
 Instalando Fail2ban	INSTALANDO FAIL2BAN
 Instalando Stunnel4 y utilidades	INSTALANDO STUNNEL4 E UTILITÁRIOS
+Instalando Xray Core	INSTALANDO XRAY CORE
 Instalando dependencias	INSTALANDO DEPENDÊNCIAS
 Instalando dependencias (Python	INSTALANDO DEPENDÊNCIAS (PYTHON
+Instalando dependencias (python	INSTALANDO DEPENDÊNCIAS (python
 Instalando dependencias (python3-pip, flask	INSTALANDO DEPENDÊNCIAS (python3-pip, flask
 Instalando dependencias críticas	INSTALANDO DEPENDÊNCIAS CRÍTICAS
 Instalando dependencias mínimas faltantes	INSTALANDO DEPENDÊNCIAS MÍNIMAS FALTANTES
@@ -409,8 +460,10 @@ Instalando servicio HCR v2.0 en el puerto	INSTALANDO SERVIÇO HCR V2.0 NA PORTA
 Instalando y configurando OpenVPN	INSTALANDO E CONFIGURANDO OPENVPN
 Instalar / Cambiar Puerto BHTTP	INSTALAR / ALTERAR PORTA BHTTP
 Instalar / Cambiar Puerto HCR	INSTALAR / ALTERAR PORTA HCR
+Instalar / Cambiar puerto XHTTP	INSTALAR / ALTERAR PORTA XHTTP
 Instalar / Configurar Fail2ban	INSTALAR / CONFIGURAR FAIL2BAN
 Instalar / Reinstalar BadVPN	INSTALAR / REINSTALAR BADVPN
+Instalar / Reinstalar motor unificado	INSTALAR / REINSTALAR MOTOR UNIFICADO
 Instalar Acelerador BBR	INSTALAR ACELERADOR BBR
 Instalar BHTTP  (v	INSTALAR BHTTP  (V
 Instalar BHTTP  (v2.0 Nuevo	INSTALAR BHTTP  (V2.0 NOVO
@@ -438,12 +491,20 @@ Instalar e Iniciar Online App	INSTALAR E INICIAR ONLINE APP
 Instalar e Iniciar WebSocket	INSTALAR E INICIAR WEBSOCKET
 Intentos	TENTATIVAS
 Intentos fallidos antes de bloquear	TENTATIVAS FALHAS ANTES DE BLOQUEAR
+LINK XHTTP SIN TLS (Puerto	LINK XHTTP SEM TLS (PORTA
+LINK XHTTP TLS (Puerto	LINK XHTTP TLS (PORTA
+LISTA DE CUENTAS VLESS XHTTP	LISTA DE CONTAS VLESS XHTTP
 LISTA DE REVENDEDORES	LISTA DE REVENDEDORES
 La IP	O IP
 La contraseña debe tener al menos 8 caracteres	A SENHA DEVE TER PELO MENOS 8 CARACTERES
+La cuenta no existe	A CONTA NÃO EXISTE
 La instalación falló. Últimas líneas del registro	A INSTALAÇÃO FALHOU. ÚLTIMAS LINHAS DO REGISTRO
 Las contraseñas no coinciden	AS SENHAS NÃO COINCIDEM
+Las cuentas VMess/VLESS no se tocan	AS CONTAS VMESS/VLESS NÃO SÃO TOCADAS
+Las cuentas VMess/VLESS siguen funcionando igual (mismo dominio, puerto 443 y rutas	AS CONTAS VMESS/VLESS CONTINUAM FUNCIONANDO IGUAL (MESMO DOMÍNIO, PORTA 443 E ROTAS
+Las cuentas creadas DESPUÉS de instalar el motor no existen en el backup	AS CONTAS CRIADAS DEPOIS DE INSTALAR O MOTOR NÃO EXISTEM NO BACKUP
 Liberando puerto	LIBERANDO PORTA
+Liberando puertos	LIBERANDO PORTAS
 Liberando puertos 80 y	LIBERANDO PORTAS 80 E
 Limpiando Firewall	LIMPANDO FIREWALL
 Limpiar todas las reglas (Reset Firewall	LIMPAR TODAS AS REGRAS (RESET DO FIREWALL
@@ -454,12 +515,14 @@ Listeners BHTTP gestionados: ninguno (abre los que quieras desde el menú	LISTEN
 Listo	PRONTO
 Load Average	CARGA MÉDIA
 Location	LOCALIZAÇÃO
+Los días deben ser un número entre 1 y	OS DIAS DEVEM SER UM NÚMERO ENTRE 1 E
 LÍMITE DE DISPOSITIVOS (IPs	LIMITE DE DISPOSITIVOS (IPS
 Límite Conexiones	LIMITE DE CONEXÕES
 Límite IPs	LIMITE DE IPS
 Límite de	LIMITE DE
 MB | RAM disponible	MB | RAM DISPONÍVEL
 MEMORIA VIRTUAL - ACTIVAR / MODIFICAR	MEMÓRIA VIRTUAL - ATIVAR / MODIFICAR
+MOTOR UNIFICADO HAPROXY + XRAY + SSH-WS	MOTOR UNIFICADO HAPROXY + XRAY + SSH-WS
 Manteniendo configuración actual	MANTENDO CONFIGURAÇÃO ATUAL
 Max sesiones	MÁX SESSÕES
 Max sesiones simultáneas	MÁX SESSÕES SIMULTÂNEAS
@@ -471,15 +534,20 @@ Mensaje actual	MENSAGEM ATUAL
 Mensaje vacío. Cancelado	MENSAGEM VAZIA. CANCELADO
 Menú Xray (Trojan	MENU XRAY (TROJAN
 Menú Xray (VLESS	MENU XRAY (VLESS
+Menú Xray (VLESS XHTTP)	MENU XRAY (VLESS XHTTP)
 Menú Xray (VMess	MENU XRAY (VMESS
 Menú instalado: sudo bhttp	MENU INSTALADO: sudo bhttp
+Migrando la configuración de Xray	MIGRANDO A CONFIGURAÇÃO DO XRAY
 Migrando servicio antiguo checkuser	MIGRANDO SERVIÇO ANTIGO checkuser
 Minutos de bloqueo	MINUTOS DE BLOQUEIO
 Modificar Puerto Extra	MODIFICAR PORTA EXTRA
 Modificar Puerto Principal	MODIFICAR PORTA PRINCIPAL
+Modo	MODO
+Motor	MOTOR
 Motor BHTTP instalado/actualizado	MOTOR BHTTP INSTALADO/ATUALIZADO
 Motor exacto	MOTOR EXATO
 Motor no instalado	MOTOR NÃO INSTALADO
+Motor unificado HAProxy + Xray (avanzado)	MOTOR UNIFICADO HAPROXY + XRAY (AVANÇADO)
 Máximo de dispositivos permitidos	MÁXIMO DE DISPOSITIVOS PERMITIDOS
 Módulos core descargados correctamente	MÓDULOS CORE BAIXADOS COM SUCESSO
 NO	NÃO
@@ -494,11 +562,17 @@ No detecto un listener SSH en	NÃO DETECTO UM LISTENER SSH EM
 No escucha en	NÃO ESCUTA EM
 No había listeners BHTTP configurados	NÃO HAVIA LISTENERS BHTTP CONFIGURADOS
 No hay RAM libre suficiente para desactivar el swap sin riesgo	NÃO HÁ RAM LIVRE SUFICIENTE PARA DESATIVAR O SWAP SEM RISCO
+No hay backups del motor	NÃO HÁ BACKUPS DO MOTOR
+No hay certificado TLS de Xray. Instala primero el Menú Xray (VLESS o VMess	NÃO HÁ CERTIFICADO TLS DO XRAY. INSTALE PRIMEIRO O MENU XRAY (VLESS OU VMESS
 No hay certificado TLS disponible	NÃO HÁ CERTIFICADO TLS DISPONÍVEL
+No hay cuentas XHTTP registradas	NÃO HÁ CONTAS XHTTP REGISTRADAS
+No hay dominio configurado	NÃO HÁ DOMÍNIO CONFIGURADO
+No hay dominio configurado. Configúralo en Herramientas y Sistema > Gestor de Dominio y Certificados SSL	NÃO HÁ DOMÍNIO CONFIGURADO. CONFIGURE EM FERRAMENTAS E SISTEMA > GERENCIADOR DE DOMÍNIO E CERTIFICADOS SSL
 No hay dominio guardado en el VPS. Usa la opción	NÃO HÁ DOMÍNIO SALVO NA VPS. USE A OPÇÃO
 No hay espacio libre suficiente para crear swap	NÃO HÁ ESPAÇO LIVRE SUFICIENTE PARA CRIAR SWAP
 No hay listeners BHTTP configurados; todavía no hay logs de puertos	NÃO HÁ LISTENERS BHTTP CONFIGURADOS; AINDA NÃO HÁ LOGS DE PORTAS
 No hay motor previo guardado	NÃO HÁ MOTOR ANTERIOR SALVO
+No hay ningún backup del motor para restaurar	NÃO HÁ NENHUM BACKUP DO MOTOR PARA RESTAURAR
 No hay puerto BHTTP principal configurado. Usa la opción 16 para abrir el puerto que quieras	NÃO HÁ PORTA BHTTP PRINCIPAL CONFIGURADA. USE A OPÇÃO 16 PARA ABRIR A PORTA QUE QUISER
 No hay puerto principal configurado todavía. Usa la opción 16 para abrir el primer puerto BHTTP	AINDA NÃO HÁ PORTA PRINCIPAL CONFIGURADA. USE A OPÇÃO 16 PARA ABRIR A PRIMEIRA PORTA BHTTP
 No hay puertos BHTTP abiertos por el manager	NÃO HÁ PORTAS BHTTP ABERTAS PELO GERENCIADOR
@@ -517,6 +591,8 @@ No se pudieron aplicar las reglas	NÃO FOI POSSÍVEL APLICAR AS REGRAS
 No se pudo aplicar BBR automáticamente en este kernel	NÃO FOI POSSÍVEL APLICAR O BBR AUTOMATICAMENTE NESTE KERNEL
 No se pudo cambiar el puerto. Últimas líneas del registro	NÃO FOI POSSÍVEL ALTERAR A PORTA. ÚLTIMAS LINHAS DO REGISTRO
 No se pudo completar la operación	NÃO FOI POSSÍVEL CONCLUIR A OPERAÇÃO
+No se pudo crear el backup. No se cambió nada	NÃO FOI POSSÍVEL CRIAR O BACKUP. NADA FOI ALTERADO
+No se pudo crear la cuenta: Xray rechazó el cambio y se mantuvo la configuración anterior	NÃO FOI POSSÍVEL CRIAR A CONTA: O XRAY REJEITOU A ALTERAÇÃO E A CONFIGURAÇÃO ANTERIOR FOI MANTIDA
 No se pudo crear o activar el swap en este sistema	NÃO FOI POSSÍVEL CRIAR OU ATIVAR O SWAP NESTE SISTEMA
 No se pudo desactivar el swap actual	NÃO FOI POSSÍVEL DESATIVAR O SWAP ATUAL
 No se pudo descargar	NÃO FOI POSSÍVEL BAIXAR
@@ -526,15 +602,19 @@ No se pudo descargar el binario desde	NÃO FOI POSSÍVEL BAIXAR O BINÁRIO DE
 No se pudo descargar el instalador desde	NÃO FOI POSSÍVEL BAIXAR O INSTALADOR DE
 No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub	NÃO FOI POSSÍVEL BAIXAR swapmemory.sh. VERIFIQUE SUA CONEXÃO OU O CAMINHO NO GITHUB
 No se pudo detener el servicio	NÃO FOI POSSÍVEL PARAR O SERVIÇO
+No se pudo eliminar: se mantuvo la configuración anterior	NÃO FOI POSSÍVEL ELIMINAR: A CONFIGURAÇÃO ANTERIOR FOI MANTIDA
+No se pudo emitir el certificado Let Encrypt. Se genera uno autofirmado (los clientes con verificación TLS estricta fallarán	NÃO FOI POSSÍVEL EMITIR O CERTIFICADO Let Encrypt. SERÁ GERADO UM AUTOASSINADO (CLIENTES COM VERIFICAÇÃO TLS RIGOROSA FALHARÃO
 No se pudo iniciar. Revisa: journalctl -u checkuser-multi	NÃO FOI POSSÍVEL INICIAR. VERIFIQUE: journalctl -u checkuser-multi
 No se pudo iniciar. Revisa: journalctl -u stunnel	NÃO FOI POSSÍVEL INICIAR. VERIFIQUE: journalctl -u stunnel
 No se pudo iniciar. Revise: journalctl -u	NÃO FOI POSSÍVEL INICIAR. VERIFIQUE: journalctl -u
 No se pudo iniciar. Últimas líneas del registro	NÃO FOI POSSÍVEL INICIAR. ÚLTIMAS LINHAS DO REGISTRO
 No se pudo instalar Fail2ban	NÃO FOI POSSÍVEL INSTALAR O FAIL2BAN
 No se pudo instalar iptables	NÃO FOI POSSÍVEL INSTALAR O IPTABLES
+No se pudo instalar python	NÃO FOI POSSÍVEL INSTALAR O python
 No se pudo reiniciar el servicio automáticamente	NÃO FOI POSSÍVEL REINICIAR O SERVIÇO AUTOMATICAMENTE
 No se pudo reiniciar. Revisa: journalctl -u checkuser-multi	NÃO FOI POSSÍVEL REINICIAR. VERIFIQUE: journalctl -u checkuser-multi
 No se pudo reiniciar. Revisa: journalctl -u stunnel	NÃO FOI POSSÍVEL REINICIAR. VERIFIQUE: journalctl -u stunnel
+No se pudo sincronizar el certificado	NÃO FOI POSSÍVEL SINCRONIZAR O CERTIFICADO
 Nombre de usuario	NOME DE USUÁRIO
 Nombre del usuario	NOME DO USUÁRIO
 Nombre del usuario a renovar	NOME DO USUÁRIO A RENOVAR
@@ -568,7 +648,10 @@ Panel Web reiniciado	PAINEL WEB REINICIADO
 Paquetes base instalados correctamente	PACOTES BASE INSTALADOS COM SUCESSO
 Paquetes bloqueados	PACOTES BLOQUEADOS
 Para volver a activarlo use la opción Reiniciar	PARA ATIVÁ-LO NOVAMENTE USE A OPÇÃO REINICIAR
+Para volver al esquema anterior usa Menú de Instaladores > Motor unificado > Restaurar backup	PARA VOLTAR AO ESQUEMA ANTERIOR USE MENU DE INSTALADORES > MOTOR UNIFICADO > RESTAURAR BACKUP
+Password	SENHA
 Passwords	SENHAS
+Path	CAMINHO (PATH)
 Pega HTML	COLE O HTML
 Pega HTML (o escribe 0 para cancelar	COLE O HTML (OU DIGITE 0 PARA CANCELAR
 Perfil HIGH PERFORMANCE + STABILITY activo	PERFIL HIGH PERFORMANCE + STABILITY ATIVO
@@ -578,6 +661,7 @@ Por defecto	PADRÃO
 Por favor, elige un puerto diferente para evitar conflictos de red	POR FAVOR, ESCOLHA UMA PORTA DIFERENTE PARA EVITAR CONFLITOS DE REDE
 Por seguridad el manager limita este valor a	POR SEGURANÇA O GERENCIADOR LIMITA ESTE VALOR A
 Preparando Instalación del Panel Web	PREPARANDO INSTALAÇÃO DO PAINEL WEB
+Preparando el certificado para	PREPARANDO O CERTIFICADO PARA
 Preparando sistema	PREPARANDO SISTEMA
 Presiona ENTER para continuar	PRESSIONE ENTER PARA CONTINUAR
 Presiona ENTER para volver al menú	PRESSIONE ENTER PARA VOLTAR AO MENU
@@ -592,6 +676,7 @@ Presione Enter para regresar al menú	PRESSIONE ENTER PARA VOLTAR AO MENU
 Press any key to back	PRESSIONE QUALQUER TECLA PARA VOLTAR
 Primer puerto BHTTP	PRIMEIRA PORTA BHTTP
 Principal	PRINCIPAL
+Probando cada ruta con tráfico real (contadores de HAProxy	TESTANDO CADA ROTA COM TRÁFEGO REAL (CONTADORES DO HAPROXY
 Protecc. HWID	PROTEÇÃO HWID
 Protege	PROTEGE
 Puerto	PORTA
@@ -604,6 +689,8 @@ Puerto Principal	PORTA PRINCIPAL
 Puerto SSH backend local	PORTA SSH BACKEND LOCAL
 Puerto SSL	PORTA SSL
 Puerto SSL/TLS	PORTA SSL/TLS
+Puerto TLS	PORTA TLS
+Puerto TLS para XHTTP	PORTA TLS PARA O XHTTP
 Puerto UDP	PORTA UDP
 Puerto actual	PORTA ATUAL
 Puerto cambiado	PORTA ALTERADA
@@ -621,11 +708,17 @@ Puertos    : 6000 al 19999 (Redirige a	PORTAS    : 6000 A 19999 (REDIRECIONA PAR
 Puertos BHTTP	PORTAS BHTTP
 Puertos BHTTP actuales	PORTAS BHTTP ATUAIS
 Puertos existentes conservados y habilitados para reinicios	PORTAS EXISTENTES MANTIDAS E HABILITADAS PARA REINÍCIOS
+Qué hará este instalador	O QUE ESTE INSTALADOR FARÁ
+RENOVAR CUENTA VLESS XHTTP	RENOVAR CONTA VLESS XHTTP
+RENOVAR CUENTA XRAY VLESS	RENOVAR CONTA XRAY VLESS
+RENOVAR CUENTA XRAY VMESS	RENOVAR CONTA XRAY VMESS
+RESTAURAR BACKUP / DESACTIVAR MOTOR	RESTAURAR BACKUP / DESATIVAR MOTOR
 Re-certificando el dominio guardado	RECERTIFICANDO O DOMÍNIO SALVO
 Re-certificar Subdominio Actual (Solución Errores	RECERTIFICAR SUBDOMÍNIO ATUAL (SOLUÇÃO DE ERROS
 Reaplicar HIGH PERFORMANCE + STABILITY	REAPLICAR HIGH PERFORMANCE + STABILITY
 Recopilando información del sistema, por favor espere	COLETANDO INFORMAÇÕES DO SISTEMA, POR FAVOR AGUARDE
 Red	REDE
+Red (Type	REDE (TYPE
 Region	REGIÃO
 Regresar	VOLTAR
 Reiniciando BHTTP v	REINICIANDO BHTTP V
@@ -646,8 +739,13 @@ Reintento	NOVA TENTATIVA
 Renovado	RENOVADO
 Renovar Días de Cuenta	RENOVAR DIAS DA CONTA
 Renovar Usuario	RENOVAR USUÁRIO
+Renovar cuenta XHTTP	RENOVAR CONTA XHTTP
 Repite la Contraseña	REPITA A SENHA
 Requiere tener el puerto libre 443 y el	REQUER A PORTA 443 LIVRE E A
+Restauración completada. Xray volvió a su configuración anterior	RESTAURAÇÃO CONCLUÍDA. O XRAY VOLTOU À CONFIGURAÇÃO ANTERIOR
+Restaurando desde	RESTAURANDO DE
+Restaurando el estado anterior	RESTAURANDO O ESTADO ANTERIOR
+Restaurar backup / Desactivar motor	RESTAURAR BACKUP / DESATIVAR MOTOR
 Revendedor eliminado	REVENDEDOR ELIMINADO
 Revendedor guardado	REVENDEDOR SALVO
 Revisa antes de probar la app	VERIFIQUE ANTES DE TESTAR O APP
@@ -655,21 +753,31 @@ Revisa tu conexión	VERIFIQUE SUA CONEXÃO
 Rollback del motor anterior	ROLLBACK DO MOTOR ANTERIOR
 SCRIPT REESTRUCTURA y AUTOCONFIGURACION	SCRIPT REESTRUTURA E AUTOCONFIGURAÇÃO
 SHA-256 incorrecto del motor descargado	SHA-256 INCORRETO DO MOTOR BAIXADO
+SINCRONIZAR CERTIFICADO	SINCRONIZAR CERTIFICADO
 SSH (puerto	SSH (PORTA
 SSH backend no escucha en	SSH BACKEND NÃO ESCUTA EM
+SSH-WS, SSH por TLS y gRPC/XHTTP/WS se reparten por contenido en los mismos puertos	SSH-WS, SSH POR TLS E gRPC/XHTTP/WS SÃO DISTRIBUÍDOS POR CONTEÚDO NAS MESMAS PORTAS
 SSL + ( Payload / Directo	SSL + ( PAYLOAD / DIRETO
 SSL / TLS desinstalado correctamente	SSL / TLS DESINSTALADO COM SUCESSO
 Salir	SAIR
 Salir del Gestor	SAIR DO GERENCIADOR
 Se descargarán los siguientes archivos	SERÃO BAIXADOS OS SEGUINTES ARQUIVOS
+Se detendrán y deshabilitarán	SERÃO PARADOS E DESABILITADOS
+Se devolverá Xray a su configuración anterior y se detendrá HAProxy	O XRAY VOLTARÁ À CONFIGURAÇÃO ANTERIOR E O HAPROXY SERÁ PARADO
 Se eliminará BHTTP v2.0 (servicio, binario y configuración	O BHTTP V2.0 SERÁ ELIMINADO (SERVIÇO, BINÁRIO E CONFIGURAÇÃO
 Se instalará BadVPN UDP Gateway en los puertos	O BADVPN UDP GATEWAY SERÁ INSTALADO NAS PORTAS
+Se mantuvo el motor. Puedes restaurar desde el menú	O MOTOR FOI MANTIDO. VOCÊ PODE RESTAURAR PELO MENU
+Se necesita un sistema basado en apt (Ubuntu o Debian	É NECESSÁRIO UM SISTEMA BASEADO EM apt (UBUNTU OU DEBIAN
+Se quitará el inbound XHTTP del Xray (puerto	O INBOUND XHTTP SERÁ REMOVIDO DO XRAY (PORTA
 Se recomienda usar otro puerto como	RECOMENDA-SE USAR OUTRA PORTA COMO
+Se te pedirá confirmación para detener	SERÁ PEDIDA SUA CONFIRMAÇÃO PARA PARAR
 Se usarán los certificados que ya hay en	SERÃO USADOS OS CERTIFICADOS QUE JÁ EXISTEM EM
+Selecciona el número de la cuenta	SELECIONE O NÚMERO DA CONTA
 Selecciona una opción	SELECIONE UMA OPÇÃO
 Seleccione el formato de fecha	SELECIONE O FORMATO DE DATA
 Seleccione el transporte	SELECIONE O TRANSPORTE
 Seleccione una opción	SELECIONE UMA OPÇÃO
+Selección inválida	SELEÇÃO INVÁLIDA
 Servicio SSL detenido	SERVIÇO SSL PARADO
 Servicio SSL iniciado	SERVIÇO SSL INICIADO
 Servicio SSL reiniciado	SERVIÇO SSL REINICIADO
@@ -678,6 +786,7 @@ Servicio reiniciado	SERVIÇO REINICIADO
 Servicios desactivados correctamente	SERVIÇOS DESATIVADOS COM SUCESSO
 Servidor OpenVPN y Certificados configurados exitosamente	SERVIDOR OPENVPN E CERTIFICADOS CONFIGURADOS COM SUCESSO
 Si aún no conecta desde tu app VPN, ejecuta	SE AINDA NÃO CONECTAR PELO SEU APP VPN, EXECUTE
+Sincronizar certificado	SINCRONIZAR CERTIFICADO
 Solicitando Certificado SSL Let	SOLICITANDO CERTIFICADO SSL Let
 Soporte	SUPORTE
 Swap amplía la RAM (recomendado en VPS con poca RAM	O SWAP AMPLIA A RAM (RECOMENDADO EM VPS COM POUCA RAM
@@ -688,6 +797,7 @@ TCP Congestion Ctrl	CONGESTIONAMENTO TCP
 TCP ESTAB ahora	TCP ESTAB AGORA
 TCP activas	TCP ATIVAS
 Techo de sesiones BHTTP por listener	LIMITE DE SESSÕES BHTTP POR LISTENER
+Todas las rutas responden	TODAS AS ROTAS RESPONDEM
 Todos los listeners BHTTP fueron detenidos manualmente. Siguen habilitados para el próximo boot salvo que los elimines	TODOS OS LISTENERS BHTTP FORAM PARADOS MANUALMENTE. CONTINUAM HABILITADOS PARA O PRÓXIMO BOOT, A MENOS QUE VOCÊ OS ELIMINE
 Todos usan el mismo engine	TODOS USAM O MESMO ENGINE
 Token inválido. Formato: 123456789:AAxxxx	TOKEN INVÁLIDO. FORMATO: 123456789:AAxxxx
@@ -713,12 +823,17 @@ Usuario a Bloquear	USUÁRIO A BLOQUEAR
 Usuario a Desbloquear	USUÁRIO A DESBLOQUEAR
 Usuario a eliminar	USUÁRIO A ELIMINAR
 Usuario a renovar	USUÁRIO A RENOVAR
+Usuario inválido: usa 1 a 40 caracteres (letras, números, punto, guion	USUÁRIO INVÁLIDO: USE DE 1 A 40 CARACTERES (LETRAS, NÚMEROS, PONTO, HÍFEN
+VENCIDO	VENCIDO
 VERIFICAR CONEXIONES EN VIVO	VERIFICAR CONEXÕES AO VIVO
+VOLVER	VOLTAR
 VPS nueva: NO se abrirá ningún puerto BHTTP automáticamente	VPS NOVA: NENHUMA PORTA BHTTP SERÁ ABERTA AUTOMATICAMENTE
 Valor inválido	VALOR INVÁLIDO
 Valor no válido	VALOR INVÁLIDO
 Valor no válido: escribe un número entero mayor que	VALOR INVÁLIDO: DIGITE UM NÚMERO INTEIRO MAIOR QUE
 Vence	VENCE
+Ver cuentas activas	VER CONTAS ATIVAS
+Ver estado	VER ESTADO
 Ver estado e IPs bloqueadas	VER ESTADO E IPS BLOQUEADOS
 Ver logs	VER LOGS
 Verifica con: systemctl status dropbear	VERIFIQUE COM: systemctl status dropbear
@@ -737,7 +852,15 @@ WebSocket activado con systemd (se reinicia al arrancar el VPS	WEBSOCKET ATIVADO
 WebSocket desactivado correctamente	WEBSOCKET DESATIVADO COM SUCESSO
 WebSocket no está activo	WEBSOCKET NÃO ESTÁ ATIVO
 WebSocket no está activo. Actívalo primero	WEBSOCKET NÃO ESTÁ ATIVO. ATIVE-O PRIMEIRO
+XHTTP activo en el puerto	XHTTP ATIVO NA PORTA
+XHTTP aún no está instalado. Configurándolo primero	XHTTP AINDA NÃO ESTÁ INSTALADO. CONFIGURANDO PRIMEIRO
+XHTTP desinstalado	XHTTP DESINSTALADO
+XHTTP no está instalado	XHTTP NÃO ESTÁ INSTALADO
 Xray no aplica este límite por sí solo: solo queda anotado	O XRAY NÃO APLICA ESTE LIMITE POR SI SÓ: FICA APENAS ANOTADO
+Xray no arrancó con el cambio. Se restauró la configuración anterior	O XRAY NÃO INICIOU COM A ALTERAÇÃO. A CONFIGURAÇÃO ANTERIOR FOI RESTAURADA
+Xray no está instalado. Instala primero el Menú Xray (VLESS o VMess	O XRAY NÃO ESTÁ INSTALADO. INSTALE PRIMEIRO O MENU XRAY (VLESS OU VMESS
+Xray pasará a escuchar solo en 127.0.0.1 (puertos 10001-10014); las cuentas VMess/VLESS/Trojan actuales se migran	O XRAY PASSARÁ A ESCUTAR SOMENTE EM 127.0.0.1 (PORTAS 10001-10014); AS CONTAS VMESS/VLESS/TROJAN ATUAIS SÃO MIGRADAS
+Xray rechazó la configuración. No se cambió nada	O XRAY REJEITOU A CONFIGURAÇÃO. NADA FOI ALTERADO
 Y verifica que aparezcan estos algoritmos	E VERIFIQUE SE ESTES ALGORITMOS APARECEM
 YYYY/MM/DD (Más común	AAAA/MM/DD (MAIS COMUM
 Ya está usando el puerto	JÁ ESTÁ USANDO A PORTA
@@ -754,9 +877,11 @@ desbloqueada	DESBLOQUEADO
 disponible	DISPONÍVEL
 dispositivos registrado para	DISPOSITIVOS REGISTRADO PARA
 días	DIAS
+eliminado	ELIMINADO
 en el Firewall	NO FIREWALL
 enlazado	VINCULADO
 es común en virtualización OpenVZ/LXC	É COMUM EM VIRTUALIZAÇÃO OPENVZ/LXC
+esperado	ESPERADO
 está ocupado	ESTÁ OCUPADA
 está ocupado por otro servicio. No se detuvo ni modificó ese servicio	ESTÁ OCUPADA POR OUTRO SERVIÇO. ESSE SERVIÇO NÃO FOI PARADO NEM MODIFICADO
 excedió el límite. Desconectando	EXCEDEU O LIMITE. DESCONECTANDO
@@ -764,6 +889,7 @@ firewalld: el puerto	firewalld: A PORTA
 firewalld: puerto	firewalld: PORTA
 inactivo	INATIVO
 install.sh. Reinstale HCR v2.0 con la opción	install.sh. REINSTALE O HCR V2.0 COM A OPÇÃO
+libre	LIVRE
 libres	LIVRES
 ninguno	NENHUM
 no creado	NÃO CRIADO
@@ -775,21 +901,27 @@ no está registrado como BHTTP	NÃO ESTÁ REGISTRADA COMO BHTTP
 no fue encontrado en GitHub	NÃO FOI ENCONTRADO NO GITHUB
 no quedó activo; revisa logs: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE OS LOGS: journalctl -u
 no quedó activo; revisa: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE: journalctl -u
+normal si usas Cloudflare con proxy naranja	NORMAL SE VOCÊ USA CLOUDFLARE COM PROXY LARANJA
 o	OU
 o similar	OU SIMILAR
+obtenido	OBTIDO
 para descargar	PARA BAIXAR
+para liberar los puertos? (s/n	PARA LIBERAR AS PORTAS? (S/N
 plain (sin TLS	PLAIN (SEM TLS
 principal) y	PRINCIPAL) E
+puerto	PORTA
 recomendado	RECOMENDADO
 recomendado para esta VPS	RECOMENDADO PARA ESTA VPS
 s Encrypt para	s Encrypt PARA
 se deja 1 GB libre	FICA 1 GB LIVRE
+su tráfico pasa a HAProxy	O TRÁFEGO DELES PASSA PARA O HAPROXY
 suma de puertos BHTTP gestionados; no equivale exactamente a usuarios	SOMA DAS PORTAS BHTTP GERENCIADAS; NÃO EQUIVALE EXATAMENTE A USUÁRIOS
 tcp abierto por este manager	tcp ABERTA POR ESTE GERENCIADOR
 tcp ya estaba permitido	tcp JÁ ESTAVA PERMITIDA
 tls   (solo TLS	TLS   (SOMENTE TLS
 usado	USADO
 verificado por SHA-256 y self-test	VERIFICADO POR SHA-256 E SELF-TEST
+y la IP de este VPS es	E O IP DESTA VPS É
 y servicio reiniciado	E SERVIÇO REINICIADO
 y usa la opción 16 para abrir los puertos que tú quieras	E USE A OPÇÃO 16 PARA ABRIR AS PORTAS QUE QUISER
 ya está abierto por BHTTP	JÁ ESTÁ ABERTA PELO BHTTP
@@ -806,6 +938,7 @@ ya está ocupado por otro listener. No se modificó nada	JÁ ESTÁ OCUPADA POR O
 ¡Hysteria v1 configurado perfectamente en el puerto	HYSTERIA V1 CONFIGURADO PERFEITAMENTE NA PORTA
 ¡Instalación TROJAN completada	INSTALAÇÃO TROJAN CONCLUÍDA
 ¡Instalación completada con éxito	INSTALAÇÃO CONCLUÍDA COM SUCESSO
+¡MOTOR UNIFICADO ACTIVO! Todas las rutas responden	MOTOR UNIFICADO ATIVO! TODAS AS ROTAS RESPONDEM
 ¡Panel Web PRO Instalado	PAINEL WEB PRO INSTALADO
 ¡Panel actualizado con éxito! Reiniciando	PAINEL ATUALIZADO COM SUCESSO! REINICIANDO
 ¡Puerto 443 (TLS) activo para VLESS y VMess	PORTA 443 (TLS) ATIVA PARA VLESS E VMESS
@@ -816,6 +949,7 @@ ya está ocupado por otro listener. No se modificó nada	JÁ ESTÁ OCUPADA POR O
 ¡Tráfico Torrent y Spam bloqueado exitosamente	TRÁFEGO TORRENT E SPAM BLOQUEADO COM SUCESSO
 ¡UDP Custom oficial instalado y operando en el puerto	UDP CUSTOM OFICIAL INSTALADO E OPERANDO NA PORTA
 ¡Zivpn UDP instalado y activo con éxito	ZIVPN UDP INSTALADO E ATIVO COM SUCESSO
+¿Continuar con la instalación? (s/n	CONTINUAR COM A INSTALAÇÃO? (S/N
 ¿Continuar de todos modos? (s/n	CONTINUAR MESMO ASSIM? (S/N
 ¿Cuántos GB quieres usar	QUANTOS GB VOCÊ QUER USAR
 ¿Desea reinstalarlo con configuración compatible? (s/n	DESEJA REINSTALÁ-LO COM CONFIGURAÇÃO COMPATÍVEL? (S/N
@@ -825,9 +959,14 @@ ya está ocupado por otro listener. No se modificó nada	JÁ ESTÁ OCUPADA POR O
 ¿Desinstalar Fail2ban? (s/n	DESINSTALAR FAIL2BAN? (S/N
 ¿Desinstalar HCR v2.0 y borrar sus archivos? (s/n	DESINSTALAR HCR V2.0 E APAGAR SEUS ARQUIVOS? (S/N
 ¿Desinstalar SSL / TLS (puerto	DESINSTALAR SSL / TLS (PORTA
+¿Desinstalar XHTTP? (s/n	DESINSTALAR XHTTP? (S/N
 ¿Desinstalar todo? (s/n	DESINSTALAR TUDO? (S/N
+¿Detener y deshabilitar	PARAR E DESABILITAR
 ¿Instalar en modo plain (sin TLS)? (s/n	INSTALAR EM MODO PLAIN (SEM TLS)? (S/N
 ¿Mostrar código QR (TLS) en pantalla	MOSTRAR CÓDIGO QR (TLS) NA TELA
 ¿Qué puerto principal quieres usar	QUAL PORTA PRINCIPAL VOCÊ QUER USAR
 ¿Qué puerto quieres usar	QUAL PORTA VOCÊ QUER USAR
+¿Restaurar el estado anterior? (s/n	RESTAURAR O ESTADO ANTERIOR? (S/N
+¿Restaurar? (s/n	RESTAURAR? (S/N
 Índices actualizados correctamente	ÍNDICES ATUALIZADOS COM SUCESSO
+Último backup	ÚLTIMO BACKUP

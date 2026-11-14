@@ -189,7 +189,7 @@ download_engine(){
   "$tmp" --self-test >/dev/null
   install -m 755 "$tmp" "$BIN"
   rm -f "$tmp"
-  ok "Motor $ENGINE_VERSION ${T[verificado por SHA-256 y self-test]:-verificado por SHA-256 y self-test}."
+  ok "${T[Motor]:-Motor} $ENGINE_VERSION ${T[verificado por SHA-256 y self-test]:-verificado por SHA-256 y self-test}."
 }
 
 install_manager_copy(){

@@ -24,6 +24,11 @@ CONF_FILE="$XRAY_DIR/config.json"
 DOM_FILE="/etc/vps-manager/dominio"
 
 instalar_xray_trojan() {
+    if [ -f /etc/vps-manager/engine_haproxy ]; then
+        echo -e "${C_RED}[!] ${T[El motor unificado HAProxy está activo: Trojan ya viene incluido en él]:-El motor unificado HAProxy está activo: Trojan ya viene incluido en él}.${C_NC}"
+        sleep 3
+        return
+    fi
     clear
     echo -e "${C_CYAN}================================================${C_NC}"
     echo -e "${C_GREEN}   ${T[INSTALACIÓN DE XRAY (TROJAN) Y CERTIFICADO]:-INSTALACIÓN DE XRAY (TROJAN) Y CERTIFICADO}   ${C_NC}"
@@ -111,7 +116,95 @@ generar_link() {
     fi
 }
 
+# ── Modo motor unificado (HAProxy): las cuentas Trojan viven en los inbounds trojan-ws y trojan-grpc ──
+trojan_motor_aplicar() {
+    local filtro="$1"; shift
+    local nuevo="${CONF_FILE}.motor.new" respaldo="${CONF_FILE}.bak-trojan" xb
+    xb=$(command -v xray || echo /usr/local/bin/xray)
+    jq "$@" "$filtro" "$CONF_FILE" > "$nuevo" 2>/dev/null || { rm -f "$nuevo"; return 1; }
+    "$xb" run -test -format json -config "$nuevo" >/dev/null 2>&1 || { rm -f "$nuevo"; return 2; }
+    cp -f "$CONF_FILE" "$respaldo"; mv -f "$nuevo" "$CONF_FILE"; chmod 644 "$CONF_FILE"
+    systemctl restart xray; sleep 1
+    if ! systemctl is-active --quiet xray; then cp -f "$respaldo" "$CONF_FILE"; systemctl restart xray; return 3; fi
+    return 0
+}
+
+menu_trojan_motor() {
+    local opc user dias UUID EXP_DATE DOM rc LINK_TLS LINK_NTLS LINK_GRPC
+    while true; do
+        clear
+        echo -e "${C_YELLOW}        ${T[GESTION DE TROJAN (XRAY]:-GESTION DE TROJAN (XRAY})        ${C_NC}"
+        echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+        echo -e "${C_CYAN}[1] >${C_NC} ${T[Crear Cuenta Trojan]:-Crear Cuenta Trojan}"
+        echo -e "${C_CYAN}[2] >${C_NC} ${T[Eliminar Cuenta Trojan]:-Eliminar Cuenta Trojan}"
+        echo -e "${C_CYAN}[3] >${C_NC} ${T[Ver cuentas activas]:-Ver cuentas activas}"
+        echo -e "${C_CYAN}[x] >${C_NC} ${T[Salir del Gestor]:-Salir del Gestor}"
+        echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+        read -p "${T[Digite su opción]:-Digite su opción}: " opc
+        case $opc in
+            1)
+                clear
+                echo -e "${C_YELLOW}      ${T[CREAR USUARIO XRAY TROJAN]:-CREAR USUARIO XRAY TROJAN}      ${C_NC}"
+                echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+                read -p "${T[Nombre de usuario]:-Nombre de usuario}: " user
+                [ -z "$user" ] && continue
+                if ! [[ "$user" =~ ^[A-Za-z0-9._-]{1,40}$ ]]; then
+                    echo -e "${C_RED}[!] ${T[Usuario inválido: usa 1 a 40 caracteres (letras, números, punto, guion]:-Usuario inválido: usa 1 a 40 caracteres (letras, números, punto, guion}).${C_NC}"; sleep 3; continue
+                fi
+                if jq -e --arg u "$user" '[.inbounds[] | select(.tag=="trojan-ws") | .settings.clients[]? | select(.email==$u)] | length > 0' "$CONF_FILE" >/dev/null 2>&1; then
+                    echo -e "${C_RED}[!] ${T[El usuario ya existe]:-El usuario ya existe}.${C_NC}"; sleep 3; continue
+                fi
+                read -p "${T[Duración (días]:-Duración (días}): " dias
+                if ! [[ "$dias" =~ ^[0-9]+$ ]] || [ "$dias" -lt 1 ] || [ "$dias" -gt 3650 ]; then
+                    echo -e "${C_RED}[!] ${T[Los días deben ser un número entre 1 y]:-Los días deben ser un número entre 1 y} 3650.${C_NC}"; sleep 3; continue
+                fi
+                UUID=$(cat /proc/sys/kernel/random/uuid)
+                EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d")
+                DOM=$(tr -d ' \r\n' < "$DOM_FILE")
+                trojan_motor_aplicar '(.inbounds[] | select(.tag=="trojan-ws" or .tag=="trojan-grpc") | .settings.clients) += [{"password": $p, "email": $u}]' --arg u "$user" --arg p "$UUID"; rc=$?
+                if [ "$rc" -ne 0 ]; then
+                    echo -e "${C_RED}[!] ${T[No se pudo crear la cuenta: Xray rechazó el cambio y se mantuvo la configuración anterior]:-No se pudo crear la cuenta: Xray rechazó el cambio y se mantuvo la configuración anterior}.${C_NC}"; sleep 4; continue
+                fi
+                LINK_TLS=$(generar_link "$user" "$DOM" "$UUID" "443" "ws" "tls" "/trojan")
+                LINK_NTLS=$(generar_link "$user" "$DOM" "$UUID" "80" "ws" "" "/trojan")
+                LINK_GRPC=$(generar_link "$user-GRPC" "$DOM" "$UUID" "443" "grpc" "tls" "trojan-grpc")
+                clear
+                echo -e "${C_YELLOW}    ${T[CUENTA TROJAN CREADA EXITOSAMENTE]:-CUENTA TROJAN CREADA EXITOSAMENTE}    ${C_NC}"
+                echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+                echo -e " Alias       : ${C_CYAN}$user${C_NC}"
+                echo -e " ${T[Dominio]:-Dominio}     : ${C_CYAN}$DOM${C_NC}"
+                echo -e " ${T[Password]:-Password}    : ${C_CYAN}$UUID${C_NC}"
+                echo -e " ${T[Red]:-Red}         : ${C_CYAN}WS / GRPC${C_NC}"
+                echo -e " ${T[Expira]:-Expira}      : ${C_CYAN}$EXP_DATE${C_NC}"
+                echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+                echo -e "\n ${C_GREEN}LINK TLS (443) :${C_NC}\n$LINK_TLS\n"
+                echo -e " ${C_GREEN}LINK NTLS (80) :${C_NC}\n$LINK_NTLS\n"
+                echo -e " ${C_GREEN}LINK GRPC      :${C_NC}\n$LINK_GRPC\n"
+                echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+                read -p "${T[Presiona ENTER para volver al menú]:-Presiona ENTER para volver al menú} " foo
+                ;;
+            2)
+                read -p "${T[Usuario a eliminar]:-Usuario a eliminar}: " user
+                [ -z "$user" ] && continue
+                trojan_motor_aplicar '(.inbounds[] | select(.tag=="trojan-ws" or .tag=="trojan-grpc") | .settings.clients) |= map(select(.email != $u))' --arg u "$user"; rc=$?
+                if [ "$rc" -eq 0 ]; then echo -e "${C_GREEN}[✔] ${T[Eliminado]:-Eliminado}.${C_NC}"; else echo -e "${C_RED}[!] ${T[No se pudo eliminar: se mantuvo la configuración anterior]:-No se pudo eliminar: se mantuvo la configuración anterior}.${C_NC}"; fi
+                sleep 2
+                ;;
+            3)
+                clear
+                echo -e "${C_YELLOW}        ${T[CUENTAS TROJAN ACTIVAS]:-CUENTAS TROJAN ACTIVAS}        ${C_NC}"
+                echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+                jq -r '[.inbounds[] | select(.tag=="trojan-ws") | .settings.clients[]?.email] | .[]' "$CONF_FILE" 2>/dev/null
+                echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
+                read -p "${T[Presiona ENTER para volver al menú]:-Presiona ENTER para volver al menú} " foo
+                ;;
+            x|X|"") break ;;
+        esac
+    done
+}
+
 menu_trojan() {
+    if [ -f /etc/vps-manager/engine_haproxy ]; then menu_trojan_motor; return; fi
     if [ ! -f "$CONF_FILE" ]; then instalar_xray_trojan; fi
     
     while true; do
@@ -156,7 +249,7 @@ menu_trojan() {
                 echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
                 echo -e " Alias       : ${C_CYAN}$user${C_NC}"
                 echo -e " ${T[Dominio]:-Dominio}     : ${C_CYAN}$DOM${C_NC}"
-                echo -e " Password    : ${C_CYAN}$UUID${C_NC}"
+                echo -e " ${T[Password]:-Password}    : ${C_CYAN}$UUID${C_NC}"
                 echo -e " ${T[Red]:-Red}         : ${C_CYAN}WS / GRPC / XHTTP${C_NC}"
                 echo -e " ${T[Expira]:-Expira}      : ${C_CYAN}$EXP_DATE${C_NC}"
                 echo -e "${C_YELLOW}───────────────────────────────────────────────${C_NC}"
