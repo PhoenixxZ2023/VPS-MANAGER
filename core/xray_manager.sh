@@ -54,14 +54,15 @@ LOCAL = ("127.0.0.1", "::1", "localhost")
 SNIFF = {"enabled": True, "destOverride": ["http", "tls", "quic"]}
 
 
-def spec(with_ss):
+def spec(with_ss, with_xhttp=True):
     s = [("vless-ws", 10001, "vless", "ws", "/vless"),
          ("vmess-ws", 10002, "vmess", "ws", "/vmess"),
          ("trojan-ws", 10003, "trojan", "ws", "/trojan")]
     if with_ss:
         s.append(("ss-ws", 10005, "shadowsocks", "ws", "/ss"))
-    s += [("vless-xhttp", 10006, "vless", "xhttp", "/xhttp"),
-          ("vless-grpc", 10011, "vless", "grpc", "vless-grpc"),
+    if with_xhttp:
+        s.append(("vless-xhttp", 10006, "vless", "xhttp", "/xhttp"))
+    s += [("vless-grpc", 10011, "vless", "grpc", "vless-grpc"),
           ("vmess-grpc", 10012, "vmess", "grpc", "vmess-grpc"),
           ("trojan-grpc", 10013, "trojan", "grpc", "trojan-grpc")]
     if with_ss:
@@ -99,11 +100,11 @@ def ckey(c):
     return c.get("id") or c.get("password") or c.get("email")
 
 
-def build(old, with_ss):
+def build(old, with_ss, with_xhttp=True):
     olds = [ib for ib in old.get("inbounds", []) if isinstance(ib, dict)]
     used, new_ibs = set(), []
     rep = {"migrated": {}, "dropped": [], "kept": []}
-    ports = {p for _, p, _, _, _ in spec(True)}
+    ports = {p for _, p, _, _, _ in spec(True, True)}
 
     def source(tag, proto, net):
         for i, ib in enumerate(olds):
@@ -115,7 +116,7 @@ def build(old, with_ss):
         return None
 
     got = {}
-    for tag, port, proto, net, path in spec(with_ss):
+    for tag, port, proto, net, path in spec(with_ss, with_xhttp):
         ib = make_inbound(tag, port, proto, net, path)
         i = source(tag, proto, net)
         cl = []
@@ -159,13 +160,14 @@ def build(old, with_ss):
     return cfg, rep
 
 
-def haproxy_cfg(cert_dir, with_ss):
+def haproxy_cfg(cert_dir, with_ss, with_xhttp=True):
     def rx(p):
         return r"^[a-z]+[[:space:]]+%s([?/]|[[:space:]])" % p
     acls = [("is_vless", "/vless", "vless_ws"), ("is_vmess", "/vmess", "vmess_ws"), ("is_trojan", "/trojan", "trojan_ws")]
     if with_ss:
         acls.append(("is_ss", "/ss", "ss_ws"))
-    acls.append(("is_xhttp", "/xhttp", "vless_xhttp"))
+    if with_xhttp:
+        acls.append(("is_xhttp", "/xhttp", "vless_xhttp"))
     L = ["global",
          "    log /dev/log local0",
          "    log /dev/log local1 notice",
@@ -228,7 +230,8 @@ def haproxy_cfg(cert_dir, with_ss):
     tcp = [("ssh_ws", SSHWS), ("ssh_direct", 22), ("vless_ws", 10001), ("vmess_ws", 10002), ("trojan_ws", 10003)]
     if with_ss:
         tcp.append(("ss_ws", 10005))
-    tcp.append(("vless_xhttp", 10006))
+    if with_xhttp:
+        tcp.append(("vless_xhttp", 10006))
     for be, port in tcp:
         L += ["backend %s" % be, "    mode tcp", "    server s1 127.0.0.1:%d check" % port, ""]
     return "\n".join(L)
@@ -280,7 +283,7 @@ def probe(host, port, tls, alpn, payload, dom):
             pass
 
 
-def cmd_diag(dom, with_ss):
+def cmd_diag(dom, with_ss, with_xhttp=True):
     sock = os.environ.get("HAPROXY_SOCK", "/run/haproxy/admin.sock")
     host = os.environ.get("ENGINE_HOST", "127.0.0.1")
     p_tls, p_80, p_8080 = [int(x) for x in os.environ.get("ENGINE_PORTS", "443:80:8080").split(":")]
@@ -295,8 +298,9 @@ def cmd_diag(dom, with_ss):
          ("TROJAN WS 443", p_tls, True, "http/1.1", ws("/trojan"), "trojan_ws")]
     if with_ss:
         T.append(("SS WS 443", p_tls, True, "http/1.1", ws("/ss"), "ss_ws"))
-    T += [("XHTTP 443", p_tls, True, "http/1.1", ws("/xhttp"), "vless_xhttp"),
-          ("GRPC 443 (h2)", p_tls, True, "h2", h2, "grpc_router"),
+    if with_xhttp:
+        T.append(("XHTTP 443", p_tls, True, "http/1.1", ws("/xhttp"), "vless_xhttp"))
+    T += [("GRPC 443 (h2)", p_tls, True, "h2", h2, "grpc_router"),
           ("SSH-WS 443", p_tls, True, "http/1.1", ws("/"), "ssh_ws"),
           ("SSH directo 443", p_tls, True, "http/1.1", b"SSH-2.0-diag\r\n", "ssh_direct"),
           ("VLESS WS 80", p_80, False, "", ws("/vless"), "vless_ws"),
@@ -329,9 +333,32 @@ def cmd_diag(dom, with_ss):
     return bad
 
 
+def probe_xhttp():
+    """0 = el Xray instalado acepta XHTTP; 14 = no (imprime la versión)."""
+    import shutil, subprocess, tempfile
+    xb = shutil.which("xray") or ("/usr/local/bin/xray" if os.access("/usr/local/bin/xray", os.X_OK) else None)
+    if not xb:
+        return 12
+    probe = {"inbounds": [{"port": 65001, "listen": "127.0.0.1", "protocol": "vless",
+                           "settings": {"clients": [], "decryption": "none"},
+                           "streamSettings": {"network": "xhttp", "security": "none",
+                                              "xhttpSettings": {"path": "/x", "mode": "auto"}}}],
+             "outbounds": [{"protocol": "freedom"}]}
+    fd, path = tempfile.mkstemp(suffix=".json")
+    with os.fdopen(fd, "w") as f:
+        json.dump(probe, f)
+    r = subprocess.run([xb, "run", "-test", "-format", "json", "-config", path], capture_output=True)
+    os.remove(path)
+    v = subprocess.run([xb, "version"], capture_output=True, text=True).stdout.splitlines()
+    print(v[0].split("(")[0].strip() if v else "")
+    return 0 if r.returncode == 0 else 14
+
+
 def main():
     a = sys.argv[1:]
     c = a[0] if a else ""
+    if c == "probe-xhttp":
+        return probe_xhttp()
     if c == "build":
         try:
             with open(a[1], encoding="utf-8") as f:
@@ -340,13 +367,13 @@ def main():
             old = {}
         except Exception:
             return 11
-        cfg, rep = build(old, a[3] == "1")
+        cfg, rep = build(old, a[3] == "1", (a[4] == "1") if len(a) > 4 else True)
         with open(a[2], "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2, ensure_ascii=False)
         print(json.dumps(rep, ensure_ascii=False))
         return 0
     if c == "haproxy-cfg":
-        print(haproxy_cfg(a[1], a[2] == "1"))
+        print(haproxy_cfg(a[1], a[2] == "1", (a[3] == "1") if len(a) > 3 else True))
         return 0
     if c == "tags":
         with open(a[1], encoding="utf-8") as f:
@@ -356,7 +383,7 @@ def main():
                 print("%s\t%s\t%s" % (ib.get("tag") or ("%s:%s" % (ib.get("protocol"), ib.get("port"))), ib.get("port"), len(clients_of(ib))))
         return 0
     if c == "diag":
-        return min(cmd_diag(a[1], a[2] == "1"), 99)
+        return min(cmd_diag(a[1], a[2] == "1", (a[3] == "1") if len(a) > 3 else True), 99)
     return 64
 
 
@@ -645,25 +672,65 @@ EOF
     systemctl daemon-reload
 }
 
-generar_xray() {   # deja WITH_SS y ${XRAY_CONFIG}.engine.new listos
-    local nuevo="${XRAY_CONFIG}.engine.new" xb
+generar_xray() {   # deja WITH_SS y ${XRAY_CONFIG}.engine.new listos (usa WITH_XHTTP)
+    local nuevo="${XRAY_CONFIG}.engine.new" xb err="${ENGINE_DIR}/xray_error.txt"
     xb=$(xray_bin)
     mkdir -p "$ENGINE_DIR"
     WITH_SS=1
-    eng build "$XRAY_CONFIG" "$nuevo" 1 > "${ENGINE_DIR}/migracion.json" || return 1
-    if ! "$xb" run -test -format json -config "$nuevo" >/dev/null 2>&1; then
+    eng build "$XRAY_CONFIG" "$nuevo" 1 "${WITH_XHTTP:-1}" > "${ENGINE_DIR}/migracion.json" || return 1
+    if ! "$xb" run -test -format json -config "$nuevo" >"$err" 2>&1; then
         WITH_SS=0
-        eng build "$XRAY_CONFIG" "$nuevo" 0 > "${ENGINE_DIR}/migracion.json" || return 1
-        "$xb" run -test -format json -config "$nuevo" >/dev/null 2>&1 || return 1
+        eng build "$XRAY_CONFIG" "$nuevo" 0 "${WITH_XHTTP:-1}" > "${ENGINE_DIR}/migracion.json" || return 1
+        if ! "$xb" run -test -format json -config "$nuevo" >"$err" 2>&1; then
+            echo -e "${C_YELLOW}    ${T[Detalle de Xray]:-Detalle de Xray}:${C_NC}"
+            tail -n 4 "$err" | sed 's/^/    /'
+            return 1
+        fi
         echo -e "${C_YELLOW}[!] ${T[Esta versión de Xray no acepta los inbounds Shadowsocks de la plantilla: se omiten]:-Esta versión de Xray no acepta los inbounds Shadowsocks de la plantilla: se omiten}.${C_NC}"
     fi
+    return 0
+}
+
+actualizar_xray_motor() {
+    local xb unit antes bak
+    xb=$(xray_bin)
+    unit="${SYSTEMD_DIR}/xray.service"
+    antes=$(grep -E '^User=' "$unit" 2>/dev/null | head -1)
+    bak=$(mktemp) || return 1
+    cp -f "$xb" "$bak"
+    echo -e "${C_YELLOW}[+] ${T[Actualizando Xray (se guarda una copia del binario actual]:-Actualizando Xray (se guarda una copia del binario actual})...${C_NC}"
+    bash -c "$(curl -4 -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install >/dev/null 2>&1
+    if [ -n "$antes" ] && [ -f "$unit" ]; then sed -i "s|^User=.*|${antes}|" "$unit"; systemctl daemon-reload; fi
+    if [ -s "$XRAY_CONFIG" ] && ! "$xb" run -test -format json -config "$XRAY_CONFIG" >/dev/null 2>&1; then
+        cp -f "$bak" "$xb"; chmod 755 "$xb"; rm -f "$bak"
+        echo -e "${C_RED}[!] ${T[La versión nueva no acepta tu configuración actual. Se restauró el Xray anterior]:-La versión nueva no acepta tu configuración actual. Se restauró el Xray anterior}.${C_NC}"; return 1
+    fi
+    rm -f "$bak"
+    echo -e "${C_GREEN}[✔] ${T[Xray actualizado]:-Xray actualizado}.${C_NC}"
+    return 0
+}
+
+verificar_xhttp() {   # fija WITH_XHTTP según lo que soporte el Xray instalado; ofrece actualizarlo
+    local ver rc resp
+    WITH_XHTTP=1
+    ver=$(eng probe-xhttp 2>/dev/null); rc=$?
+    [ "$rc" -eq 0 ] && return 0
+    echo -e "${C_YELLOW}[!] ${T[Tu Xray]:-Tu Xray} (${ver:-desconocido}) ${T[no soporta XHTTP. Hace falta la versión 24.11.21 o superior]:-no soporta XHTTP. Hace falta la versión 24.11.21 o superior}.${C_NC}"
+    read -r -p "${T[¿Actualizar Xray ahora? (s/n]:-¿Actualizar Xray ahora? (s/n}): " resp
+    if [[ "$resp" =~ ^[sSyY]$ ]] && actualizar_xray_motor; then
+        ver=$(eng probe-xhttp 2>/dev/null); rc=$?
+        [ "$rc" -eq 0 ] && return 0
+        echo -e "${C_RED}[!] ${T[Xray sigue sin soportar XHTTP]:-Xray sigue sin soportar XHTTP}.${C_NC}"
+    fi
+    WITH_XHTTP=0
+    echo -e "${C_YELLOW}[!] ${T[El motor se instalará SIN XHTTP (WS, gRPC y SSH funcionan igual). Puedes actualizar Xray y reinstalar el motor después]:-El motor se instalará SIN XHTTP (WS, gRPC y SSH funcionan igual). Puedes actualizar Xray y reinstalar el motor después}.${C_NC}"
     return 0
 }
 
 generar_haproxy() {
     local nuevo="${HAPROXY_CFG}.engine.new" out
     mkdir -p "$(dirname "$HAPROXY_CFG")" /run/haproxy 2>/dev/null
-    eng haproxy-cfg "$CERT_DIR" "$WITH_SS" > "$nuevo" || return 1
+    eng haproxy-cfg "$CERT_DIR" "$WITH_SS" "${WITH_XHTTP:-1}" > "$nuevo" || return 1
     if ! out=$(haproxy -c -f "$nuevo" 2>&1); then
         echo -e "${C_RED}$(echo "$out" | tail -5)${C_NC}"
         rm -f "$nuevo"
@@ -681,7 +748,7 @@ abrir_puertos() {
 }
 
 diagnostico() {
-    local dom="$1" ws="$2" linea est lbl esp got bad=0
+    local dom="$1" ws="$2" wx="${3:-1}" linea est lbl esp got bad=0
     echo -e "${C_YELLOW}[+] ${T[Probando cada ruta con tráfico real (contadores de HAProxy]:-Probando cada ruta con tráfico real (contadores de HAProxy})...${C_NC}"
     while IFS='|' read -r est lbl esp got; do
         case "$est" in
@@ -689,7 +756,7 @@ diagnostico() {
             FALLA) echo -e "  ${C_RED}[✘]${C_NC} $lbl: ${T[esperado]:-esperado} $esp, ${T[obtenido]:-obtenido} $got"; bad=$((bad+1)) ;;
             AVISO) echo -e "  ${C_YELLOW}[!]${C_NC} $lbl: $got" ;;
         esac
-    done < <(eng diag "$dom" "$ws")
+    done < <(eng diag "$dom" "$ws" "$wx")
     return "$bad"
 }
 
@@ -748,6 +815,7 @@ instalar_motor() {
         bash -c "$(curl -4 -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install >/dev/null 2>&1
     fi
     [ -n "$(xray_bin)" ] || { fallo_y_restaurar "Xray no está instalado y no se pudo instalar."; return 1; }
+    verificar_xhttp
     if getent group nogroup >/dev/null 2>&1; then mkdir -p /var/log/xray && chown -R nobody:nogroup /var/log/xray 2>/dev/null; fi
 
     ip_vps=$(curl -4 -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null | tr -d ' \r\n')
@@ -792,7 +860,7 @@ instalar_motor() {
     instalar_hook_y_copia
 
     echo -e "${C_YELLOW}[8/8] ${T[Diagnóstico de rutas]:-Diagnóstico de rutas}...${C_NC}"
-    if diagnostico "$dom" "$WITH_SS"; then
+    if diagnostico "$dom" "$WITH_SS" "${WITH_XHTTP:-1}"; then
         echo "$BACKUP_DIR" > "$MARKER"; touch "$FLAG_FILE"
         echo -e "\n${C_GREEN}[✔] ${T[¡MOTOR UNIFICADO ACTIVO! Todas las rutas responden]:-¡MOTOR UNIFICADO ACTIVO! Todas las rutas responden}.${C_NC}"
         echo -e "    ${T[Las cuentas VMess/VLESS siguen funcionando igual (mismo dominio, puerto 443 y rutas]:-Las cuentas VMess/VLESS siguen funcionando igual (mismo dominio, puerto 443 y rutas})."
@@ -833,9 +901,10 @@ diagnostico_menu() {
     cabecera "${T[DIAGNÓSTICO DE RUTAS]:-DIAGNÓSTICO DE RUTAS}"
     motor_activo || { echo -e "${C_YELLOW}[!] ${T[El motor no está instalado]:-El motor no está instalado}.${C_NC}"; pausa; return; }
     dom=$(dominio_actual) || { echo -e "${C_RED}[!] ${T[No hay dominio configurado]:-No hay dominio configurado}.${C_NC}"; pausa; return; }
-    local ws=1
-    grep -q "ss_ws" "$HAPROXY_CFG" 2>/dev/null || ws=0
-    if diagnostico "$dom" "$ws"; then echo -e "\n${C_GREEN}[✔] ${T[Todas las rutas responden]:-Todas las rutas responden}.${C_NC}"; else echo -e "\n${C_RED}[!] ${T[Hay rutas con problemas]:-Hay rutas con problemas}.${C_NC}"; fi
+    local ws=1 wx=1
+    grep -q "backend ss_ws" "$HAPROXY_CFG" 2>/dev/null || ws=0
+    grep -q "backend vless_xhttp" "$HAPROXY_CFG" 2>/dev/null || wx=0
+    if diagnostico "$dom" "$ws" "$wx"; then echo -e "\n${C_GREEN}[✔] ${T[Todas las rutas responden]:-Todas las rutas responden}.${C_NC}"; else echo -e "\n${C_RED}[!] ${T[Hay rutas con problemas]:-Hay rutas con problemas}.${C_NC}"; fi
     pausa
 }
 

@@ -49,6 +49,7 @@ XCONF = os.environ.get("XRAY_CONFIG", XDIR + "/config.json")
 REG = os.path.join(VPS, "xhttp_users.json")
 CERT, KEY = XDIR + "/server.crt", XDIR + "/server.key"
 TAG, XPATH = "vless-xhttp", "/xhttp"
+ERRFILE = os.path.join(VPS, "xhttp_error.txt")
 
 
 def today():
@@ -97,6 +98,37 @@ def xray_bin():
     return shutil.which("xray") or ("/usr/local/bin/xray" if os.access("/usr/local/bin/xray", os.X_OK) else None)
 
 
+def save_error(proc):
+    try:
+        with open(ERRFILE, "w", encoding="utf-8") as f:
+            f.write((proc.stdout + proc.stderr).decode("utf-8", "replace")[-2000:])
+    except Exception:
+        pass
+
+
+def cmd_check():
+    """0 = este Xray acepta XHTTP; 14 = no lo soporta (imprime la versión)."""
+    xb = xray_bin()
+    if not xb:
+        return 12
+    probe = {"inbounds": [{"port": 65001, "listen": "127.0.0.1", "protocol": "vless",
+                           "settings": {"clients": [], "decryption": "none"},
+                           "streamSettings": {"network": "xhttp", "security": "none",
+                                              "xhttpSettings": {"path": "/x", "mode": "auto"}}}],
+             "outbounds": [{"protocol": "freedom"}]}
+    fd, path = tempfile.mkstemp(suffix=".json")
+    with os.fdopen(fd, "w") as f:
+        json.dump(probe, f)
+    r = subprocess.run([xb, "run", "-test", "-format", "json", "-config", path], capture_output=True)
+    os.remove(path)
+    v = subprocess.run([xb, "version"], capture_output=True, text=True).stdout.splitlines()
+    print(v[0].split("(")[0].strip() if v else "")
+    if r.returncode != 0:
+        save_error(r)
+        return 14
+    return 0
+
+
 def apply_config(cfg):
     """Valida con xray -test, aplica, reinicia y restaura si no arranca."""
     xb = xray_bin()
@@ -107,6 +139,7 @@ def apply_config(cfg):
         json.dump(cfg, f, indent=2, ensure_ascii=False)
     t = subprocess.run([xb, "run", "-test", "-format", "json", "-config", tmp], capture_output=True)
     if t.returncode != 0:
+        save_error(t)
         os.remove(tmp)
         return 12
     bak = XCONF + ".bak-xhttp"
@@ -221,6 +254,7 @@ def main():
     a = sys.argv[1:]
     c = a[0] if a else ""
     if c == "inbound-info": cmd_inbound_info(); return 0
+    if c == "check": return cmd_check()
     if c in ("sync", "purge"): return cmd_sync()
     if c == "install": return cmd_install(a[1])
     if c == "uninstall": return cmd_uninstall()
@@ -322,13 +356,56 @@ mensaje_rc() {
         2) echo -e "${C_RED}[!] ${T[La cuenta no existe]:-La cuenta no existe}.${C_NC}" ;;
         3) echo -e "${C_RED}[!] ${T[El usuario ya existe]:-El usuario ya existe}.${C_NC}" ;;
         11) echo -e "${C_RED}[!] ${T[El config.json de Xray o el registro de cuentas XHTTP está dañado. No se cambió nada]:-El config.json de Xray o el registro de cuentas XHTTP está dañado. No se cambió nada}.${C_NC}" ;;
-        12) echo -e "${C_RED}[!] ${T[Xray rechazó la configuración. No se cambió nada]:-Xray rechazó la configuración. No se cambió nada}.${C_NC}" ;;
+        12) echo -e "${C_RED}[!] ${T[Xray rechazó la configuración. No se cambió nada]:-Xray rechazó la configuración. No se cambió nada}.${C_NC}"
+            if [ -s "${VPS_DIR}/xhttp_error.txt" ]; then
+                echo -e "${C_YELLOW}    ${T[Detalle de Xray]:-Detalle de Xray}:${C_NC}"
+                tail -n 4 "${VPS_DIR}/xhttp_error.txt" | sed 's/^/    /'
+            fi ;;
+        14) echo -e "${C_RED}[!] ${T[Tu versión de Xray no soporta XHTTP]:-Tu versión de Xray no soporta XHTTP}.${C_NC}" ;;
         13) echo -e "${C_RED}[!] ${T[Xray no arrancó con el cambio. Se restauró la configuración anterior]:-Xray no arrancó con el cambio. Se restauró la configuración anterior}.${C_NC}" ;;
         20) echo -e "${C_RED}[!] ${T[Ese puerto ya lo usa otro inbound de Xray]:-Ese puerto ya lo usa otro inbound de Xray}.${C_NC}" ;;
         21) echo -e "${C_RED}[!] ${T[No hay certificado TLS de Xray. Instala primero el Menú Xray (VLESS o VMess]:-No hay certificado TLS de Xray. Instala primero el Menú Xray (VLESS o VMess}).${C_NC}" ;;
         *) echo -e "${C_RED}[!] ${T[Error inesperado en el motor XHTTP (código]:-Error inesperado en el motor XHTTP (código} $1).${C_NC}" ;;
     esac
     return "$1"
+}
+
+actualizar_xray() {
+    local xb unit antes bak
+    xb=$(command -v xray || echo /usr/local/bin/xray)
+    unit="${SYSTEMD_DIR:-/etc/systemd/system}/xray.service"
+    antes=$(grep -E '^User=' "$unit" 2>/dev/null | head -1)
+    bak=$(mktemp) || return 1
+    cp -f "$xb" "$bak"
+    echo -e "${C_YELLOW}[+] ${T[Actualizando Xray (se guarda una copia del binario actual]:-Actualizando Xray (se guarda una copia del binario actual})...${C_NC}"
+    bash -c "$(curl -4 -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install >/dev/null 2>&1
+    if [ -n "$antes" ] && [ -f "$unit" ]; then sed -i "s|^User=.*|${antes}|" "$unit"; systemctl daemon-reload; fi
+    if ! "$xb" run -test -format json -config "$XRAY_CONFIG" >/dev/null 2>&1; then
+        cp -f "$bak" "$xb"; chmod 755 "$xb"; rm -f "$bak"; systemctl restart xray
+        echo -e "${C_RED}[!] ${T[La versión nueva no acepta tu configuración actual. Se restauró el Xray anterior]:-La versión nueva no acepta tu configuración actual. Se restauró el Xray anterior}.${C_NC}"; return 1
+    fi
+    systemctl restart xray; sleep 1
+    if ! systemctl is-active --quiet xray; then
+        cp -f "$bak" "$xb"; chmod 755 "$xb"; rm -f "$bak"; systemctl restart xray
+        echo -e "${C_RED}[!] ${T[Xray no arrancó tras actualizar. Se restauró el Xray anterior]:-Xray no arrancó tras actualizar. Se restauró el Xray anterior}.${C_NC}"; return 1
+    fi
+    rm -f "$bak"
+    echo -e "${C_GREEN}[✔] ${T[Xray actualizado]:-Xray actualizado}.${C_NC}"
+    return 0
+}
+
+asegurar_xray_xhttp() {
+    local ver rc resp
+    ver=$(xh check 2>/dev/null); rc=$?
+    [ "$rc" -eq 0 ] && return 0
+    if [ "$rc" -ne 14 ]; then mensaje_rc "$rc"; return 1; fi
+    echo -e "${C_YELLOW}[!] ${T[Tu Xray]:-Tu Xray} (${ver:-desconocido}) ${T[no soporta XHTTP. Hace falta la versión 24.11.21 o superior]:-no soporta XHTTP. Hace falta la versión 24.11.21 o superior}.${C_NC}"
+    read -r -p "${T[¿Actualizar Xray ahora? (s/n]:-¿Actualizar Xray ahora? (s/n}): " resp
+    [[ "$resp" =~ ^[sSyY]$ ]] || return 1
+    actualizar_xray || return 1
+    ver=$(xh check 2>/dev/null); rc=$?
+    if [ "$rc" -ne 0 ]; then echo -e "${C_RED}[!] ${T[Xray sigue sin soportar XHTTP]:-Xray sigue sin soportar XHTTP}.${C_NC}"; return 1; fi
+    return 0
 }
 
 instalar_inbound() {
@@ -342,6 +419,7 @@ instalar_inbound() {
         fi
         sleep 4; return 1
     fi
+    asegurar_xray_xhttp || { sleep 3; return 1; }
     read -r -p "🔌 ${T[Puerto TLS para XHTTP]:-Puerto TLS para XHTTP} [Enter = ${act:-$DEFAULT_PORT}]: " puerto
     puerto=${puerto:-${act:-$DEFAULT_PORT}}
     if ! [[ "$puerto" =~ ^[0-9]+$ ]] || [ "$puerto" -lt 1 ] || [ "$puerto" -gt 65535 ]; then

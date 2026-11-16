@@ -15,6 +15,11 @@ Menu > 2 (Gerenciador de instalações) > **19. Motor unificado HAProxy + Xray (
 4. Depois de subir, testa **cada rota com tráfego real** (contadores do HAProxy). Se alguma falhar, oferece restaurar.
 5. Restaurar manualmente: menu do motor > 5. (As contas criadas depois da instalação não existem no backup.)
 
+## Versão do Xray
+XHTTP exige Xray **24.11.21 ou superior**. O instalador (e o menu XHTTP) detectam isso: mostram a versão, oferecem atualizar o Xray
+(com cópia do binário e restauração se a versão nova não aceitar a sua config) ou, no motor, instalam **sem XHTTP**.
+Quando o Xray recusa uma configuração, o script mostra o **detalhe real** (mensagem do próprio Xray).
+
 ## Depois de instalado
 - `vmess.sh`/`vless.sh`/`trojan.sh` continuam criando contas; a reinstalação do Xray clássico fica bloqueada para não derrubar o HAProxy.
 - Certificado: renovado pelo certbot; o hook em `/etc/letsencrypt/renewal-hooks/deploy/` regrava o PEM e recarrega o HAProxy.

@@ -28,6 +28,7 @@ Activar/Desactivar Droplimiter	ATIVAR/DESATIVAR DROPLIMITER
 Activo	ATIVO
 Actualizado	ATUALIZADO
 Actualizando Panel	ATUALIZANDO PAINEL
+Actualizando Xray (se guarda una copia del binario actual	ATUALIZANDO O XRAY (UMA CÓPIA DO BINÁRIO ATUAL É GUARDADA
 Actualizando sistema e instalando dependencias	ATUALIZANDO SISTEMA E INSTALANDO DEPENDÊNCIAS
 Actualizando índices del sistema	ATUALIZANDO ÍNDICES DO SISTEMA
 Actualizar Panel Web (app.py	ATUALIZAR PAINEL WEB (app.py
@@ -226,6 +227,7 @@ Destino Proxy	DESTINO PROXY
 Destino SSH (HOST:PUERTO	DESTINO SSH (HOST:PORTA
 Destino no válido	DESTINO INVÁLIDO
 Destino no válido. Formato: HOST:PUERTO	DESTINO INVÁLIDO. FORMATO: HOST:PORTA
+Detalle de Xray	DETALHE DO XRAY
 Detener	PARAR
 Detener BHTTP	PARAR BHTTP
 Detener Panel Web	PARAR PAINEL WEB
@@ -281,6 +283,7 @@ El inbound XHTTP lo gestiona el motor unificado HAProxy (ruta /xhttp en los puer
 El listener	O LISTENER
 El menú no se instaló correctamente. Revisa tu conexión	O MENU NÃO FOI INSTALADO CORRETAMENTE. VERIFIQUE SUA CONEXÃO
 El motor no está instalado	O MOTOR NÃO ESTÁ INSTALADO
+El motor se instalará SIN XHTTP (WS, gRPC y SSH funcionan igual). Puedes actualizar Xray y reinstalar el motor después	O MOTOR SERÁ INSTALADO SEM XHTTP (WS, gRPC E SSH FUNCIONAM IGUAL). VOCÊ PODE ATUALIZAR O XRAY E REINSTALAR O MOTOR DEPOIS
 El motor unificado HAProxy está activo: Trojan ya viene incluido en él	O MOTOR UNIFICADO HAPROXY ESTÁ ATIVO: O TROJAN JÁ VEM INCLUÍDO NELE
 El motor unificado HAProxy está activo: no se puede reinstalar el Xray clásico desde aquí	O MOTOR UNIFICADO HAPROXY ESTÁ ATIVO: NÃO É POSSÍVEL REINSTALAR O XRAY CLÁSSICO POR AQUI
 El motor unificado HAProxy ya sirve SSH-WS y SSL en los puertos 80, 8080 y	O MOTOR UNIFICADO HAPROXY JÁ ATENDE SSH-WS E SSL NAS PORTAS 80, 8080 E
@@ -499,6 +502,7 @@ La IP	O IP
 La contraseña debe tener al menos 8 caracteres	A SENHA DEVE TER PELO MENOS 8 CARACTERES
 La cuenta no existe	A CONTA NÃO EXISTE
 La instalación falló. Últimas líneas del registro	A INSTALAÇÃO FALHOU. ÚLTIMAS LINHAS DO REGISTRO
+La versión nueva no acepta tu configuración actual. Se restauró el Xray anterior	A VERSÃO NOVA NÃO ACEITA A SUA CONFIGURAÇÃO ATUAL. O XRAY ANTERIOR FOI RESTAURADO
 Las contraseñas no coinciden	AS SENHAS NÃO COINCIDEM
 Las cuentas VMess/VLESS no se tocan	AS CONTAS VMESS/VLESS NÃO SÃO TOCADAS
 Las cuentas VMess/VLESS siguen funcionando igual (mismo dominio, puerto 443 y rutas	AS CONTAS VMESS/VLESS CONTINUAM FUNCIONANDO IGUAL (MESMO DOMÍNIO, PORTA 443 E ROTAS
@@ -807,6 +811,8 @@ Total Swap	SWAP TOTAL
 Total bloqueadas	TOTAL BLOQUEADAS
 Transporte	TRANSPORTE
 Transporte no válido	TRANSPORTE INVÁLIDO
+Tu Xray	SEU XRAY
+Tu versión de Xray no soporta XHTTP	SUA VERSÃO DO XRAY NÃO SUPORTA XHTTP
 Túnel     : UDP 0.0.0.0:53 ➔ SSH	TÚNEL     : UDP 0.0.0.0:53 ➔ SSH
 UFW: el puerto	UFW: A PORTA
 UFW: puerto	UFW: PORTA
@@ -856,11 +862,14 @@ XHTTP activo en el puerto	XHTTP ATIVO NA PORTA
 XHTTP aún no está instalado. Configurándolo primero	XHTTP AINDA NÃO ESTÁ INSTALADO. CONFIGURANDO PRIMEIRO
 XHTTP desinstalado	XHTTP DESINSTALADO
 XHTTP no está instalado	XHTTP NÃO ESTÁ INSTALADO
+Xray actualizado	XRAY ATUALIZADO
 Xray no aplica este límite por sí solo: solo queda anotado	O XRAY NÃO APLICA ESTE LIMITE POR SI SÓ: FICA APENAS ANOTADO
 Xray no arrancó con el cambio. Se restauró la configuración anterior	O XRAY NÃO INICIOU COM A ALTERAÇÃO. A CONFIGURAÇÃO ANTERIOR FOI RESTAURADA
+Xray no arrancó tras actualizar. Se restauró el Xray anterior	O XRAY NÃO INICIOU APÓS ATUALIZAR. O XRAY ANTERIOR FOI RESTAURADO
 Xray no está instalado. Instala primero el Menú Xray (VLESS o VMess	O XRAY NÃO ESTÁ INSTALADO. INSTALE PRIMEIRO O MENU XRAY (VLESS OU VMESS
 Xray pasará a escuchar solo en 127.0.0.1 (puertos 10001-10014); las cuentas VMess/VLESS/Trojan actuales se migran	O XRAY PASSARÁ A ESCUTAR SOMENTE EM 127.0.0.1 (PORTAS 10001-10014); AS CONTAS VMESS/VLESS/TROJAN ATUAIS SÃO MIGRADAS
 Xray rechazó la configuración. No se cambió nada	O XRAY REJEITOU A CONFIGURAÇÃO. NADA FOI ALTERADO
+Xray sigue sin soportar XHTTP	O XRAY CONTINUA SEM SUPORTAR XHTTP
 Y verifica que aparezcan estos algoritmos	E VERIFIQUE SE ESTES ALGORITMOS APARECEM
 YYYY/MM/DD (Más común	AAAA/MM/DD (MAIS COMUM
 Ya está usando el puerto	JÁ ESTÁ USANDO A PORTA
@@ -901,6 +910,7 @@ no está registrado como BHTTP	NÃO ESTÁ REGISTRADA COMO BHTTP
 no fue encontrado en GitHub	NÃO FOI ENCONTRADO NO GITHUB
 no quedó activo; revisa logs: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE OS LOGS: journalctl -u
 no quedó activo; revisa: journalctl -u	NÃO FICOU ATIVO; VERIFIQUE: journalctl -u
+no soporta XHTTP. Hace falta la versión 24.11.21 o superior	NÃO SUPORTA XHTTP. É NECESSÁRIA A VERSÃO 24.11.21 OU SUPERIOR
 normal si usas Cloudflare con proxy naranja	NORMAL SE VOCÊ USA CLOUDFLARE COM PROXY LARANJA
 o	OU
 o similar	OU SIMILAR
@@ -949,6 +959,7 @@ ya está ocupado por otro listener. No se modificó nada	JÁ ESTÁ OCUPADA POR O
 ¡Tráfico Torrent y Spam bloqueado exitosamente	TRÁFEGO TORRENT E SPAM BLOQUEADO COM SUCESSO
 ¡UDP Custom oficial instalado y operando en el puerto	UDP CUSTOM OFICIAL INSTALADO E OPERANDO NA PORTA
 ¡Zivpn UDP instalado y activo con éxito	ZIVPN UDP INSTALADO E ATIVO COM SUCESSO
+¿Actualizar Xray ahora? (s/n	ATUALIZAR O XRAY AGORA? (S/N
 ¿Continuar con la instalación? (s/n	CONTINUAR COM A INSTALAÇÃO? (S/N
 ¿Continuar de todos modos? (s/n	CONTINUAR MESMO ASSIM? (S/N
 ¿Cuántos GB quieres usar	QUANTOS GB VOCÊ QUER USAR
