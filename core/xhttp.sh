@@ -134,7 +134,8 @@ def apply_config(cfg):
     xb = xray_bin()
     if not xb:
         return 12
-    tmp = XCONF + ".new"
+    # Xray exige que el archivo termine en .json (con "config.json.new" responde: unsupported config file extension)
+    tmp = os.path.join(os.path.dirname(XCONF), ".xhttp-new-%d.json" % os.getpid())
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=2, ensure_ascii=False)
     t = subprocess.run([xb, "run", "-test", "-format", "json", "-config", tmp], capture_output=True)

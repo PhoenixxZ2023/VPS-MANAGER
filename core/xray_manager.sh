@@ -39,6 +39,7 @@ FLAG_FILE="${VPS_DIR}/xray_dual_ok"
 DOMAIN_FILE="${VPS_DIR}/dominio"
 CORE_COPY="${VPS_DIR}/core/xray_manager.sh"
 SSHWS_PORT=10015
+XRAY_NEW="${XRAY_CONFIG%.json}.engine.new.json"   # Xray exige extensión .json en el archivo que se le pasa
 LINE="${C_CYAN}================================================${C_NC}"
 export VPS_BASE="$VPS_DIR" XRAY_DIR XRAY_CONFIG
 
@@ -672,8 +673,8 @@ EOF
     systemctl daemon-reload
 }
 
-generar_xray() {   # deja WITH_SS y ${XRAY_CONFIG}.engine.new listos (usa WITH_XHTTP)
-    local nuevo="${XRAY_CONFIG}.engine.new" xb err="${ENGINE_DIR}/xray_error.txt"
+generar_xray() {   # deja WITH_SS y ${XRAY_NEW} listos (usa WITH_XHTTP)
+    local nuevo="${XRAY_NEW}" xb err="${ENGINE_DIR}/xray_error.txt"
     xb=$(xray_bin)
     mkdir -p "$ENGINE_DIR"
     WITH_SS=1
@@ -767,7 +768,7 @@ fallo_y_restaurar() {
     echo -e "\n${C_RED}[!] $1${C_NC}"
     echo -e "${C_YELLOW}[+] ${T[Restaurando el estado anterior]:-Restaurando el estado anterior}...${C_NC}"
     restaurar_backup "$BACKUP_DIR"
-    rm -f "${XRAY_CONFIG}.engine.new" "${HAPROXY_CFG}.engine.new"
+    rm -f "${XRAY_NEW}" "${HAPROXY_CFG}.engine.new"
     pausa
     return 1
 }
@@ -847,7 +848,7 @@ instalar_motor() {
     generar_haproxy || { fallo_y_restaurar "haproxy -c rechazó la configuración generada."; return 1; }
 
     echo -e "${C_YELLOW}[7/8] ${T[Activando servicios]:-Activando servicios}...${C_NC}"
-    mv -f "${XRAY_CONFIG}.engine.new" "$XRAY_CONFIG"; chmod 644 "$XRAY_CONFIG"
+    mv -f "${XRAY_NEW}" "$XRAY_CONFIG"; chmod 644 "$XRAY_CONFIG"
     mv -f "${HAPROXY_CFG}.engine.new" "$HAPROXY_CFG"
     systemctl daemon-reload
     systemctl enable xray vps-ssh-ws haproxy >/dev/null 2>&1

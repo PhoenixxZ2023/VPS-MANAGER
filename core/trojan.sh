@@ -119,7 +119,7 @@ generar_link() {
 # ── Modo motor unificado (HAProxy): las cuentas Trojan viven en los inbounds trojan-ws y trojan-grpc ──
 trojan_motor_aplicar() {
     local filtro="$1"; shift
-    local nuevo="${CONF_FILE}.motor.new" respaldo="${CONF_FILE}.bak-trojan" xb
+    local nuevo="${CONF_FILE%.json}.motor.new.json" respaldo="${CONF_FILE}.bak-trojan" xb
     xb=$(command -v xray || echo /usr/local/bin/xray)
     jq "$@" "$filtro" "$CONF_FILE" > "$nuevo" 2>/dev/null || { rm -f "$nuevo"; return 1; }
     "$xb" run -test -format json -config "$nuevo" >/dev/null 2>&1 || { rm -f "$nuevo"; return 2; }
