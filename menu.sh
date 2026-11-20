@@ -642,7 +642,7 @@ bhttp2_instalar() {
     echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
     
     echo -e "${C_YELLOW}[+] ${T[Descargando e instalando motor BHTTP v]:-Descargando e instalando motor BHTTP v}2.0...${C_RST}"
-    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.comPhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
+    wget -qO /tmp/bhttpv2.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bhttpv2.sh
     chmod +x /tmp/bhttpv2.sh
     
     bash /tmp/bhttpv2.sh install
