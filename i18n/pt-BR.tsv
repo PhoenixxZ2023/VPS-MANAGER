@@ -386,6 +386,7 @@ HCR v2.0 reiniciado	HCR V2.0 REINICIADO
 HTTP Custom, HTTP Injector, Paneles Web	HTTP CUSTOM, HTTP INJECTOR, PAINÉIS WEB
 Hay rutas con problemas	HÁ ROTAS COM PROBLEMAS
 Herramientas y Sistema > Gestor de Dominio y Certificados SSL	FERRAMENTAS E SISTEMA > GERENCIADOR DE DOMÍNIO E CERTIFICADOS SSL
+Hooks de renovación instalados: HAProxy se detiene unos segundos solo durante cada renovación	HOOKS DE RENOVAÇÃO INSTALADOS: O HAPROXY PARA ALGUNS SEGUNDOS SOMENTE DURANTE CADA RENOVAÇÃO
 Host / Dominio	HOST / DOMÍNIO
 Host / Servidor	HOST / SERVIDOR
 I/O Speed (average)	VELOCIDADE E/S (MÉDIA)

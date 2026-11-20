@@ -568,13 +568,17 @@ sincronizar_cert() {   # modo silencioso para hooks de certbot y domain.sh
 }
 
 instalar_hook_y_copia() {
-    mkdir -p "${VPS_DIR}/core" "$HOOK_DIR"
+    local hooks_base="${HOOK_DIR%/deploy}"
+    mkdir -p "${VPS_DIR}/core" "$HOOK_DIR" "${hooks_base}/pre" "${hooks_base}/post"
     local self="${BASH_SOURCE[0]:-$0}"
     if [ -f "$self" ] && [ "$(readlink -f "$self")" != "$(readlink -f "$CORE_COPY")" ]; then
         cp -f "$self" "$CORE_COPY" && chmod 755 "$CORE_COPY"
     fi
     printf '%s\n' '#!/bin/bash' "bash ${CORE_COPY} cert-sync >/dev/null 2>&1" > "${HOOK_DIR}/vps-manager-haproxy.sh"
-    chmod 755 "${HOOK_DIR}/vps-manager-haproxy.sh"
+    # La renovación usa certbot --standalone, que necesita el puerto 80: HAProxy lo libera solo durante la renovación.
+    printf '%s\n' '#!/bin/bash' 'systemctl stop haproxy' > "${hooks_base}/pre/vps-manager-haproxy.sh"
+    printf '%s\n' '#!/bin/bash' 'systemctl start haproxy' > "${hooks_base}/post/vps-manager-haproxy.sh"
+    chmod 755 "${HOOK_DIR}/vps-manager-haproxy.sh" "${hooks_base}/pre/vps-manager-haproxy.sh" "${hooks_base}/post/vps-manager-haproxy.sh"
 }
 
 # ---------------------------------------------------------------------------
@@ -924,6 +928,8 @@ restaurar_menu() {
 cert_menu() {
     cabecera "${T[SINCRONIZAR CERTIFICADO]:-SINCRONIZAR CERTIFICADO}"
     motor_activo || { echo -e "${C_YELLOW}[!] ${T[El motor no está instalado]:-El motor no está instalado}.${C_NC}"; pausa; return; }
+    instalar_hook_y_copia
+    echo -e "${C_GREEN}[✔] ${T[Hooks de renovación instalados: HAProxy se detiene unos segundos solo durante cada renovación]:-Hooks de renovación instalados: HAProxy se detiene unos segundos solo durante cada renovación}.${C_NC}"
     if sincronizar_cert; then echo -e "${C_GREEN}[✔] ${T[Certificado actualizado en HAProxy]:-Certificado actualizado en HAProxy}.${C_NC}"; else echo -e "${C_RED}[!] ${T[No se pudo sincronizar el certificado]:-No se pudo sincronizar el certificado}.${C_NC}"; fi
     pausa
 }
