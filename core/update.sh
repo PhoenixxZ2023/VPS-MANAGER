@@ -25,7 +25,7 @@ echo -e "${C_GREEN}        ${T[ACTUALIZADOR DE PANEL VPS MANAGER]:-ACTUALIZADOR 
 echo -e "${C_CYAN}================================================${C_NC}"
 
 echo -e "${C_YELLOW}[+] ${T[Buscando actualizaciones en GitHub]:-Buscando actualizaciones en GitHub}...${C_NC}"
-wget -qO /tmp/menu.sh "https://raw.githubusercontent.com/rogellevi/VPS-MANAGER/main/update/menu"
+wget -qO /tmp/menu.sh "https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/update/menu"
 
 if [ -s /tmp/menu.sh ]; then
     echo -e "${C_YELLOW}[+] ${T[Descarga Exitosa. Aplicando actualización]:-Descarga Exitosa. Aplicando actualización}...${C_NC}"
