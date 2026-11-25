@@ -15,7 +15,7 @@ wget -O install.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/m
 **Opção 2 — Instalação alternativa com curl**
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/installxray.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/install.sh)
 ```
 
 O segundo comando usa Bash e chama o mesmo instalador principal. Após a instalação, para abrir o painel em uma nova sessão administrativa, digite:
