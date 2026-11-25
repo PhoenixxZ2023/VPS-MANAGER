@@ -29,12 +29,12 @@ wget -qO /tmp/menu.sh "https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAG
 
 if [ -s /tmp/menu.sh ]; then
     echo -e "${C_YELLOW}[+] ${T[Descarga Exitosa. Aplicando actualización]:-Descarga Exitosa. Aplicando actualización}...${C_NC}"
-    mv /tmp/menu.sh /usr/local/bin/menu
-    chmod +x /usr/local/bin/menu
+    mv /tmp/menu.sh /usr/local/bin/menussh
+    chmod +x /usr/local/bin/menussh
     
     echo -e "${C_GREEN}[✔] ${T[¡Panel actualizado con éxito! Reiniciando]:-¡Panel actualizado con éxito! Reiniciando}...${C_NC}"
     sleep 2
-    exec menu
+    exec /usr/local/bin/menussh
 else
     echo -e "${C_RED}[!] ${T[Error al descargar la actualización]:-Error al descargar la actualización}.${C_NC}"
     echo -e "${C_YELLOW}${T[Verifica tu conexión a internet o asegúrate de que el archivo menu existe en el repositorio]:-Verifica tu conexión a internet o asegúrate de que el archivo menu existe en el repositorio}.${C_NC}"

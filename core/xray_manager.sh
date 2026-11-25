@@ -158,6 +158,16 @@ def build(old, with_ss, with_xhttp=True):
     cfg["routing"] = old.get("routing") or {"domainStrategy": "IPIfNonMatch", "rules": [
         {"type": "field", "protocol": ["bittorrent"], "outboundTag": "blocked"},
         {"type": "field", "ip": ["geoip:private"], "outboundTag": "blocked"}]}
+    cfg["api"] = {"tag": "api", "services": ["HandlerService", "StatsService"]}
+    cfg["stats"] = {}
+    levels = cfg.setdefault("policy", {}).setdefault("levels", {}).setdefault("0", {})
+    levels.update(statsUserUplink=True, statsUserDownlink=True)
+    cfg["inbounds"] = [i for i in cfg["inbounds"] if i.get("tag") != "api"]
+    cfg["inbounds"].append({"tag":"api", "listen":"127.0.0.1", "port":10085,
+                            "protocol":"dokodemo-door", "settings":{"address":"127.0.0.1"}})
+    rules = cfg["routing"].setdefault("rules", [])
+    rules[:] = [r for r in rules if r.get("inboundTag") != ["api"]]
+    rules.insert(0, {"type":"field", "inboundTag":["api"], "outboundTag":"api"})
     return cfg, rep
 
 
@@ -222,10 +232,14 @@ def haproxy_cfg(cert_dir, with_ss, with_xhttp=True):
           "    use_backend trojan_grpc_b if is_trojan_grpc"]
     if with_ss:
         L.append("    use_backend ss_grpc_b if is_ss_grpc")
+    if with_xhttp:
+        L.append("    use_backend xhttp_h2 if { path_beg /xhttp }")
     L += ["    default_backend vless_grpc_b", ""]
     grpc = [("vless_grpc_b", 10011), ("vmess_grpc_b", 10012), ("trojan_grpc_b", 10013)]
     if with_ss:
         grpc.append(("ss_grpc_b", 10014))
+    if with_xhttp:
+        grpc.append(("xhttp_h2", 10006))
     for be, port in grpc:
         L += ["backend %s" % be, "    mode http", "    server s1 127.0.0.1:%d proto h2 check" % port, ""]
     tcp = [("ssh_ws", SSHWS), ("ssh_direct", 22), ("vless_ws", 10001), ("vmess_ws", 10002), ("trojan_ws", 10003)]
@@ -736,6 +750,12 @@ generar_haproxy() {
     local nuevo="${HAPROXY_CFG}.engine.new" out
     mkdir -p "$(dirname "$HAPROXY_CFG")" /run/haproxy 2>/dev/null
     eng haproxy-cfg "$CERT_DIR" "$WITH_SS" "${WITH_XHTTP:-1}" > "$nuevo" || return 1
+    if [[ -f "$VPS_DIR/hcr-v3/shared-port" ]]; then
+        python3 "$VPS_DIR/core/hcr3/haproxy_route.py" "$nuevo" "$(<"$VPS_DIR/hcr-v3/shared-port")" || return 1
+    fi
+    if [[ -f "$VPS_DIR/dtunnel/shared-port" ]]; then
+        python3 "$VPS_DIR/core/hcr3/haproxy_route.py" "$nuevo" "$(<"$VPS_DIR/dtunnel/shared-port")" --protocol dtunnel || return 1
+    fi
     if ! out=$(haproxy -c -f "$nuevo" 2>&1); then
         echo -e "${C_RED}$(echo "$out" | tail -5)${C_NC}"
         rm -f "$nuevo"
@@ -852,7 +872,10 @@ instalar_motor() {
     generar_haproxy || { fallo_y_restaurar "haproxy -c rechazó la configuración generada."; return 1; }
 
     echo -e "${C_YELLOW}[7/8] ${T[Activando servicios]:-Activando servicios}...${C_NC}"
-    mv -f "${XRAY_NEW}" "$XRAY_CONFIG"; chmod 644 "$XRAY_CONFIG"
+    local svc_user
+    svc_user=$(systemctl show -p User --value xray)
+    chgrp "$(id -gn "${svc_user:-root}")" "$XRAY_NEW" && chmod 0640 "$XRAY_NEW" || { fallo_y_restaurar "Permissões do Xray"; return 1; }
+    mv -f "${XRAY_NEW}" "$XRAY_CONFIG"
     mv -f "${HAPROXY_CFG}.engine.new" "$HAPROXY_CFG"
     systemctl daemon-reload
     systemctl enable xray vps-ssh-ws haproxy >/dev/null 2>&1
@@ -962,6 +985,7 @@ menu_principal() {
 main() {
     case "${1:-menu}" in
         cert-sync) sincronizar_cert; exit $? ;;
+        install) instalar_motor ;;
         menu) menu_principal ;;
         *) echo "uso: $0 [menu|cert-sync]"; exit 64 ;;
     esac

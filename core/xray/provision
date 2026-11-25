@@ -1,0 +1,227 @@
+#!/usr/bin/python3 -I
+"""Cadastro compartilhado pelo menu da VPS e pelo bot. Recebe um pedido pelo stdin."""
+import base64
+import io
+import tarfile
+import fcntl
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tempfile
+from datetime import date, timedelta
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import xray_accounts as xray
+
+VPS = Path("/etc/vps-manager")
+DB = Path(xray.USER_DB)
+CONFIG = Path(xray.CONFIG_PATH)
+
+
+def running(unit):
+    return subprocess.run(["systemctl", "is-active", "--quiet", unit]).returncode == 0
+
+
+def active():
+    return (VPS / "engine_haproxy").is_file() and running("haproxy") and running("xray")
+
+
+def number(value, maximum):
+    if not re.fullmatch(r"[1-9][0-9]{0,5}", value) or int(value) > maximum:
+        raise ValueError(f"Informe um número entre 1 e {maximum}.")
+    return int(value)
+
+
+def read(path, default=""):
+    return path.read_text().strip() if path.is_file() else default
+
+
+def write(path, content):
+    with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as f:
+        tmp = Path(f.name)
+        try:
+            if path.exists():
+                st = path.stat()
+                os.fchown(f.fileno(), st.st_uid, st.st_gid)
+                os.fchmod(f.fileno(), st.st_mode & 0o777)
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+            os.replace(tmp, path)
+        finally:
+            tmp.unlink(missing_ok=True)
+
+
+def connection_info():
+    domain = read(VPS / "dominio") or subprocess.check_output(["hostname", "-I"], text=True).split()[0]
+    lines = [f"Host: {domain}"]
+    ssh = subprocess.run(["sshd", "-T"], capture_output=True, text=True)
+    ports = [line.split()[1] for line in ssh.stdout.splitlines() if line.startswith("port ")]
+    lines.append("SSH: " + ", ".join(ports or ["22"]))
+    if running("hcr-server-v3"):
+        port = read(VPS / "hcr3_port", "consulte o serviço")
+        target = read(VPS / "hcr3_target", "127.0.0.1:22")
+        transport = read(VPS / "hcr3_transport", "plain")
+        lines.append(f"HCR 3.0: {port} ({transport}) • destino SSH: {target}")
+    if running("hcr-server"):
+        target = read(VPS / "hcr_target", "127.0.0.1:22")
+        lines.append(f"HCR: {read(VPS / 'hcr_port', 'consulte o serviço')} • destino SSH: {target}")
+    if running("bhttp-dtunnel"):
+        lines.append("BHTTP DTunnel: " + read(VPS / "dtunnel/port", "consulte o serviço") + " • SSH local")
+    if running("superflash-bhttp"):
+        cfg = read(Path("/etc/superflash-bhttp/config")) or read(Path("/etc/superflash-bhttp.conf"))
+        port = re.search(r'^BHTTP_PORT="?(\d+)', cfg, re.M)
+        lines.append("BHTTP: " + (port[1] if port else read(VPS / "bhttp_port", "consulte o serviço")))
+    if running("haproxy"):
+        lines.append("HAProxy / SSH-WS: 80, 8080 e 443 (TLS)")
+    if running("stunnel4"):
+        lines.append("SSL: " + read(VPS / "ssl_port", "444"))
+    if (VPS / "slowdns/server.pub").is_file():
+        lines.extend(["DNS: " + read(VPS / "nsdomain"), "Chave DNS: " + read(VPS / "slowdns/server.pub")])
+    if running("openvpn@server-tcp"):
+        lines.append(f"OpenVPN: http://{domain}:2081")
+    sockets = subprocess.run(["ss", "-Hlnptu"], text=True, capture_output=True).stdout.splitlines()
+    for unit, label in (("hcr", "HCR"), ("bhttp", "BHTTP"), ("dropbear", "Dropbear"), ("wsproxy", "WSProxy"),
+                        ("ws-python", "WebSocket"), ("sshws", "SSH-WS"), ("udp-custom", "UDP Custom"),
+                        ("vps-slowdns", "SlowDNS"), ("zivpn", "ZIVPN")):
+        pid = subprocess.run(["systemctl", "show", "-p", "MainPID", "--value", unit],
+                             text=True, capture_output=True).stdout.strip()
+        if pid.isdigit() and int(pid):
+            ports = sorted({row.split()[4].rsplit(":", 1)[-1] for row in sockets
+                            if f"pid={pid}," in row and len(row.split()) >= 5})
+            if ports:
+                lines.append(f"{label}: {', '.join(ports)}")
+    if running("hysteria"):
+        cfg = json.loads((VPS / "hysteria/config.json").read_text())
+        lines.append(f"Hysteria: {cfg['listen']} • senha do serviço: {cfg['auth']} • obfs: {cfg.get('obfs', '')}")
+    return lines
+
+
+def create_ssh(user, password, days, limit):
+    expiry = str(date.today() + timedelta(days=number(days, 3650)))
+    number(limit, 65535)
+    if not password or not password.isprintable() or ":" in password or len(password) > 256:
+        raise ValueError("Senha inválida.")
+    info = connection_info()
+    marker = VPS / ("limite_" + user)
+    if marker.exists():
+        raise ValueError("Já existe cadastro SSH com esse nome.")
+    zivpn = Path("/etc/zivpn/config.json")
+    old = None
+    if zivpn.is_file():
+        cfg = json.loads(zivpn.read_bytes())
+        passwords = cfg["auth"]["config"]
+        if not isinstance(passwords, list):
+            raise ValueError("Configuração de senhas ZIVPN incompatível.")
+        if password not in passwords:
+            old = zivpn.read_bytes()
+            passwords.append(password)
+        info.append("ZIVPN: " + password)
+    result = subprocess.run(["useradd", "-M", "-s", "/bin/false", "-e", expiry, "--", user])
+    if result.returncode:
+        raise ValueError("Não foi possível criar a conta SSH. Verifique se o nome está disponível.")
+    try:
+        subprocess.run(["chpasswd"], input=f"{user}:{password}\n", text=True, check=True)
+        write(marker, (limit + "\n").encode())
+        if old is not None:
+            write(zivpn, json.dumps(cfg).encode())
+            subprocess.run(["systemctl", "restart", "zivpn"], check=True)
+    except Exception:
+        if old is not None:
+            write(zivpn, old)
+            subprocess.run(["systemctl", "restart", "zivpn"])
+        marker.unlink(missing_ok=True)
+        subprocess.run(["userdel", "--", user], check=True)
+        raise
+    return "\n".join(["Conta SSH criada", f"Usuário: {user}", f"Senha: {password}", f"Vencimento: {expiry}",
+                      f"Limite SSH: {limit}", *info])
+
+
+def mutate(action, user, args):
+    snapshots = {p: p.read_bytes() if p.exists() else None for p in (CONFIG, DB)}
+    try:
+        if action == "xray":
+            number(args[0], 3650)
+            ok, msg = xray.core_create_user(user, args[0])
+            if not ok:
+                raise ValueError(msg)
+            return msg
+        if action == "renew":
+            number(args[0], 3650)
+            return xray.core_renew_user(user, args[0])
+        return {"block": xray.core_block_user, "unblock": xray.core_unblock_user,
+                "delete": xray.core_delete_user}[action](user)
+    except Exception:
+        changed = False
+        for path, before in snapshots.items():
+            if (path.read_bytes() if path.exists() else None) != before:
+                if before is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    write(path, before)
+                changed |= path == CONFIG
+        if changed:
+            subprocess.run(["systemctl", "restart", "xray"], check=True)
+        raise
+
+
+def backup():
+    files = [CONFIG, Path(xray.PRESET_PATH), VPS / "dominio", VPS / "xray_profile"]
+    files.extend(DB.parent / name for name in ("users.db", "limits.db", "usage.db", "session.db"))
+    with io.BytesIO() as stream:
+        with tarfile.open(fileobj=stream, mode="w:gz") as archive:
+            for path in files:
+                if path.is_file() and not path.is_symlink():
+                    archive.add(path, arcname=str(path).lstrip("/"), recursive=False)
+        return base64.b64encode(stream.getvalue()).decode("ascii")
+
+
+def request(args):
+    counts = {"active": 0, "list": 0, "usage": 0, "backup": 0, "ssh": 4, "xray": 2, "renew": 2, "block": 1, "unblock": 1, "delete": 1}
+    if not isinstance(args, list) or not args or not all(isinstance(v, str) for v in args):
+        raise ValueError("Pedido inválido.")
+    action, *fields = args
+    if len(fields) != counts.get(action, -1):
+        raise ValueError("Pedido inválido.")
+    if action == "active":
+        return "sim" if active() else "não"
+    if action == "list":
+        return xray.core_list_users_text()
+    if action == "usage":
+        return xray.core_list_usage_text()
+    if action == "backup":
+        return backup()
+    user = fields[0]
+    if not xray._is_valid_nick(user, strict_create=True):
+        raise ValueError("Nome inválido. Use 2–32 caracteres e comece com uma letra minúscula.")
+    if action == "ssh":
+        return create_ssh(*fields)
+    if not active():
+        raise ValueError("Ative o Xray pelo Core Manager com HAProxy.")
+    return mutate(action, user, fields[1:])
+
+
+def main():
+    os.umask(0o077)
+    DB.parent.mkdir(exist_ok=True, mode=0o755)
+    with open(VPS / ".v2ray.lock", "a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        if sys.argv[1:] == ["--expire"]:
+            if active():
+                for line in read(DB).splitlines():
+                    user, _, expiry, *_ = line.split("|")
+                    if date.fromisoformat(expiry) <= date.today():
+                        mutate("delete", user, [])
+            return
+        print(request(json.load(sys.stdin)))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, RuntimeError, ValueError, KeyError, subprocess.SubprocessError) as error:
+        print(f"Falha: {error}")
+        sys.exit(1)

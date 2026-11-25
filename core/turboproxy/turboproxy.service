@@ -1,0 +1,20 @@
+[Unit]
+Description=TURBOProxy VPN - BHTTP sobre TCP para SSH local
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/turboproxy/portas.conf
+ExecStart=/usr/local/bin/turboproxy -listen 0.0.0.0 -port ${BHTTP_PORT} -backend-host 127.0.0.1 -backend-port ${SSH_PORT}
+DynamicUser=yes
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
