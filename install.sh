@@ -20,7 +20,7 @@ load_lang
 set -o pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-REPO_BASE="https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main"
+REPO_BASE="${REPO_BASE:-https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main}"
 
 # i18n: catálogo de português do Brasil (somente dados, nunca executado)
 _i18n_fetch() {
@@ -96,7 +96,7 @@ echo -e "\n\033[1;36m[+] ${T[Instalando paquetes necesarios]:-Instalando paquete
 if ! apt-get install -y \
     -o Dpkg::Options::="--force-confdef" \
     -o Dpkg::Options::="--force-confold" \
-    bc screen nano unzip lsof net-tools dos2unix nload figlet \
+    cron bc screen nano unzip lsof net-tools dos2unix nload figlet \
     python3 python3-pip at ca-certificates gnupg lsb-release > /dev/null 2>&1; then
     echo -e "\033[1;31m[!] ${T[Falló la instalación de paquetes base. Abortando]:-Falló la instalación de paquetes base. Abortando}.\033[0m"
     exit 1
@@ -115,8 +115,18 @@ mkdir -p /usr/local/bin
 # ==========================================
 # 6. FUNCIÓN DE DESCARGA CON REINTENTOS
 # ==========================================
+LOCAL_SOURCE=""
+if [[ -f "${BASH_SOURCE[0]}" ]]; then
+    candidate=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
+    [[ -f "$candidate/core/xray/provision" ]] && LOCAL_SOURCE="$candidate"
+fi
 descargar() {
-    local url="$1" dest="$2"
+    local url="$1" dest="$2" rel
+    rel=${url#"$REPO_BASE/"}
+    if [[ -n "$LOCAL_SOURCE" && -f "$LOCAL_SOURCE/$rel" ]]; then
+        install -m 0644 "$LOCAL_SOURCE/$rel" "$dest"
+        return
+    fi
     for i in 1 2 3; do
         if wget -q --timeout=20 --tries=2 -O "$dest" "$url" \
         && [ -s "$dest" ] && ! grep -qi "<html" "$dest"; then
@@ -134,8 +144,45 @@ descargar() {
 # ==========================================
 echo -e "\n\033[1;36m[+] ${T[Descargando componentes y módulos core]:-Descargando componentes y módulos core}...\033[0m"
 descargar "${REPO_BASE}/core/proxy.py" /etc/vps-manager/proxy.py || exit 1
+descargar "${REPO_BASE}/core/update.sh" /etc/vps-manager/core/update.sh || exit 1
 descargar "${REPO_BASE}/core/limiter.sh" /etc/vps-manager/limiter.sh || exit 1
 descargar "${REPO_BASE}/core/setup_dns.sh" /etc/vps-manager/core/setup_dns.sh || exit 1
+if [[ -n "$LOCAL_SOURCE" ]]; then
+    for component in hcrv2 hcr-server-v2; do
+        install -m 0644 "$LOCAL_SOURCE/core/$component" "/etc/vps-manager/core/$component" || exit 1
+    done
+fi
+mkdir -p /etc/vps-manager/core/{turboproxy/bin,turbo-multiproxy}
+for component in turboproxy/{install.sh,turboproxy.service,bin/SHA256SUMS,bin/turboproxy-linux-{amd64,arm64}} \
+                 turbo-multiproxy/{install.sh,menu.sh,proxy.py,turbo-multiproxy.service}; do
+    descargar "$REPO_BASE/core/$component" "/etc/vps-manager/core/$component" || exit 1
+done
+mkdir -p /etc/vps-manager/core/dtunnel
+for component in BHTTP.py dtunnel/menu.sh dtunnel/server.py; do
+    descargar "$REPO_BASE/core/$component" "/etc/vps-manager/core/$component" || exit 1
+done
+mkdir -p /etc/vps-manager/core/hcr3/bin
+for component in menu.sh hcr.sh servico.sh haproxy_route.py bin/hcr-server-{amd64,arm64}.sha256; do
+    descargar "$REPO_BASE/core/hcr3/$component" "/etc/vps-manager/core/hcr3/$component" || exit 1
+done
+printf '%s\n' "$REPO_BASE" > /etc/vps-manager/core/hcr3/repo-url
+case $(uname -m) in
+    amd64|x86_64) hcr_arch=amd64 ;;
+    aarch64|arm64) hcr_arch=arm64 ;;
+    *) hcr_arch="" ;;
+esac
+if [[ -n "$LOCAL_SOURCE" && -n "$hcr_arch" ]]; then
+    hcr_bin="hcr-server-$hcr_arch"
+    install -m 0755 "$LOCAL_SOURCE/core/hcr3/bin/$hcr_bin" "/etc/vps-manager/core/hcr3/bin/$hcr_bin" || exit 1
+    (cd /etc/vps-manager/core/hcr3/bin && sha256sum -c "$hcr_bin.sha256") || exit 1
+fi
+mkdir -p /etc/vps-manager/core/xray
+for component in xray_manager.sh xray/{core_manager.sh,botxray.sh,botxray.py,xray_accounts.py,provision,LICENSE}; do
+    descargar "$REPO_BASE/core/$component" "/etc/vps-manager/core/$component" || exit 1
+done
+chmod 0755 /etc/vps-manager/core/xray/provision
+printf '%s\n' '4 0 * * * root /etc/vps-manager/core/xray/provision --expire' > /etc/cron.d/vps-manager-xray
+chmod 0644 /etc/cron.d/vps-manager-xray
 chmod +x /etc/vps-manager/limiter.sh
 chmod +x /etc/vps-manager/core/setup_dns.sh
 echo -e "\033[1;32m[✔] ${T[Módulos core descargados correctamente]:-Módulos core descargados correctamente}.\033[0m"
@@ -144,10 +191,15 @@ echo -e "\033[1;32m[✔] ${T[Módulos core descargados correctamente]:-Módulos 
 # 8. DESCARGA DEL MENÚ PRINCIPAL
 # ==========================================
 echo -e "\n\033[1;36m[+] ${T[Instalando el Panel Principal]:-Instalando el Panel Principal}...\033[0m"
-rm -f /usr/local/bin/menu
-rm -f /usr/local/bin/me
-descargar "${REPO_BASE}/menu.sh" /usr/local/bin/menu || exit 1
-chmod +x /usr/local/bin/menu
+descargar "${REPO_BASE}/menu.sh" /usr/local/bin/menussh || exit 1
+chmod +x /usr/local/bin/menussh || exit 1
+if [[ -f /usr/local/bin/menu ]] && grep -q '^menu_instaladores()' /usr/local/bin/menu; then
+    if [[ -f /root/.bashrc ]]; then
+        sed -i -E 's/^[[:space:]]*menu[[:space:]]*$/menussh/' /root/.bashrc || exit 1
+    fi
+    rm -f /usr/local/bin/menu
+fi
+echo "Para abrir o VPS-MANAGER, digite: menussh"
 echo -e "\033[1;32m[✔] ${T[Panel Principal instalado correctamente]:-Panel Principal instalado correctamente}.\033[0m"
 
 # ==========================================
@@ -158,9 +210,9 @@ echo -e "\033[1;32m  [✔] ${T[¡Instalación completada con éxito]:-¡Instalac
 echo -e "\033[1;32m================================================\033[0m"
 sleep 2
 
-if [ -x /usr/local/bin/menu ]; then
+if [ -x /usr/local/bin/menussh ]; then
     clear
-    /usr/local/bin/menu
+    /usr/local/bin/menussh
 else
     echo -e "\033[1;31m[!] ${T[El menú no se instaló correctamente. Revisa tu conexión]:-El menú no se instaló correctamente. Revisa tu conexión}.\033[0m"
     exit 1

@@ -435,17 +435,19 @@ if [ "$tipo_creacion" == "2" ]; then
     pass=$(cat /etc/vps-manager/token)
     echo -e "${C_CYAN}🔑 ${T[Contraseña HWID (Global]:-Contraseña HWID (Global}): ${C_YELLOW}$pass${C_RST}"
 else
-    read -p "${T[Contraseña]:-Contraseña}: " pass
+    IFS= read -rs -p "${T[Contraseña]:-Contraseña}: " pass; echo
 fi
 
 read -p "${T[Días]:-Días}: " dias
 read -p "${T[Límite Conexiones]:-Límite Conexiones}: " limite
 [ -z "$limite" ] && limite=1
 
+if ! summary=$(printf '%s\n' "$user" "$pass" "$dias" "$limite" |
+    python3 -c 'import json,sys; print(json.dumps(["ssh", *sys.stdin.read().splitlines()]))' |
+    /etc/vps-manager/core/xray/provision); then
+    printf '%s\n' "$summary"; read -rp "Enter..."; continue
+fi
 EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d")
-useradd -e $EXP_DATE -s /bin/false -M $user
-echo "$user:$pass" | chpasswd
-echo "$limite" > "/etc/vps-manager/limite_${user}"
 
 if [ "$tipo_creacion" == "2" ]; then 
     touch "/etc/vps-manager/hwid_${user}"
@@ -457,42 +459,18 @@ fi
 
 generar_banner_usuario "$user" "$EXP_DATE" "$dias" "$limite"
 systemctl restart ssh 2>/dev/null
-IP_V=$(curl -s ipv4.icanhazip.com); DOM=$( [ -f /etc/vps-manager/dominio ] && cat /etc/vps-manager/dominio || echo "$IP_V" )
-NS_DOM=$( [ -f /etc/vps-manager/nsdomain ] && cat /etc/vps-manager/nsdomain || echo "${T[No configurado]:-No configurado}" )
-PUB_KEY=$( [ -f /etc/vps-manager/slowdns/server.pub ] && cat /etc/vps-manager/slowdns/server.pub | tr -d '\r' || echo "${T[No instalada]:-No instalada}" )
-OPENVPN_LINK="http://$DOM:2081"
-PORT_BHTTP=$(cat /etc/vps-manager/bhttp_port 2>/dev/null || echo "8080")
-PORT_HCR=$(cat /etc/vps-manager/hcr_port 2>/dev/null || echo "8880")
-PORT_SSL=$(cat /etc/vps-manager/ssl_port 2>/dev/null || echo "444")
-if [ -f /etc/zivpn/config.json ]; then
-if ! grep -q "\"$pass\"" /etc/zivpn/config.json; then
-sed -i -E "s/(\"config\": ?\[)/\1\"$pass\", /" /etc/zivpn/config.json
-systemctl restart zivpn.service >/dev/null 2>&1
+if [[ $(printf '["active"]' | /etc/vps-manager/core/xray/provision) == sim ]]; then
+    read -rp "Deseja criar também o acesso Xray? [s/N] " resposta
+    if [[ "$resposta" =~ ^[sS]([iI][mM])?$ ]]; then
+        xinfo=$(printf '%s\n' "$user" "$dias" |
+            python3 -c 'import json,sys; print(json.dumps(["xray", *sys.stdin.read().splitlines()]))' |
+            /etc/vps-manager/core/xray/provision)
+        summary+=$'\n'"$xinfo"
+    fi
 fi
-ZIVPN_PASS="$pass"
-else
-ZIVPN_PASS="${T[No instalado]:-No instalado}"
-fi
-clear; echo -e "${C_NEON_BLUE}================================================${C_RST}
-${C_GREEN}        ✅ CUENTA CREADA EXITOSAMENTE ✅        ${C_RST}
-${C_NEON_BLUE}================================================${C_RST}"
-echo -e " 👤 ${T[Usuario]:-Usuario}        : ${C_YELLOW}$user${C_RST}"
-echo -e " 🔑 ${T[Clave]:-Clave}          : ${C_YELLOW}$pass${C_RST}"
-echo -e " 📅 ${T[Vence]:-Vence}          : ${C_YELLOW}$EXP_DATE ($dias ${T[días]:-días})${C_RST}"
-echo -e " 🔒 ${T[Límite IPs]:-Límite IPs}    : ${C_YELLOW}$limite${C_RST}"
-echo -e " 🛡️ ${T[Protecc. HWID]:-Protecc. HWID} : ${C_YELLOW}$HWID_MSG${C_RST}"
-echo -e "${C_NEON_BLUE}------------------------------------------------${C_RST}"
-echo -e " 🌐 Host/IP        : ${C_YELLOW}$DOM${C_RST}"
-echo -e " 🌍 NS Domain      : ${C_YELLOW}$NS_DOM${C_RST}"
-echo -e " 🗝️ Pub Key (DNS) : ${C_YELLOW}$PUB_KEY${C_RST}"
-echo -e " 🔗 OpenVPN        : ${C_YELLOW}$OPENVPN_LINK${C_RST}"
-echo -e " ⚡ ${T[Zivpn Pass]:-Zivpn Pass}    : ${C_YELLOW}$ZIVPN_PASS${C_RST}"
-echo -e " 🎯 ${T[Puertos]:-Puertos}        : ${C_YELLOW}SSH(22) Xray/TLS(443)${C_RST}"
-echo -e "                     ${C_YELLOW}SSL Stunnel($PORT_SSL)${C_RST}"
-echo -e "                     ${C_YELLOW}BHTTP($PORT_BHTTP) HCR($PORT_HCR)${C_RST}"
-echo -e "                     ${C_YELLOW}UDP Custom(25000)${C_RST}"
-echo -e "                     ${C_YELLOW}Zivpn(6000-19999) DNSTT(53)${C_RST}"
-echo -e "${C_NEON_BLUE}================================================${C_RST}"; read -p "${T[Copia los datos y presiona Enter]:-Copia los datos y presiona Enter}..." ;;
+clear
+printf 'HWID: %s\n%s\n' "$HWID_MSG" "$summary"
+read -p "${T[Copia los datos y presiona Enter]:-Copia los datos y presiona Enter}..." ;;
 2) read -p "${T[Usuario a eliminar]:-Usuario a eliminar}: " user; userdel -f $user 2>/dev/null; rm -f /etc/vps-manager/banner_${user}.net /etc/vps-manager/limite_${user} /etc/vps-manager/hwid_${user}; sed -i "/Match User $user/,+1d" /etc/ssh/sshd_config; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] ${T[Eliminado]:-Eliminado}.${C_RST}"; sleep 2 ;;
 3) read -p "${T[Usuario a renovar]:-Usuario a renovar}: " user; read -p "${T[Nuevos días]:-Nuevos días}: " dias; EXP_DATE=$(date -d "+$dias days" +"%Y-%m-%d"); chage -E $EXP_DATE $user; limite=$(cat /etc/vps-manager/limite_${user} 2>/dev/null || echo "1"); generar_banner_usuario "$user" "$EXP_DATE" "$dias" "$limite"; systemctl restart ssh 2>/dev/null; echo -e "${C_GREEN}[✔] ${T[Renovado]:-Renovado}.${C_RST}"; sleep 2 ;;
 4) clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
@@ -880,6 +858,8 @@ menu_bhttp() {
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar BHTTP  (v]:-Instalar BHTTP  (v}1.0)"
         echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 ${T[Instalar BHTTP  (v2.0 Nuevo]:-Instalar BHTTP  (v2.0 Nuevo})"
+        echo -e "  ${C_NEON_YELLOW}3.${C_RST} BHTTP DTunnel (SSH)"
+        echo -e "  ${C_NEON_YELLOW}4.${C_RST} TURBOProxy-VPN"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
@@ -894,6 +874,8 @@ menu_bhttp() {
                 read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."
                 ;;
             2) menu_bhttp_v2 ;;
+            3) bash /etc/vps-manager/core/dtunnel/menu.sh ;;
+            4) bash /etc/vps-manager/core/turbo-multiproxy/menu.sh vpn ;;
             0) break ;;
             *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
@@ -1239,6 +1221,7 @@ menu_hcr() {
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🚀 ${T[Instalar HCR (v]:-Instalar HCR (v}1.0)"
         echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🚀 ${T[Instalar HCR (v]:-Instalar HCR (v}2.0)  ${C_GREEN}${hcr2_ind}${C_RST}"
+        echo -e "  ${C_NEON_YELLOW}3.${C_RST} HCR 3.0 • SSH HCR"
         echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
         echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Anterior]:-Volver al Menú Anterior}"
         echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
@@ -1246,6 +1229,7 @@ menu_hcr() {
         case $hcr_opt in
             1) clear; wget -qO /tmp/hcr.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/hcr.sh && chmod +x /tmp/hcr.sh && bash /tmp/hcr.sh ;;
             2) menu_hcr_v2 ;;
+            3) bash /etc/vps-manager/core/hcr3/menu.sh ;;
             0) break ;;
             *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
         esac
@@ -1297,6 +1281,15 @@ menu_hcr_v2() {
     done
 }
 
+hcr2_obter() {
+    local arquivo="/etc/vps-manager/core/${1##*/}"
+    if [[ -s "$arquivo" ]]; then
+        cp -- "$arquivo" "$2"
+    else
+        wget -q -O "$2" "$1"
+    fi
+}
+
 hcr2_instalar() {
     local DIR="$HCR2_DIR"
     clear
@@ -1320,11 +1313,11 @@ hcr2_instalar() {
     local tmp_sh tmp_bin ok=0
     tmp_sh=$(mktemp "$DIR/.install.XXXXXX"); tmp_bin=$(mktemp "$DIR/.bin.XXXXXX")
 
-    if ! wget -q -O "$tmp_sh" "$HCR2_INSTALLER_URL" || [ "$(head -c2 "$tmp_sh" 2>/dev/null)" != "#!" ]; then
+    if ! hcr2_obter "$HCR2_INSTALLER_URL" "$tmp_sh" || [ "$(head -c2 "$tmp_sh" 2>/dev/null)" != "#!" ]; then
         echo -e "${C_RED}[!] ${T[No se pudo descargar el instalador desde]:-No se pudo descargar el instalador desde}:${C_RST}\n    $HCR2_INSTALLER_URL"
         rm -f "$tmp_sh" "$tmp_bin"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
     fi
-    if wget -q -O "$tmp_bin" "$HCR2_BIN_URL" && [ "$(head -c4 "$tmp_bin" 2>/dev/null | tail -c3)" = "ELF" ]; then ok=1; fi
+    if hcr2_obter "$HCR2_BIN_URL" "$tmp_bin" && [ "$(head -c4 "$tmp_bin" 2>/dev/null | tail -c3)" = "ELF" ]; then ok=1; fi
     if [ "$ok" -ne 1 ]; then
         echo -e "${C_RED}[!] ${T[No se pudo descargar el binario desde]:-No se pudo descargar el binario desde}:${C_RST}\n    $HCR2_BIN_URL"
         rm -f "$tmp_sh" "$tmp_bin"; read -p "${T[Presione Enter para continuar]:-Presione Enter para continuar}..."; return
@@ -2010,14 +2003,12 @@ clear
 echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗${C_RST}"
 echo -e "${C_NEON_BLUE} ${C_NEON_GREEN}    🛠️ ${T[GESTOR DE INSTALACIONES Y PROTOCOLOS]:-GESTOR DE INSTALACIONES Y PROTOCOLOS}   ${C_NEON_BLUE} ${C_RST}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
-echo -e "  ${C_NEON_YELLOW}1.${C_RST} 🛡️ ${T[Menú Xray (VMess]:-Menú Xray (VMess})"
-echo -e "  ${C_NEON_YELLOW}2.${C_RST} 🛡️ ${T[Menú Xray (VLESS]:-Menú Xray (VLESS})"
-echo -e "  ${C_NEON_YELLOW}3.${C_RST} 🛡️ ${T[Menú Xray (Trojan]:-Menú Xray (Trojan})"
+echo -e "  ${C_NEON_YELLOW}1.${C_RST} Core Manager • Xray2026"
 echo -e "  ${C_NEON_YELLOW}4.${C_RST} 🌐 ${T[Instalar OpenVPN (Web Perfiles]:-Instalar OpenVPN (Web Perfiles})"
-echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🚀 ${T[Instalar HCR (v1.0 / v]:-Instalar HCR (v1.0 / v}2.0)"
+echo -e "  ${C_NEON_YELLOW}5.${C_RST} 🚀 HCR (1.0 / 2.0 / 3.0)"
 echo -e "  ${C_NEON_YELLOW}6.${C_RST} 🎮 ${T[Instalar UDP Custom (Puerto]:-Instalar UDP Custom (Puerto} 25000)"
 echo -e "  ${C_NEON_YELLOW}7.${C_RST} 🛸 ${T[Instalar SlowDNS (DNSTT]:-Instalar SlowDNS (DNSTT})"
-echo -e "  ${C_NEON_YELLOW}8.${C_RST} 🌐 ${T[Instalar BHTTP (v1.0 / v]:-Instalar BHTTP (v1.0 / v}2.0)"
+echo -e "  ${C_NEON_YELLOW}8.${C_RST} 🌐 BHTTP (v1 / v2 / DTunnel / TURBOProxy-VPN)"
 echo -e "  ${C_NEON_YELLOW}9.${C_RST} 🔗 ${T[Instalar SSHWS / Websocket]:-Instalar SSHWS / Websocket}"
 echo -e "  ${C_NEON_YELLOW}10.${C_RST}🎮 ${T[Instalar BadVPN]:-Instalar BadVPN} (7100, 7200, 7300)"
 echo -e "  ${C_NEON_YELLOW}11.${C_RST}🐘 ${T[Instalador PHP]:-Instalador PHP} 8.5.12"
@@ -2027,16 +2018,16 @@ echo -e "  ${C_NEON_YELLOW}14.${C_RST}⚡ ${T[Instalar Hysteria v1 (QUIC Proxy]:
 echo -e "  ${C_NEON_YELLOW}15.${C_RST}🔒 ${T[Instalar SSL / TLS (Puerto Dinámico]:-Instalar SSL / TLS (Puerto Dinámico})"
 echo -e "  ${C_NEON_YELLOW}16.${C_RST}🐻 ${T[Instalar Dropbear (Ubuntu]:-Instalar Dropbear (Ubuntu} 20)"
 echo -e "  ${C_NEON_YELLOW}17.${C_RST}🌐 ${T[Instalar WSProxy (WebSocket Proxy]:-Instalar WSProxy (WebSocket Proxy})"
-echo -e "  ${C_NEON_YELLOW}18.${C_RST}🚀 ${T[Menú Xray (VLESS XHTTP)]:-Menú Xray (VLESS XHTTP)}"
+echo -e "  ${C_NEON_YELLOW}18.${C_RST} TURBO MULTIPROXY"
 echo -e "  ${C_NEON_YELLOW}19.${C_RST}🧩 ${T[Motor unificado HAProxy + Xray (avanzado)]:-Motor unificado HAProxy + Xray (avanzado)}"
 echo -e "${C_NEON_BLUE}╠══════════════════════════════════════════════╣${C_RST}"
 echo -e "  ${C_RED}0.${C_RST} 🔙 ${T[Volver al Menú Principal]:-Volver al Menú Principal}"
 echo -e "${C_NEON_BLUE}╚══════════════════════════════════════════════╝${C_RST}"
 read -p "${T[Seleccione una opción]:-Seleccione una opción}: " hopt
 case $hopt in
-1) clear; wget -qO /tmp/vmess.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/vmess.sh && chmod +x /tmp/vmess.sh && bash /tmp/vmess.sh ;;
-2) clear; wget -qO /tmp/vless.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/vless.sh && chmod +x /tmp/vless.sh && bash /tmp/vless.sh ;;
-3) clear; wget -qO /tmp/trojan.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/trojan.sh && chmod +x /tmp/trojan.sh && bash /tmp/trojan.sh ;;
+1) bash /etc/vps-manager/core/xray/core_manager.sh ;;
+
+
 4) clear; wget -qO /tmp/setup_openvpn.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/setup_openvpn.sh && chmod +x /tmp/setup_openvpn.sh && bash /tmp/setup_openvpn.sh; read -p "Enter..." ;;
 5) menu_hcr ;;
 6) clear; wget -qO /tmp/udp_custom.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/udp_custom.sh && chmod +x /tmp/udp_custom.sh && bash /tmp/udp_custom.sh ;;
@@ -2053,8 +2044,9 @@ case $hopt in
 16) menu_dropbear ;;
 #16) clear; echo -e "${C_YELLOW}[+] Descargando e instalando Dropbear...${C_RST}"; wget -qO /tmp/dropbear.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/dropbear.sh && chmod +x /tmp/dropbear.sh && bash /tmp/dropbear.sh ;;
 17) menu_wsproxy ;;
-19) clear; wget -qO /tmp/xray_manager.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/xray_manager.sh && chmod +x /tmp/xray_manager.sh && bash /tmp/xray_manager.sh ;;
-18) clear; wget -qO /tmp/xhttp.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/xhttp.sh && chmod +x /tmp/xhttp.sh && bash /tmp/xhttp.sh ;;
+18) bash /etc/vps-manager/core/turbo-multiproxy/menu.sh ;;
+19) bash /etc/vps-manager/core/xray_manager.sh ;;
+
 0) break ;;
 *) echo -e "${C_RED}[!] ${T[Opción inválida]:-Opción inválida}.${C_RST}"; sleep 1 ;;
 esac
@@ -2315,13 +2307,13 @@ echo -e "${C_NEON_BLUE}───────────────────
 read -p "${T[Presione Enter para regresar]:-Presione Enter para regresar}..."
 }
 
-menu_bot() { clear; echo -e "${C_YELLOW}[+] ${T[Configurando Bot]:-Configurando Bot}...${C_RST}"; wget -qO /tmp/bot.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/bot.sh && chmod +x /tmp/bot.sh && bash /tmp/bot.sh; read -p "Enter..." ;}
+menu_bot() { bash /etc/vps-manager/core/xray/botxray.sh; }
 menu_dominio() { clear; echo -e "${C_YELLOW}[+] ${T[Iniciando Gestor SSL]:-Iniciando Gestor SSL}...${C_RST}"; wget -qO /tmp/domain.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/domain.sh && chmod +x /tmp/domain.sh && bash /tmp/domain.sh; }
-menu_update() { clear; echo -e "${C_YELLOW}[+] ${T[Actualizando Panel]:-Actualizando Panel}...${C_RST}"; wget -qO /tmp/update.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/update.sh && chmod +x /tmp/update.sh && bash /tmp/update.sh; }
+menu_update() { clear; echo -e "${C_YELLOW}[+] ${T[Actualizando Panel]:-Actualizando Panel}...${C_RST}"; bash /etc/vps-manager/core/update.sh; }
 menu_firewall() { clear; echo -e "${C_YELLOW}[+] ${T[Iniciando Firewall]:-Iniciando Firewall}...${C_RST}"; wget -qO /tmp/firewall.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/firewall.sh && chmod +x /tmp/firewall.sh && bash /tmp/firewall.sh; }
 menu_swap() { clear; echo -e "${C_YELLOW}[+] ${T[Descargando Gestor de Memoria Virtual]:-Descargando Gestor de Memoria Virtual}...${C_RST}"; if wget -qO /tmp/swapmemory.sh https://raw.githubusercontent.com/PhoenixxZ2023/VPS-MANAGER/main/core/swapmemory.sh && [ -s /tmp/swapmemory.sh ]; then bash /tmp/swapmemory.sh; else echo -e "${C_RED}[!] ${T[No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub]:-No se pudo descargar swapmemory.sh. Revisa tu conexión o la ruta en GitHub}.${C_RST}"; sleep 3; fi; rm -f /tmp/swapmemory.sh; }
-menu_autostart() { clear; grep -q "menu" /root/.bashrc && echo -e "${C_GREEN}[✔] Ya activo.${C_RST}" || (echo -e "
-menu" >> /root/.bashrc; echo -e "${C_GREEN}[✔] ${T[Activado]:-Activado}.${C_RST}"); read -p "Enter..." ;}
+menu_autostart() { clear; grep -qxE '[[:space:]]*menussh[[:space:]]*' /root/.bashrc && echo -e "${C_GREEN}[✔] Ya activo.${C_RST}" || (echo -e "
+menussh" >> /root/.bashrc; echo -e "${C_GREEN}[✔] ${T[Activado]:-Activado}.${C_RST}"); read -p "Enter..." ;}
 menu_banner() { clear; echo -e "${C_NEON_BLUE}╔══════════════════════════════════════════════╗
  ${C_NEON_GREEN}          GESTOR DE BANNER BASE HTML           ${C_NEON_BLUE} 
 ╚══════════════════════════════════════════════╝${C_RST}
@@ -2401,7 +2393,7 @@ echo -e "${C_NEON_BLUE}---------------------------------------------------------
 echo -e ""
 read -p "${T[Press any key to back]:-Press any key to back}..."
 }
-uninstall_script() { clear; read -p "⚠️ ${T[¿Desinstalar todo? (s/n]:-¿Desinstalar todo? (s/n}): " conf; if [[ "$conf" == "s" || "$conf" == "S" ]]; then rm -rf /etc/vps-manager; rm -f /usr/local/bin/menu; echo -e "${C_GREEN}${T[Eliminado]:-Eliminado}.${C_RST}"; exit 0; fi; }
+uninstall_script() { clear; read -p "⚠️ ${T[¿Desinstalar todo? (s/n]:-¿Desinstalar todo? (s/n}): " conf; if [[ "$conf" == "s" || "$conf" == "S" ]]; then rm -rf /etc/vps-manager; rm -f /usr/local/bin/menussh; [[ ! -f /root/.bashrc ]] || sed -i -E '/^[[:space:]]*menussh[[:space:]]*$/d' /root/.bashrc; echo -e "${C_GREEN}${T[Eliminado]:-Eliminado}.${C_RST}"; exit 0; fi; }
 draw_bar() {
 local perc=$1; local filled=$((perc / 10)); local empty=$((10 - filled)); local bar=""
 for ((i=0; i<filled; i++)); do bar="${bar}█"; done
@@ -2513,10 +2505,10 @@ USERS_CREADOS=$(awk -F: '$3 >= 1000 && $1 != "nobody" {c++} END{print c+0}' /etc
 ST_SSH=$(chk_svc ssh sshd)
 ST_NGINX=$(chk_svc nginx)
 ST_XRAY=$(chk_svc xray)
-ST_BHTTP=$(chk_svc superflash-bhttp)
+ST_BHTTP=$(chk_svc turboproxy bhttp-dtunnel superflash-bhttp bhttp)
 ST_STUNNEL=$(chk_svc stunnel4)
 ST_WS=$(chk_svc wsproxy)
-ST_HCR=$(chk_svc hcr-server)
+ST_HCR=$(chk_svc hcr-server-v3 hcr-server hcr)
 ST_UDPGW=$(chk_svc badvpn-7300)
 ST_DROPBEAR=$(chk_svc dropbear)
 SUBDOMINIO=$( [ -f /etc/vps-manager/dominio ] && cat /etc/vps-manager/dominio || echo "${T[No Configurado]:-No Configurado}" )

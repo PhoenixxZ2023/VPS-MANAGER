@@ -1083,7 +1083,8 @@ def _xray_mutate_inner(mutator):
             return False
 
         new_text = json.dumps(cfg, indent=2, ensure_ascii=False) + "\n"
-        mode = os.stat(XRAY_CONFIG).st_mode & 0o777
+        original_stat = os.stat(XRAY_CONFIG)
+        mode = original_stat.st_mode & 0o777
 
         # 1) Validar una copia con extensión .json en /tmp (Xray exige .json y, si usa
         #    -confdir, no debe haber .json extra en su carpeta).
@@ -1113,6 +1114,7 @@ def _xray_mutate_inner(mutator):
             os.chmod(backup, 0o600)
         except OSError:
             pass
+        os.chown(tmp, -1, original_stat.st_gid)
         os.replace(tmp, XRAY_CONFIG)
 
         ok, out = _xray_restart_ok()
